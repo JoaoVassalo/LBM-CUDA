@@ -1,3 +1,3 @@
 #pragma once
 
-__device__ float calc_momentum(int x, int y, float rho, float u_x, float u_y, float mxx, float mxy, float myy);
+__device__ float calc_momentum(int x, int y, float* rho, float* u_x, float* u_y, float* mxx, float* mxy, float* myy);

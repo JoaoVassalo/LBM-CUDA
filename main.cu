@@ -44,17 +44,43 @@ int main(){
     cudaMemcpy(mxyB, mxyA, size, cudaMemcpyDeviceToDevice);
     cudaMemcpy(myyB, myyA, size, cudaMemcpyDeviceToDevice);
 
+    float* rho_host = (float*) malloc(size);
+
     for (int t = 0; t<tf; t++){
+
         bool id = (t & 1);
         
         if (!id){
-            lbm_step<<<N_block, block>>>(rhoA, uxA, uyA, mxxA, mxyA, myyA);
+            lbm_step<<<N_block, block>>>(rhoA, uxA, uyA, mxxA, mxyA, myyA, 
+                                         rhoB, uxB, uyB, mxxB, mxyB, myyB);
         }
         else{
-            lbm_step<<<N_block, block>>>(rhoB, uxB, uyB, mxxB, mxyB, myyB);
+            lbm_step<<<N_block, block>>>(rhoB, uxB, uyB, mxxB, mxyB, myyB, 
+                                         rhoA, uxA, uyA, mxxA, mxyA, myyA);
         }
 
-        cudaDeviceSynchronize();
+        
+
+        if (t%t_interval ==0 ){
+            cudaDeviceSynchronize(); 
+            cudaMemcpy(rho_host, rhoA, size, cudaMemcpyDeviceToHost);
+            std::cout << "Iteration " << t << std::endl;
+
+            for(int y = 0; y < Ny; y++){
+                for(int x = 0; x < Nx; x++){
+
+                    int id = x + Nx*y;
+
+                    std::cout << rho_host[id] << " ";
+                }
+                std::cout << std::endl;
+            }
+
+            std::cout << std::endl;
+        }
+
+
+
     }
 
 }

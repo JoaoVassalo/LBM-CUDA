@@ -4,14 +4,12 @@
 #include "collision.cuh"
 
 
-__device__ float collision(int index, float* rho, float* ux, float* uy, float* mxx, float* mxy,  float* myy){
+__device__ void collision(int index, float* ux, float* uy, float* mxx, float* mxy,  float* myy){
     
     if (index>Nx*Ny) return;
 
-    float mxx_col = ((1-omega)*mxx[index] - omega*ux[index]*ux[index]);
-    float mxy_col = ((1-omega)*mxy[index] - omega*ux[index]*uy[index]);
-    float myy_col = ((1-omega)*myy[index] - omega*uy[index]*uy[index]);
-
-    return mxx_col, mxy_col, myy_col;
+    mxx[index] = ((1-omega)*mxx[index] + omega*ux[index]*ux[index]);
+    mxy[index] = ((1-omega)*mxy[index] + omega*ux[index]*uy[index]);
+    myy[index] = ((1-omega)*myy[index] + omega*uy[index]*uy[index]);
 
 }
