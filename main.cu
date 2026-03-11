@@ -7,29 +7,38 @@
 #include "functions/init_domain.cuh"
 #include "functions/lbm_step.cuh"
 
-
-int main(){
+int main()
+{
 
     dim3 block(Nx, Ny);
 
-    float *rhoA; float *rhoB;
-    float *uxA; float *uxB; 
-    float *uyA; float *uyB; 
-    float *mxxA; float *mxxB; 
-    float *mxyA; float *mxyB; 
-    float *myyA; float *myyB; 
+    float *rhoA, *rhoB;
+    float *uxA;
+    float *uxB;
+    float *uyA;
+    float *uyB;
+    float *mxxA;
+    float *mxxB;
+    float *mxyA;
+    float *mxyB;
+    float *myyA;
+    float *myyB;
 
-    int size = Nx*Ny*sizeof(float);
+    int size = Nx * Ny * sizeof(float);
 
-    
+    cudaMalloc((void **)&rhoA, size);
+    cudaMalloc((void **)&rhoB, size);
+    cudaMalloc((void **)&uxA, size);
+    cudaMalloc((void **)&uxB, size);
+    cudaMalloc((void **)&uyA, size);
+    cudaMalloc((void **)&uyB, size);
+    cudaMalloc((void **)&mxxA, size);
+    cudaMalloc((void **)&mxxB, size);
+    cudaMalloc((void **)&mxyA, size);
+    cudaMalloc((void **)&mxyB, size);
+    cudaMalloc((void **)&myyA, size);
+    cudaMalloc((void **)&myyB, size);
 
-    cudaMalloc((void**)&rhoA, size); cudaMalloc((void**)&rhoB, size);
-    cudaMalloc((void**)&uxA, size); cudaMalloc((void**)&uxB, size);
-    cudaMalloc((void**)&uyA, size); cudaMalloc((void**)&uyB, size);
-    cudaMalloc((void**)&mxxA, size); cudaMalloc((void**)&mxxB, size);
-    cudaMalloc((void**)&mxyA, size); cudaMalloc((void**)&mxyB, size);
-    cudaMalloc((void**)&myyA, size); cudaMalloc((void**)&myyB, size);
-    
     initDomain<<<N_block, block>>>(rhoA, uxA, uyA, mxxA, mxyA, myyA);
 
     cudaError_t err = cudaGetLastError();
@@ -44,32 +53,36 @@ int main(){
     cudaMemcpy(mxyB, mxyA, size, cudaMemcpyDeviceToDevice);
     cudaMemcpy(myyB, myyA, size, cudaMemcpyDeviceToDevice);
 
-    float* rho_host = (float*) malloc(size);
+    float *rho_host = (float *)malloc(size);
 
-    for (int t = 0; t<tf; t++){
+    for (int t = 0; t < tf; t++)
+    {
 
         bool id = (t & 1);
-        
-        if (!id){
-            lbm_step<<<N_block, block>>>(rhoA, uxA, uyA, mxxA, mxyA, myyA, 
+
+        if (!id)
+        {
+            lbm_step<<<N_block, block>>>(rhoA, uxA, uyA, mxxA, mxyA, myyA,
                                          rhoB, uxB, uyB, mxxB, mxyB, myyB);
         }
-        else{
-            lbm_step<<<N_block, block>>>(rhoB, uxB, uyB, mxxB, mxyB, myyB, 
+        else
+        {
+            lbm_step<<<N_block, block>>>(rhoB, uxB, uyB, mxxB, mxyB, myyB,
                                          rhoA, uxA, uyA, mxxA, mxyA, myyA);
         }
 
-        
-
-        if (t%t_interval ==0 ){
-            cudaDeviceSynchronize(); 
-            cudaMemcpy(rho_host, uxA, size, cudaMemcpyDeviceToHost);
+        if (t <= 10)
+        {
+            cudaDeviceSynchronize();
+            cudaMemcpy(rho_host, rhoA, size, cudaMemcpyDeviceToHost);
             std::cout << "Iteration " << t << std::endl;
 
-            for(int y = 0; y < Ny; y++){
-                for(int x = 0; x < Nx; x++){
+            for (int y = 0; y < Ny; y++)
+            {
+                for (int x = 0; x < Nx; x++)
+                {
 
-                    int id = x + Nx*y;
+                    int id = x + Nx * y;
 
                     std::cout << rho_host[id] << " ";
                 }
@@ -78,9 +91,5 @@ int main(){
 
             std::cout << std::endl;
         }
-
-
-
     }
-
 }
