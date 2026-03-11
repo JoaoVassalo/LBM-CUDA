@@ -1,4 +1,4 @@
 #pragma once
 
-__global__ float propagation(int x, int y, float* rhoA, float* uxA, float* uyA, float* mxxA, float* mxyA,  float* myyA,
-                                           float* rhoB, float* uxB, float* uyB, float* mxxB, float* mxyB,  float* myyB);
+__device__ void propagation(float* rho_in, float* ux_in, float* uy_in, float* mxx_in, float* mxy_in,  float* myy_in,
+                             float* rho_out, float* ux_out, float* uy_out, float* mxx_out, float* mxy_out,  float* myy_out);

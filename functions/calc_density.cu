@@ -1,17 +1,16 @@
 #include "calc_density.cuh"
 
-#include "../presets/stencil.h"
+#include "../presets/stencil.cuh"
 #include "../presets/geometry.h"
 #include "../presets/physics.h"
 
 #include "grid_id.cuh"
+#include "from_id.cuh"
 
-__device__ float calc_density(int x, int y, float* rho_in, float* ux_in, float* uy_in, float* mxx_in, float* mxy_in,  float* myy_in,
-                             float* rho_out, float* ux_out, float* uy_out, float* mxx_out, float* mxy_out,  float* myy_out){
+__device__ void calc_density(int x, int y, float* rho_in, float* ux_in, float* uy_in, float* mxx_in, float* mxy_in,  float* myy_in,
+                             float* rho_out){
 
     int index = grid_id(x,y);
-
-
     
     if (x==0 && y==0){ //Sudoeste
         constexpr int I_s[4] = {0, 3, 4, 7};
@@ -22,11 +21,13 @@ __device__ float calc_density(int x, int y, float* rho_in, float* ux_in, float* 
         for (int k = 0; k<4; k++){
             int i = I_s[k];
 
-            density_I += rho_in[index]*w[i] * ( 1+ 
-                a_s2*ux_in[index]*c_ix[i] + a_s2*uy_in[index]*c_iy[i] + 
-                a_s4*0.5f*mxx_in[index]*(c_ix[i]*c_ix[i] - inv_as2) + 
-                a_s4*0.5f*mxy_in[index]*c_ix[i]*c_iy[i] + 
-                a_s4*0.5f*myy_in[index]*(c_iy[i]*c_iy[i] - inv_as2));
+            int index_from = from_id(x, y, i);
+
+            density_I += rho_in[index_from]*w[i] * ( 1+ 
+                a_s2*ux_in[index_from]*c_ix[i] + a_s2*uy_in[index_from]*c_iy[i] + 
+                a_s4*0.5f*mxx_in[index_from]*(c_ix[i]*c_ix[i] - inv_as2) + 
+                a_s4*0.5f*mxy_in[index_from]*c_ix[i]*c_iy[i] + 
+                a_s4*0.5f*myy_in[index_from]*(c_iy[i]*c_iy[i] - inv_as2));
 
         }
 
@@ -35,8 +36,6 @@ __device__ float calc_density(int x, int y, float* rho_in, float* ux_in, float* 
         rho_out[index] = density_I/sum_wi;
 
     }
-
-
     else if (x==Nx-1 && y==0){ //Sudeste   
         constexpr int I_s[4] = {0, 1, 4, 8};
 
@@ -46,11 +45,13 @@ __device__ float calc_density(int x, int y, float* rho_in, float* ux_in, float* 
         for (int k = 0; k<4; k++){
             int i = I_s[k];
 
-            density_I += rho_in[index]*w[i] * ( 1+ 
-                        a_s2*ux_in[index]*c_ix[i] + a_s2*uy_in[index]*c_iy[i] + 
-                        a_s4*0.5f*mxx_in[index]*(c_ix[i]*c_ix[i] - inv_as2) + 
-                        a_s4*0.5f*mxy_in[index]*c_ix[i]*c_iy[i] + 
-                        a_s4*0.5f*myy_in[index]*(c_iy[i]*c_iy[i] - inv_as2));
+            int index_from = from_id(x, y, i);
+
+            density_I += rho_in[index_from]*w[i] * ( 1+ 
+                        a_s2*ux_in[index_from]*c_ix[i] + a_s2*uy_in[index_from]*c_iy[i] + 
+                        a_s4*0.5f*mxx_in[index_from]*(c_ix[i]*c_ix[i] - inv_as2) + 
+                        a_s4*0.5f*mxy_in[index_from]*c_ix[i]*c_iy[i] + 
+                        a_s4*0.5f*myy_in[index_from]*(c_iy[i]*c_iy[i] - inv_as2));
 
         }
 
@@ -69,16 +70,14 @@ __device__ float calc_density(int x, int y, float* rho_in, float* ux_in, float* 
         for (int k = 0; k<4; k++){
             int i = O_s[k];
 
+            int index_from = from_id(x, y, i);
+
             density_I_density += w[i]*(1 + 
                                 a_s2*ux_in[index]*c_ix[i] + 
                                 a_s4*0.5f*ux_in[index]*ux_in[index]*(c_ix[i]*c_ix[i] - inv_as2)) + 
                                 w[i]*(1-omega)*a_s4*mxy_in[index]*c_ix[i]*c_iy[i];
 
-        }
-
-        #pragma unroll
-        for (int k = 0; k<4; k++){
-            int i = I_s[k];
+            i = I_s[k];
 
             density_I += rho_in[index]*w[i] * ( 1+ 
                         a_s2*ux_in[index]*c_ix[i] + a_s2*uy_in[index]*c_iy[i] + 
@@ -101,19 +100,22 @@ __device__ float calc_density(int x, int y, float* rho_in, float* ux_in, float* 
         for (int k = 0; k<4; k++){
             int i = O_s[k];
 
+            int index_from = from_id(x, y, i);
+
             density_I_density += w[i]*(1 + 
-                                a_s2*ux_in[index]*c_ix[i] + 
-                                a_s4*0.5f*ux_in[index]*ux_in[index]*(c_ix[i]*c_ix[i] - inv_as2)) + 
-                                w[i]*(1-omega)*a_s4*mxy_in[index]*c_ix[i]*c_iy[i];
+                                a_s2*ux_in[index_from]*c_ix[i] + 
+                                a_s4*0.5f*ux_in[index_from]*ux_in[index_from]*(c_ix[i]*c_ix[i] - inv_as2)) + 
+                                w[i]*(1-omega)*a_s4*mxy_in[index_from]*c_ix[i]*c_iy[i];
 
         
             i = I_s[k];
+            index_from = from_id(x, y, i);
 
-            density_I += rho_in[index]*w[i] * ( 1+ 
-                        a_s2*ux_in[index]*c_ix[i] + a_s2*uy_in[index]*c_iy[i] + 
-                        a_s4*0.5f*mxx_in[index]*(c_ix[i]*c_ix[i] - inv_as2) + 
-                        a_s4*0.5f*mxy_in[index]*c_ix[i]*c_iy[i] + 
-                        a_s4*0.5f*myy_in[index]*(c_iy[i]*c_iy[i] - inv_as2));
+            density_I += rho_in[index_from]*w[i] * ( 1+ 
+                        a_s2*ux_in[index_from]*c_ix[i] + a_s2*uy_in[index_from]*c_iy[i] + 
+                        a_s4*0.5f*mxx_in[index_from]*(c_ix[i]*c_ix[i] - inv_as2) + 
+                        a_s4*0.5f*mxy_in[index_from]*c_ix[i]*c_iy[i] + 
+                        a_s4*0.5f*myy_in[index_from]*(c_iy[i]*c_iy[i] - inv_as2));
         }
 
         rho_out[index] = density_I/density_I_density;
@@ -128,17 +130,19 @@ __device__ float calc_density(int x, int y, float* rho_in, float* ux_in, float* 
         #pragma unroll
         for (int k = 0; k<6; k++){
             int i = O_s[k];
+            int index_from = from_id(x, y, i);
 
             density_I_density += w[i] + 
-                                w[i]*(1-omega)*a_s4*mxy_in[index]*c_ix[i]*c_iy[i];
+                                w[i]*(1-omega)*a_s4*mxy_in[index_from]*c_ix[i]*c_iy[i];
 
             i = I_s[k];
+            index_from = from_id(x, y, i);
 
-            density_I += rho_in[index]*w[i] * ( 1+ 
-                        a_s2*ux_in[index]*c_ix[i] + a_s2*uy_in[index]*c_iy[i] + 
-                        a_s4*0.5f*mxx_in[index]*(c_ix[i]*c_ix[i] - inv_as2) + 
-                        a_s4*0.5f*mxy_in[index]*c_ix[i]*c_iy[i] + 
-                        a_s4*0.5f*myy_in[index]*(c_iy[i]*c_iy[i] - inv_as2));
+            density_I += rho_in[index_from]*w[i] * ( 1+ 
+                        a_s2*ux_in[index_from]*c_ix[i] + a_s2*uy_in[index_from]*c_iy[i] + 
+                        a_s4*0.5f*mxx_in[index_from]*(c_ix[i]*c_ix[i] - inv_as2) + 
+                        a_s4*0.5f*mxy_in[index_from]*c_ix[i]*c_iy[i] + 
+                        a_s4*0.5f*myy_in[index_from]*(c_iy[i]*c_iy[i] - inv_as2));
         }
 
         rho_out[index] = density_I/density_I_density;
@@ -154,17 +158,21 @@ __device__ float calc_density(int x, int y, float* rho_in, float* ux_in, float* 
         for (int k = 0; k<6; k++){
             int i = O_s[k];
 
+            int index_from = from_id(x, y, i);
+
             density_I_density += w[i]*(1 + 
-                                a_s2*ux_in[index]*c_ix[i] + 
-                                a_s4*0.5f*ux_in[index]*ux_in[index]*(c_ix[i]*c_ix[i] - inv_as2)) + 
-                                w[i]*(1-omega)*a_s4*mxy_in[index]*c_ix[i]*c_iy[i];
+                                a_s2*ux_in[index_from]*c_ix[i] + 
+                                a_s4*0.5f*ux_in[index_from]*ux_in[index_from]*(c_ix[i]*c_ix[i] - inv_as2)) + 
+                                w[i]*(1-omega)*a_s4*mxy_in[index_from]*c_ix[i]*c_iy[i];
             i = I_s[k];
 
-            density_I += rho_in[index]*w[i] * ( 1+ 
-                        a_s2*ux_in[index]*c_ix[i] + a_s2*uy_in[index]*c_iy[i] + 
-                        a_s4*0.5f*mxx_in[index]*(c_ix[i]*c_ix[i] - inv_as2) + 
-                        a_s4*0.5f*mxy_in[index]*c_ix[i]*c_iy[i] + 
-                        a_s4*0.5f*myy_in[index]*(c_iy[i]*c_iy[i] - inv_as2));
+            index_from = from_id(x, y, i);
+
+            density_I += rho_in[index_from]*w[i] * ( 1+ 
+                        a_s2*ux_in[index_from]*c_ix[i] + a_s2*uy_in[index_from]*c_iy[i] + 
+                        a_s4*0.5f*mxx_in[index_from]*(c_ix[i]*c_ix[i] - inv_as2) + 
+                        a_s4*0.5f*mxy_in[index_from]*c_ix[i]*c_iy[i] + 
+                        a_s4*0.5f*myy_in[index_from]*(c_iy[i]*c_iy[i] - inv_as2));
         }
 
         rho_out[index] = density_I/density_I_density;
@@ -180,16 +188,20 @@ __device__ float calc_density(int x, int y, float* rho_in, float* ux_in, float* 
         for (int k = 0; k<6; k++){
             int i = O_s[k];
 
+            int index_from = from_id(x, y, i);
+
             density_I_density += w[i] + 
-                                w[i]*(1-omega)*a_s4*mxy_in[index]*c_ix[i]*c_iy[i];
+                                w[i]*(1-omega)*a_s4*mxy_in[index_from]*c_ix[i]*c_iy[i];
 
             i = I_s[k];
 
-            density_I += rho_in[index]*w[i] * ( 1+ 
-                        a_s2*ux_in[index]*c_ix[i] + a_s2*uy_in[index]*c_iy[i] + 
-                        a_s4*0.5f*mxx_in[index]*(c_ix[i]*c_ix[i] - inv_as2) + 
-                        a_s4*0.5f*mxy_in[index]*c_ix[i]*c_iy[i] + 
-                        a_s4*0.5f*myy_in[index]*(c_iy[i]*c_iy[i] - inv_as2));
+            index_from = from_id(x, y, i);
+
+            density_I += rho_in[index_from]*w[i] * ( 1+ 
+                        a_s2*ux_in[index_from]*c_ix[i] + a_s2*uy_in[index_from]*c_iy[i] + 
+                        a_s4*0.5f*mxx_in[index_from]*(c_ix[i]*c_ix[i] - inv_as2) + 
+                        a_s4*0.5f*mxy_in[index_from]*c_ix[i]*c_iy[i] + 
+                        a_s4*0.5f*myy_in[index_from]*(c_iy[i]*c_iy[i] - inv_as2));
         }
 
         rho_out[index] = density_I/density_I_density;
@@ -204,33 +216,36 @@ __device__ float calc_density(int x, int y, float* rho_in, float* ux_in, float* 
         #pragma unroll
         for (int k = 0; k<6; k++){
             int i = O_s[k];
+            int index_from = from_id(x, y, i);
 
             density_I_density += w[i] + 
-                                w[i]*(1-omega)*a_s4*mxy_in[index]*c_ix[i]*c_iy[i];
+                                w[i]*(1-omega)*a_s4*mxy_in[index_from]*c_ix[i]*c_iy[i];
 
             i = I_s[k];
+            index_from = from_id(x, y, i);
 
-            density_I += rho_in[index]*w[i] * ( 1+ 
-                        a_s2*ux_in[index]*c_ix[i] + a_s2*uy_in[index]*c_iy[i] + 
-                        a_s4*0.5f*mxx_in[index]*(c_ix[i]*c_ix[i] - inv_as2) + 
-                        a_s4*0.5f*mxy_in[index]*c_ix[i]*c_iy[i] + 
-                        a_s4*0.5f*myy_in[index]*(c_iy[i]*c_iy[i] - inv_as2));
+            density_I += rho_in[index_from]*w[i] * ( 1+ 
+                        a_s2*ux_in[index_from]*c_ix[i] + a_s2*uy_in[index_from]*c_iy[i] + 
+                        a_s4*0.5f*mxx_in[index_from]*(c_ix[i]*c_ix[i] - inv_as2) + 
+                        a_s4*0.5f*mxy_in[index_from]*c_ix[i]*c_iy[i] + 
+                        a_s4*0.5f*myy_in[index_from]*(c_iy[i]*c_iy[i] - inv_as2));
         }
 
         rho_out[index] = density_I/density_I_density;
     }
     else{ //Centro
-        #pragma unroll
+        
         
         float density = 0.f;
-
+        #pragma unroll
         for (int i = 0; i < Q; i++) {
+            int index_from = from_id(x, y, i);
 
-            density += rho_in[index]*w[i] * ( 1+ 
-                a_s2*ux_in[index]*c_ix[i] + a_s2*uy_in[index]*c_iy[i] + 
-                a_s4*0.5f*mxx_in[index]*(c_ix[i]*c_ix[i] - inv_as2) + 
-                a_s4*0.5f*mxy_in[index]*c_ix[i]*c_iy[i] + 
-                a_s4*0.5f*myy_in[index]*(c_iy[i]*c_iy[i] - inv_as2));
+            density += rho_in[index_from]*w[i] * ( 1+ 
+                a_s2*ux_in[index_from]*c_ix[i] + a_s2*uy_in[index_from]*c_iy[i] + 
+                a_s4*0.5f*mxx_in[index_from]*(c_ix[i]*c_ix[i] - inv_as2) + 
+                a_s4*0.5f*mxy_in[index_from]*c_ix[i]*c_iy[i] + 
+                a_s4*0.5f*myy_in[index_from]*(c_iy[i]*c_iy[i] - inv_as2));
 
         }
 

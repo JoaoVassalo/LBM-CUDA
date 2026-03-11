@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../presets/geometry.h"
-#include "../presets/stencil.h"
+#include "../presets/stencil.cuh"
 
 __device__ inline int from_id(int x, int y, int i){
 

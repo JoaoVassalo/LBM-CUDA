@@ -16,8 +16,8 @@ __global__ void lbm_step(float* rho_in, float* ux_in, float* uy_in, float* mxx_i
 
     collision(index, ux_in, uy_in, mxx_in, mxy_in, myy_in);
 
-    propagation(x, y, rho_in, ux_in, uy_in, mxx_in, mxy_in, myy_in, 
-                      rho_out, ux_out, uy_out, mxx_out, mxy_out, myy_out);
+    propagation(rho_in, ux_in, uy_in, mxx_in, mxy_in, myy_in, 
+                rho_out, ux_out, uy_out, mxx_out, mxy_out, myy_out);
 
     
     

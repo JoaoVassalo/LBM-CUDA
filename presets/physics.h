@@ -1,7 +1,7 @@
 #pragma once
 
 #include "/home/jvassalo/LBM-CUDA/presets/geometry.h"
-#include "/home/jvassalo/LBM-CUDA/presets/stencil.h"
+#include "/home/jvassalo/LBM-CUDA/presets/stencil.cuh"
 
 
 //Calc Tau.

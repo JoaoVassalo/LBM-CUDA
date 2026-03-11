@@ -1,4 +1,4 @@
-#include "../presets/stencil.h"
+#include "../presets/stencil.cuh"
 #include "../presets/geometry.h"
 #include "../presets/config.h"
 

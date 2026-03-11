@@ -1,26 +1,29 @@
 #include "calc_momentum.cuh"
 
-#include "../presets/stencil.h"
+#include "../presets/stencil.cuh"
 #include "../presets/geometry.h"
 #include "../presets/physics.h"
 
 #include "grid_id.cuh"
+#include "from_id.cuh"
 
-__device__ float calc_momentum(int x, int y, float* rho, float* u_x, float* u_y, float* mxx, float* mxy, float* myy){
-    int index = grid_id(x,y);
+__device__ void calc_momentum(int x, int y, float* rho_in, float* ux_in, float* uy_in, float* mxx_in, float* mxy_in,  float* myy_in,
+                                             float* rho_out, float* ux_out, float* uy_out, float* mxx_out, float* mxy_out,  float* myy_out){
+
+    int index = grid_id(x, y);
 
     if (x==0 && y==0){ //Sudoeste
 
-        mxx[index] = 0.f;
-        myy[index] = 0.f;
-        mxy[index] = 0.f;
+        mxx_out[index] = 0.f;
+        myy_out[index] = 0.f;
+        mxy_out[index] = 0.f;
 
     }
     else if (x==Nx-1 && y==0){ //Sudeste
 
-        mxx[index] = 0.f;
-        myy[index] = 0.f;
-        mxy[index] = 0.f;
+        mxx_out[index] = 0.f;
+        myy_out[index] = 0.f;
+        mxy_out[index] = 0.f;
 
     }
     else if (x==0 && y==Ny-1){ //Noroeste
@@ -28,9 +31,9 @@ __device__ float calc_momentum(int x, int y, float* rho, float* u_x, float* u_y,
         constexpr int O_s[4] = {0, 1, 4, 8};
 
 
-        mxx[index] = 0.f;
-        myy[index] = u_max*u_max;
-        mxy[index] = 0.f;
+        mxx_out[index] = 0.f;
+        myy_out[index] = u_max*u_max;
+        mxy_out[index] = 0.f;
 
         float num = 0;
         float div = 0;
@@ -45,17 +48,19 @@ __device__ float calc_momentum(int x, int y, float* rho, float* u_x, float* u_y,
             int i = I_s[k];
             int j = O_s[k];
 
-            num += rho[index]*w[i]*(1 + 
-                    a_s2*u_x[index]*c_ix[i] + a_s2*u_y[index]*c_iy[i] + 
-                    a_s4*0.5f*mxx[index]*(c_ix[i]*c_ix[i] - inv_as2) + 
-                    a_s4*0.5f*mxy[index]*c_ix[i]*c_iy[i] + 
-                    a_s4*0.5f*myy[index]*(c_iy[i]*c_iy[i] - inv_as2))*c_ix[i]*c_iy[i];
+            int index_from = from_id(x, y, i);
 
-            div += rho[index]*w[i]*(1 + 
-                    a_s2*u_x[index]*c_ix[i] + a_s2*u_y[index]*c_iy[i] + 
-                    a_s4*0.5f*mxx[index]*(c_ix[i]*c_ix[i] - inv_as2) + 
-                    a_s4*0.5f*mxy[index]*c_ix[i]*c_iy[i] + 
-                    a_s4*0.5f*myy[index]*(c_iy[i]*c_iy[i] - inv_as2));
+            num += rho_in[index_from]*w[i]*(1 + 
+                    a_s2*ux_in[index_from]*c_ix[i] + a_s2*uy_in[index_from]*c_iy[i] + 
+                    a_s4*0.5f*mxx_in[index_from]*(c_ix[i]*c_ix[i] - inv_as2) + 
+                    a_s4*0.5f*mxy_in[index_from]*c_ix[i]*c_iy[i] + 
+                    a_s4*0.5f*myy_in[index_from]*(c_iy[i]*c_iy[i] - inv_as2))*c_ix[i]*c_iy[i];
+
+            div += rho_in[index_from]*w[i]*(1 + 
+                    a_s2*ux_in[index_from]*c_ix[i] + a_s2*uy_in[index_from]*c_iy[i] + 
+                    a_s4*0.5f*mxx_in[index_from]*(c_ix[i]*c_ix[i] - inv_as2) + 
+                    a_s4*0.5f*mxy_in[index_from]*c_ix[i]*c_iy[i] + 
+                    a_s4*0.5f*myy_in[index_from]*(c_iy[i]*c_iy[i] - inv_as2));
 
 
             Is_up += w[i]*c_ix[i]*c_iy[i]*(1 + 
@@ -64,15 +69,15 @@ __device__ float calc_momentum(int x, int y, float* rho, float* u_x, float* u_y,
 
             Is_down += w[i]*a_s4*c_ix[i]*c_ix[i]*c_iy[i]*c_iy[i];
 
-            Os_up += w[i]*(1 + a_s2*u_max*c_ix[i] + a_s4*0.5f*u_max*u_max*(c_ix[i]*c_ix[i] - inv_as2));
+            Os_up += w[j]*(1 + a_s2*u_max*c_ix[j] + a_s4*0.5f*u_max*u_max*(c_ix[j]*c_ix[j] - inv_as2));
 
-            Os_down += w[i]*a_s4*c_ix[i]*c_iy[i];
+            Os_down += w[j]*a_s4*c_ix[j]*c_iy[j];
 
         }
 
         float mxy_I = num/div;
 
-        mxy[index] = (Is_up - mxy_I*Os_up)/(mxy_I*(1-omega)*Os_down - Is_down);
+        mxy_out[index] = (Is_up - mxy_I*Os_up)/(mxy_I*(1-omega)*Os_down - Is_down);
 
 
     }
@@ -80,9 +85,9 @@ __device__ float calc_momentum(int x, int y, float* rho, float* u_x, float* u_y,
         constexpr int I_s[4] = {0, 1, 2, 5};
         constexpr int O_s[4] = {0, 3, 4, 7};
 
-        mxx[index] = 0.f;
-        myy[index] = u_max*u_max;
-        mxy[index] = 0.f;
+        mxx_out[index] = 0.f;
+        myy_out[index] = u_max*u_max;
+        mxy_out[index] = 0.f;
 
         float num = 0;
         float div = 0;
@@ -97,17 +102,19 @@ __device__ float calc_momentum(int x, int y, float* rho, float* u_x, float* u_y,
             int i = I_s[k];
             int j = O_s[k];
 
-            num += rho[index]*w[i]*(1 + 
-                    a_s2*u_x[index]*c_ix[i] + a_s2*u_y[index]*c_iy[i] + 
-                    a_s4*0.5f*mxx[index]*(c_ix[i]*c_ix[i] - inv_as2) + 
-                    a_s4*0.5f*mxy[index]*c_ix[i]*c_iy[i] + 
-                    a_s4*0.5f*myy[index]*(c_iy[i]*c_iy[i] - inv_as2))*c_ix[i]*c_iy[i];
+            int index_from = from_id(x, y, i);
 
-            div += rho[index]*w[i]*(1 + 
-                    a_s2*u_x[index]*c_ix[i] + a_s2*u_y[index]*c_iy[i] + 
-                    a_s4*0.5f*mxx[index]*(c_ix[i]*c_ix[i] - inv_as2) + 
-                    a_s4*0.5f*mxy[index]*c_ix[i]*c_iy[i] + 
-                    a_s4*0.5f*myy[index]*(c_iy[i]*c_iy[i] - inv_as2));
+            num += rho_in[index_from]*w[i]*(1 + 
+                    a_s2*ux_in[index_from]*c_ix[i] + a_s2*uy_in[index_from]*c_iy[i] + 
+                    a_s4*0.5f*mxx_in[index_from]*(c_ix[i]*c_ix[i] - inv_as2) + 
+                    a_s4*0.5f*mxy_in[index_from]*c_ix[i]*c_iy[i] + 
+                    a_s4*0.5f*myy_in[index_from]*(c_iy[i]*c_iy[i] - inv_as2))*c_ix[i]*c_iy[i];
+
+            div += rho_in[index_from]*w[i]*(1 + 
+                    a_s2*ux_in[index_from]*c_ix[i] + a_s2*uy_in[index_from]*c_iy[i] + 
+                    a_s4*0.5f*mxx_in[index_from]*(c_ix[i]*c_ix[i] - inv_as2) + 
+                    a_s4*0.5f*mxy_in[index_from]*c_ix[i]*c_iy[i] + 
+                    a_s4*0.5f*myy_in[index_from]*(c_iy[i]*c_iy[i] - inv_as2));
 
 
             Is_up += w[i]*c_ix[i]*c_iy[i]*(1 + 
@@ -116,15 +123,15 @@ __device__ float calc_momentum(int x, int y, float* rho, float* u_x, float* u_y,
 
             Is_down += w[i]*a_s4*c_ix[i]*c_ix[i]*c_iy[i]*c_iy[i];
 
-            Os_up += w[i]*(1 + a_s2*u_max*c_ix[i] + a_s4*0.5f*u_max*u_max*(c_ix[i]*c_ix[i] - inv_as2));
+            Os_up += w[j]*(1 + a_s2*u_max*c_ix[j] + a_s4*0.5f*u_max*u_max*(c_ix[j]*c_ix[j] - inv_as2));
 
-            Os_down += w[i]*a_s4*c_ix[i]*c_iy[i];
+            Os_down += w[j]*a_s4*c_ix[j]*c_iy[j];
 
         }
 
         float mxy_I = num/div;
 
-        mxy[index] = (Is_up - mxy_I*Os_up)/(mxy_I*(1-omega)*Os_down - Is_down);
+        mxy_out[index] = (Is_up - mxy_I*Os_up)/(mxy_I*(1-omega)*Os_down - Is_down);
 
 
     }
@@ -133,9 +140,9 @@ __device__ float calc_momentum(int x, int y, float* rho, float* u_x, float* u_y,
         constexpr int O_s[6] = {0, 1, 2, 3, 5, 6};
 
 
-        mxx[index] = 0.f;
-        myy[index] = 0.f;
-        mxy[index] = 0.f;
+        mxx_out[index] = 0.f;
+        myy_out[index] = 0.f;
+        mxy_out[index] = 0.f;
 
         float num = 0;
         float div = 0;
@@ -150,32 +157,34 @@ __device__ float calc_momentum(int x, int y, float* rho, float* u_x, float* u_y,
             int i = I_s[k];
             int j = O_s[k];
 
-            num += rho[index]*w[i]*(1 + 
-                    a_s2*u_x[index]*c_ix[i] + a_s2*u_y[index]*c_iy[i] + 
-                    a_s4*0.5f*mxx[index]*(c_ix[i]*c_ix[i] - inv_as2) + 
-                    a_s4*0.5f*mxy[index]*c_ix[i]*c_iy[i] + 
-                    a_s4*0.5f*myy[index]*(c_iy[i]*c_iy[i] - inv_as2))*c_ix[i]*c_iy[i];
+            int index_from = from_id(x, y, i);
 
-            div += rho[index]*w[i]*(1 + 
-                    a_s2*u_x[index]*c_ix[i] + a_s2*u_y[index]*c_iy[i] + 
-                    a_s4*0.5f*mxx[index]*(c_ix[i]*c_ix[i] - inv_as2) + 
-                    a_s4*0.5f*mxy[index]*c_ix[i]*c_iy[i] + 
-                    a_s4*0.5f*myy[index]*(c_iy[i]*c_iy[i] - inv_as2));
+            num += rho_in[index_from]*w[i]*(1 + 
+                    a_s2*ux_in[index_from]*c_ix[i] + a_s2*uy_in[index_from]*c_iy[i] + 
+                    a_s4*0.5f*mxx_in[index_from]*(c_ix[i]*c_ix[i] - inv_as2) + 
+                    a_s4*0.5f*mxy_in[index_from]*c_ix[i]*c_iy[i] + 
+                    a_s4*0.5f*myy_in[index_from]*(c_iy[i]*c_iy[i] - inv_as2))*c_ix[i]*c_iy[i];
+
+            div += rho_in[index_from]*w[i]*(1 + 
+                    a_s2*ux_in[index_from]*c_ix[i] + a_s2*uy_in[index_from]*c_iy[i] + 
+                    a_s4*0.5f*mxx_in[index_from]*(c_ix[i]*c_ix[i] - inv_as2) + 
+                    a_s4*0.5f*mxy_in[index_from]*c_ix[i]*c_iy[i] + 
+                    a_s4*0.5f*myy_in[index_from]*(c_iy[i]*c_iy[i] - inv_as2));
 
 
             Is_up += w[i]*c_ix[i]*c_iy[i];
 
             Is_down += w[i]*a_s4*c_ix[i]*c_ix[i]*c_iy[i]*c_iy[i];
 
-            Os_up += w[i];
+            Os_up += w[j];
 
-            Os_down += w[i]*a_s4*c_ix[i]*c_iy[i];
+            Os_down += w[j]*a_s4*c_ix[j]*c_iy[j];
 
         }
 
         float mxy_I = num/div;
 
-        mxy[index] = (Is_up - mxy_I*Os_up)/(mxy_I*(1-omega)*Os_down - Is_down);
+        mxy_out[index] = (Is_up - mxy_I*Os_up)/(mxy_I*(1-omega)*Os_down - Is_down);
 
 
     }
@@ -184,9 +193,9 @@ __device__ float calc_momentum(int x, int y, float* rho, float* u_x, float* u_y,
         constexpr int O_s[6] = {0, 1, 3, 4, 7, 8};
 
 
-        mxx[index] = 0.f;
-        myy[index] = u_max*u_max;
-        mxy[index] = 0.f;
+        mxx_out[index] = 0.f;
+        myy_out[index] = u_max*u_max;
+        mxy_out[index] = 0.f;
 
         float num = 0;
         float div = 0;
@@ -201,17 +210,19 @@ __device__ float calc_momentum(int x, int y, float* rho, float* u_x, float* u_y,
             int i = I_s[k];
             int j = O_s[k];
 
-            num += rho[index]*w[i]*(1 + 
-                    a_s2*u_x[index]*c_ix[i] + a_s2*u_y[index]*c_iy[i] + 
-                    a_s4*0.5f*mxx[index]*(c_ix[i]*c_ix[i] - inv_as2) + 
-                    a_s4*0.5f*mxy[index]*c_ix[i]*c_iy[i] + 
-                    a_s4*0.5f*myy[index]*(c_iy[i]*c_iy[i] - inv_as2))*c_ix[i]*c_iy[i];
+            int index_from = from_id(x, y, i);
 
-            div += rho[index]*w[i]*(1 + 
-                    a_s2*u_x[index]*c_ix[i] + a_s2*u_y[index]*c_iy[i] + 
-                    a_s4*0.5f*mxx[index]*(c_ix[i]*c_ix[i] - inv_as2) + 
-                    a_s4*0.5f*mxy[index]*c_ix[i]*c_iy[i] + 
-                    a_s4*0.5f*myy[index]*(c_iy[i]*c_iy[i] - inv_as2));
+            num += rho_in[index_from]*w[i]*(1 + 
+                    a_s2*ux_in[index_from]*c_ix[i] + a_s2*uy_in[index_from]*c_iy[i] + 
+                    a_s4*0.5f*mxx_in[index_from]*(c_ix[i]*c_ix[i] - inv_as2) + 
+                    a_s4*0.5f*mxy_in[index_from]*c_ix[i]*c_iy[i] + 
+                    a_s4*0.5f*myy_in[index_from]*(c_iy[i]*c_iy[i] - inv_as2))*c_ix[i]*c_iy[i];
+
+            div += rho_in[index_from]*w[i]*(1 + 
+                    a_s2*ux_in[index_from]*c_ix[i] + a_s2*uy_in[index_from]*c_iy[i] + 
+                    a_s4*0.5f*mxx_in[index_from]*(c_ix[i]*c_ix[i] - inv_as2) + 
+                    a_s4*0.5f*mxy_in[index_from]*c_ix[i]*c_iy[i] + 
+                    a_s4*0.5f*myy_in[index_from]*(c_iy[i]*c_iy[i] - inv_as2));
 
 
             Is_up += w[i]*c_ix[i]*c_iy[i]*(1 + 
@@ -220,15 +231,15 @@ __device__ float calc_momentum(int x, int y, float* rho, float* u_x, float* u_y,
 
             Is_down += w[i]*a_s4*c_ix[i]*c_ix[i]*c_iy[i]*c_iy[i];
 
-            Os_up += w[i]*(1 + a_s2*u_max*c_ix[i] + a_s4*0.5f*u_max*u_max*(c_ix[i]*c_ix[i] - inv_as2));
+            Os_up += w[j]*(1 + a_s2*u_max*c_ix[j] + a_s4*0.5f*u_max*u_max*(c_ix[j]*c_ix[j] - inv_as2));
 
-            Os_down += w[i]*a_s4*c_ix[i]*c_iy[i];
+            Os_down += w[j]*a_s4*c_ix[j]*c_iy[j];
 
         }
 
         float mxy_I = num/div;
 
-        mxy[index] = (Is_up - mxy_I*Os_up)/(mxy_I*(1-omega)*Os_down - Is_down);
+        mxy_out[index] = (Is_up - mxy_I*Os_up)/(mxy_I*(1-omega)*Os_down - Is_down);
 
     }
     else if (x==Nx-1 && y==0){ //Oeste
@@ -236,9 +247,9 @@ __device__ float calc_momentum(int x, int y, float* rho, float* u_x, float* u_y,
         constexpr int O_s[6] = {0, 1, 2, 4, 5, 8};
 
 
-        mxx[index] = 0.f;
-        myy[index] = 0.f;
-        mxy[index] = 0.f;
+        mxx_out[index] = 0.f;
+        myy_out[index] = 0.f;
+        mxy_out[index] = 0.f;
 
         float num = 0;
         float div = 0;
@@ -253,41 +264,43 @@ __device__ float calc_momentum(int x, int y, float* rho, float* u_x, float* u_y,
             int i = I_s[k];
             int j = O_s[k];
 
-            num += rho[index]*w[i]*(1 + 
-                    a_s2*u_x[index]*c_ix[i] + a_s2*u_y[index]*c_iy[i] + 
-                    a_s4*0.5f*mxx[index]*(c_ix[i]*c_ix[i] - inv_as2) + 
-                    a_s4*0.5f*mxy[index]*c_ix[i]*c_iy[i] + 
-                    a_s4*0.5f*myy[index]*(c_iy[i]*c_iy[i] - inv_as2))*c_ix[i]*c_iy[i];
+            int index_from = from_id(x, y, i);
 
-            div += rho[index]*w[i]*(1 + 
-                    a_s2*u_x[index]*c_ix[i] + a_s2*u_y[index]*c_iy[i] + 
-                    a_s4*0.5f*mxx[index]*(c_ix[i]*c_ix[i] - inv_as2) + 
-                    a_s4*0.5f*mxy[index]*c_ix[i]*c_iy[i] + 
-                    a_s4*0.5f*myy[index]*(c_iy[i]*c_iy[i] - inv_as2));
+            num += rho_in[index_from]*w[i]*(1 + 
+                    a_s2*ux_in[index_from]*c_ix[i] + a_s2*uy_in[index_from]*c_iy[i] + 
+                    a_s4*0.5f*mxx_in[index_from]*(c_ix[i]*c_ix[i] - inv_as2) + 
+                    a_s4*0.5f*mxy_in[index_from]*c_ix[i]*c_iy[i] + 
+                    a_s4*0.5f*myy_in[index_from]*(c_iy[i]*c_iy[i] - inv_as2))*c_ix[i]*c_iy[i];
+
+            div += rho_in[index_from]*w[i]*(1 + 
+                    a_s2*ux_in[index_from]*c_ix[i] + a_s2*uy_in[index_from]*c_iy[i] + 
+                    a_s4*0.5f*mxx_in[index_from]*(c_ix[i]*c_ix[i] - inv_as2) + 
+                    a_s4*0.5f*mxy_in[index_from]*c_ix[i]*c_iy[i] + 
+                    a_s4*0.5f*myy_in[index_from]*(c_iy[i]*c_iy[i] - inv_as2));
 
 
             Is_up += w[i]*c_ix[i]*c_iy[i];
 
             Is_down += w[i]*a_s4*c_ix[i]*c_ix[i]*c_iy[i]*c_iy[i];
 
-            Os_up += w[i];
+            Os_up += w[j];
 
-            Os_down += w[i]*a_s4*c_ix[i]*c_iy[i];
+            Os_down += w[j]*a_s4*c_ix[j]*c_iy[j];
 
         }
 
         float mxy_I = num/div;
 
-        mxy[index] = (Is_up - mxy_I*Os_up)/(mxy_I*(1-omega)*Os_down - Is_down);
+        mxy_out[index] = (Is_up - mxy_I*Os_up)/(mxy_I*(1-omega)*Os_down - Is_down);
 
     }
     else if (x==Nx-1 && y==0){ //Leste
         constexpr int I_s[6] = {0, 1, 2, 4, 5, 8};
         constexpr int O_s[6] = {0, 2, 3, 4, 6, 7};
 
-        mxx[index] = 0.f;
-        myy[index] = 0.f;
-        mxy[index] = 0.f;
+        mxx_out[index] = 0.f;
+        myy_out[index] = 0.f;
+        mxy_out[index] = 0.f;
 
         float num = 0;
         float div = 0;
@@ -302,32 +315,34 @@ __device__ float calc_momentum(int x, int y, float* rho, float* u_x, float* u_y,
             int i = I_s[k];
             int j = O_s[k];
 
-            num += rho[index]*w[i]*(1 + 
-                    a_s2*u_x[index]*c_ix[i] + a_s2*u_y[index]*c_iy[i] + 
-                    a_s4*0.5f*mxx[index]*(c_ix[i]*c_ix[i] - inv_as2) + 
-                    a_s4*0.5f*mxy[index]*c_ix[i]*c_iy[i] + 
-                    a_s4*0.5f*myy[index]*(c_iy[i]*c_iy[i] - inv_as2))*c_ix[i]*c_iy[i];
+            int index_from = from_id(x, y, i);
 
-            div += rho[index]*w[i]*(1 + 
-                    a_s2*u_x[index]*c_ix[i] + a_s2*u_y[index]*c_iy[i] + 
-                    a_s4*0.5f*mxx[index]*(c_ix[i]*c_ix[i] - inv_as2) + 
-                    a_s4*0.5f*mxy[index]*c_ix[i]*c_iy[i] + 
-                    a_s4*0.5f*myy[index]*(c_iy[i]*c_iy[i] - inv_as2));
+            num += rho_in[index_from]*w[i]*(1 + 
+                    a_s2*ux_in[index_from]*c_ix[i] + a_s2*uy_in[index_from]*c_iy[i] + 
+                    a_s4*0.5f*mxx_in[index_from]*(c_ix[i]*c_ix[i] - inv_as2) + 
+                    a_s4*0.5f*mxy_in[index_from]*c_ix[i]*c_iy[i] + 
+                    a_s4*0.5f*myy_in[index_from]*(c_iy[i]*c_iy[i] - inv_as2))*c_ix[i]*c_iy[i];
+
+            div += rho_in[index_from]*w[i]*(1 + 
+                    a_s2*ux_in[index_from]*c_ix[i] + a_s2*uy_in[index_from]*c_iy[i] + 
+                    a_s4*0.5f*mxx_in[index_from]*(c_ix[i]*c_ix[i] - inv_as2) + 
+                    a_s4*0.5f*mxy_in[index_from]*c_ix[i]*c_iy[i] + 
+                    a_s4*0.5f*myy_in[index_from]*(c_iy[i]*c_iy[i] - inv_as2));
 
 
             Is_up += w[i]*c_ix[i]*c_iy[i];
 
             Is_down += w[i]*a_s4*c_ix[i]*c_ix[i]*c_iy[i]*c_iy[i];
 
-            Os_up += w[i];
+            Os_up += w[j];
 
-            Os_down += w[i]*a_s4*c_ix[i]*c_iy[i];
+            Os_down += w[j]*a_s4*c_ix[j]*c_iy[j];
 
         }
 
         float mxy_I = num/div;
 
-        mxy[index] = (Is_up - mxy_I*Os_up)/(mxy_I*(1-omega)*Os_down - Is_down);
+        mxy_out[index] = (Is_up - mxy_I*Os_up)/(mxy_I*(1-omega)*Os_down - Is_down);
 
 
     }
@@ -338,19 +353,27 @@ __device__ float calc_momentum(int x, int y, float* rho, float* u_x, float* u_y,
         float mxy_new = 0.f;
 
         for (int i=0; i<Q; i++){
-            float f_i = rho[index]*w[i]*(1 + a_s2*u_x[index]*c_ix[i] + a_s2*u_y[index]*c_iy[i] + a_s4*0.5f*mxx[index]*(c_ix[i]*c_ix[i]-inv_as2) + a_s4*0.5f*mxy[index]*c_ix[i]*c_iy[i] + a_s4*0.5f*myy[index]*(c_ix[i]*c_ix[i]-inv_as2)); 
+
+            int index_from = from_id(x, y, i);
+
+            float f_i = rho_in[index_from]*w[i]*(1 + 
+                a_s2*ux_in[index_from]*c_ix[i] + a_s2*uy_in[index_from]*c_iy[i] + 
+                a_s4*0.5f*mxx_in[index_from]*(c_ix[i]*c_ix[i]-inv_as2) + 
+                a_s4*0.5f*mxy_in[index_from]*c_ix[i]*c_iy[i] + 
+                a_s4*0.5f*myy_in[index_from]*(c_ix[i]*c_ix[i]-inv_as2)); 
+
             mxx_new += f_i*(c_ix[i]*c_ix[i] - inv_as2);
             myy_new += f_i*(c_iy[i]*c_iy[i] - inv_as2);
             mxy_new += f_i*(c_ix[i]*c_iy[i]);
         }
 
-        mxx_new *= 1/rho[index];
-        mxy_new *= 1/rho[index];
-        myy_new *= 1/rho[index];
+        mxx_new *= 1/rho_out[index];
+        mxy_new *= 1/rho_out[index];
+        myy_new *= 1/rho_out[index];
 
-        mxx[index] = mxx_new;
-        mxy[index] = mxy_new;
-        myy[index] = myy_new;
+        mxx_out[index] = mxx_new;
+        mxy_out[index] = mxy_new;
+        myy_out[index] = myy_new;
 
     }
 

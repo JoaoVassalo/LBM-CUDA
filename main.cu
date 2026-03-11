@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "presets/stencil.h"
+#include "presets/stencil.cuh"
 #include "presets/geometry.h"
 #include "presets/config.h"
 
@@ -63,7 +63,7 @@ int main(){
 
         if (t%t_interval ==0 ){
             cudaDeviceSynchronize(); 
-            cudaMemcpy(rho_host, rhoA, size, cudaMemcpyDeviceToHost);
+            cudaMemcpy(rho_host, uxA, size, cudaMemcpyDeviceToHost);
             std::cout << "Iteration " << t << std::endl;
 
             for(int y = 0; y < Ny; y++){
