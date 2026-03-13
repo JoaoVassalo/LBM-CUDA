@@ -8,14 +8,14 @@
 __device__ void wall(CInt *I_s, CInt *O_s, int x, int y, float *rho_in, float *ux_in, float *uy_in, float *mxx_in, float *mxy_in, float *myy_in,
                      float *rho_out, float *mxy_out)
 {
-    float sum_fi = 0;
-    float mxy_I = 0;
-    float rho_I_rho = 0;
+    float sum_fi = 0.f;
+    float mxy_I = 0.f;
+    float rho_I_rho = 0.f;
 
-    float Is_up = 0;
-    float Is_down = 0;
-    float Os_up = 0;
-    float Os_down = 0;
+    float Is_up = 0.f;
+    float Is_down = 0.f;
+    float Os_up = 0.f;
+    float Os_down = 0.f;
 
     int index = grid_id(x, y);
 
@@ -28,7 +28,7 @@ __device__ void wall(CInt *I_s, CInt *O_s, int x, int y, float *rho_in, float *u
         float fi = f_i(index_from, i, rho_in, ux_in, uy_in, mxx_in, mxy_in, myy_in);
         sum_fi += fi;
 
-        mxy_I += sum_fi * c_ix[i] * c_iy[i];
+        mxy_I += fi * c_ix[i] * c_iy[i];
 
         Is_up += w[i] * c_ix[i] * c_iy[i];
 
@@ -36,10 +36,10 @@ __device__ void wall(CInt *I_s, CInt *O_s, int x, int y, float *rho_in, float *u
 
         /*---------------------------------------------------------------------*/
         i = O_s[k];
-        int index_from = from_id(x, y, i);
+        index_from = from_id(x, y, i);
 
         rho_I_rho += w[i] +
-                     w[i] * (1 - omega) * a_s4 * mxy_in[index_from] * (c_ix[i] * c_iy[i]);
+                     w[i] * (1.f - omega) * a_s4 * mxy_in[index_from] * (c_ix[i] * c_iy[i]);
 
         Os_up += w[i];
 

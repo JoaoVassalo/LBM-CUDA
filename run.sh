@@ -1,2 +1,15 @@
-nvcc -G -rdc=true main.cu functions/*.cu presets/stencil.cu -o main
- ./main
+#!/bin/bash
+set -e
+
+SRC="
+main.cu
+functions/*.cu
+functions/boundary/*.cu
+presets/stencil.cu
+vtk.cu
+"
+
+rm ./main
+rm -rf ./plot/vtk
+
+nvcc -G -rdc=true $SRC -o main && ./main

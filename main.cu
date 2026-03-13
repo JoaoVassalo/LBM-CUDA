@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 
 #include "presets/stencil.cuh"
 #include "presets/geometry.h"
@@ -6,6 +7,7 @@
 
 #include "functions/init_domain.cuh"
 #include "functions/lbm_step.cuh"
+#include "vtk.cuh"
 
 int main()
 {
@@ -54,6 +56,8 @@ int main()
     cudaMemcpy(myyB, myyA, size, cudaMemcpyDeviceToDevice);
 
     float *rho_host = (float *)malloc(size);
+    float *ux_host = (float *)malloc(size);
+    float *uy_host = (float *)malloc(size);
 
     for (int t = 0; t < tf; t++)
     {
@@ -71,25 +75,18 @@ int main()
                                          rhoA, uxA, uyA, mxxA, mxyA, myyA);
         }
 
-        if (t <= 10)
+        if (t % t_interval == 0)
         {
             cudaDeviceSynchronize();
             cudaMemcpy(rho_host, rhoA, size, cudaMemcpyDeviceToHost);
+            cudaMemcpy(ux_host, uxA, size, cudaMemcpyDeviceToHost);
+            cudaMemcpy(uy_host, uyA, size, cudaMemcpyDeviceToHost);
             std::cout << "Iteration " << t << std::endl;
 
-            for (int y = 0; y < Ny; y++)
-            {
-                for (int x = 0; x < Nx; x++)
-                {
-
-                    int id = x + Nx * y;
-
-                    std::cout << rho_host[id] << " ";
-                }
-                std::cout << std::endl;
-            }
-
             std::cout << std::endl;
+
+            std::string path = "./plot";
+            write_vti(t, path, rho_host, ux_host, uy_host);
         }
     }
 }

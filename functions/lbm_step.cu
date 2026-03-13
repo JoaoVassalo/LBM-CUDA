@@ -1,6 +1,3 @@
-#include "calc_density.cuh"
-#include "calc_velocity.cuh"
-#include "calc_momentum.cuh"
 #include "collision.cuh"
 #include "propagation.cuh"
 #include "grid_id.cuh"

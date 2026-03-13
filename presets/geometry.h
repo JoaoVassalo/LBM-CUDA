@@ -7,4 +7,4 @@ constexpr int grid_num = Nx * Ny;
 
 // Simulation time.
 constexpr int tf = 1000;
-constexpr int t_interval = 100;
+constexpr int t_interval = 10;
