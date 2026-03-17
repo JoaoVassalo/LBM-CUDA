@@ -9,7 +9,7 @@ presets/stencil.cu
 vtk.cu
 "
 
-rm ./main
+rm -f ./main
 rm -rf ./plot/vtk
 
 nvcc -G -rdc=true $SRC -o main && ./main
