@@ -24,19 +24,19 @@ __global__ void initDomain(float *rho, float *ux, float *uy, float *mxx, float *
     mxy[index] = 0.f;
     myy[index] = 0.f;
 
-    float f_i[Nx * Ny * Q] = {0};
+    //     float f_i[Nx * Ny * Q] = {0};
 
-#pragma unroll
-    for (int i = 0; i < Q; i++)
-    {
-        f_i[Nx * Ny * Q] = equilibrium(rho[index], ux[index], uy[index], i);
+    // #pragma unroll
+    //     for (int i = 0; i < Q; i++)
+    //     {
+    //         f_i[Nx * Ny * Q] = equilibrium(rho[index], ux[index], uy[index], i);
 
-        mxx[index] += f_i[pop_id(index, i)] * (c_ix[i] * c_ix[i] - inv_as2);
-        mxy[index] += f_i[pop_id(index, i)] * (c_ix[i] * c_iy[i]);
-        mxx[index] += f_i[pop_id(index, i)] * (c_iy[i] * c_iy[i] - inv_as2);
-    }
+    //         mxx[index] += f_i[pop_id(index, i)] * (c_ix[i] * c_ix[i] - inv_as2);
+    //         mxy[index] += f_i[pop_id(index, i)] * (c_ix[i] * c_iy[i]);
+    //         mxx[index] += f_i[pop_id(index, i)] * (c_iy[i] * c_iy[i] - inv_as2);
+    //     }
 
-    mxx[index] *= 1 / rho[index];
-    mxy[index] *= 1 / rho[index];
-    myy[index] *= 1 / rho[index];
+    //     mxx[index] *= 1 / rho[index];
+    //     mxy[index] *= 1 / rho[index];
+    //     myy[index] *= 1 / rho[index];
 }

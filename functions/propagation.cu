@@ -22,10 +22,7 @@ __device__ void propagation(float *rho_in, float *ux_in, float *uy_in, float *mx
 
    if (x == 0 && y == 0)
    { // Sudoeste
-      constexpr int I_s[4] = {0, 3, 4, 7};
-      constexpr int O_s[4] = {0, 1, 2, 5};
-
-      corner(I_s, O_s, x, y,
+      corner(Is_W, Os_SW, x, y,
              rho_in, ux_in, uy_in, mxx_in, mxy_in, myy_in,
              rho_out);
 
@@ -38,10 +35,7 @@ __device__ void propagation(float *rho_in, float *ux_in, float *uy_in, float *mx
    }
    else if (x == Nx - 1 && y == 0)
    { // Sudeste
-      constexpr int I_s[4] = {0, 1, 4, 8};
-      constexpr int O_s[4] = {0, 2, 3, 6};
-
-      corner(I_s, O_s, x, y,
+      corner(Is_SE, Os_SE, x, y,
              rho_in, ux_in, uy_in, mxx_in, mxy_in, myy_in,
              rho_out);
 
@@ -55,10 +49,8 @@ __device__ void propagation(float *rho_in, float *ux_in, float *uy_in, float *mx
    else if (x == 0 && y == Ny - 1)
    { // Noroeste
       constexpr int size = 4;
-      constexpr int I_s[size] = {0, 2, 3, 6};
-      constexpr int O_s[size] = {0, 1, 4, 8};
 
-      north(size, I_s, O_s, x, y,
+      north(size, Is_NW, Os_NW, x, y,
             rho_in, ux_in, uy_in, mxx_in, mxy_in, myy_in,
             rho_out, mxy_out);
 
@@ -71,10 +63,8 @@ __device__ void propagation(float *rho_in, float *ux_in, float *uy_in, float *mx
    else if (x == Nx - 1 && y == Ny - 1)
    { // Nordeste
       constexpr int size = 4;
-      constexpr int I_s[size] = {0, 1, 2, 5};
-      constexpr int O_s[size] = {0, 3, 4, 7};
 
-      north(size, I_s, O_s, x, y,
+      north(size, Is_NE, Os_NE, x, y,
             rho_in, ux_in, uy_in, mxx_in, mxy_in, myy_in,
             rho_out, mxy_out);
 
@@ -86,10 +76,8 @@ __device__ void propagation(float *rho_in, float *ux_in, float *uy_in, float *mx
    }
    else if (y == 0)
    { // Sul
-      constexpr int I_s[6] = {0, 1, 3, 4, 7, 8};
-      constexpr int O_s[6] = {0, 1, 2, 3, 5, 6};
 
-      wall(I_s, O_s, x, y,
+      wall(Is_S, Os_S, x, y,
            rho_in, ux_in, uy_in, mxx_in, mxy_in, myy_in,
            rho_out, mxy_out);
 
@@ -102,10 +90,8 @@ __device__ void propagation(float *rho_in, float *ux_in, float *uy_in, float *mx
    else if (y == Ny - 1)
    { // Norte
       constexpr int size = 6;
-      constexpr int I_s[size] = {0, 1, 2, 3, 5, 6};
-      constexpr int O_s[size] = {0, 1, 3, 4, 7, 8};
 
-      north(size, I_s, O_s, x, y,
+      north(size, Is_N, Os_N, x, y,
             rho_in, ux_in, uy_in, mxx_in, mxy_in, myy_in,
             rho_out, mxy_out);
 
@@ -117,10 +103,8 @@ __device__ void propagation(float *rho_in, float *ux_in, float *uy_in, float *mx
    }
    else if (x == 0)
    { // Oeste
-      constexpr int I_s[6] = {0, 2, 3, 4, 6, 7};
-      constexpr int O_s[6] = {0, 1, 2, 4, 5, 8};
 
-      wall(I_s, O_s, x, y,
+      wall(Is_W, Os_W, x, y,
            rho_in, ux_in, uy_in, mxx_in, mxy_in, myy_in,
            rho_out, mxy_out);
 
@@ -132,10 +116,8 @@ __device__ void propagation(float *rho_in, float *ux_in, float *uy_in, float *mx
    }
    else if (x == Nx - 1)
    { // Leste
-      constexpr int I_s[6] = {0, 1, 2, 4, 5, 8};
-      constexpr int O_s[6] = {0, 2, 3, 4, 6, 7};
 
-      wall(I_s, O_s, x, y,
+      wall(Is_E, Os_E, x, y,
            rho_in, ux_in, uy_in, mxx_in, mxy_in, myy_in,
            rho_out, mxy_out);
 

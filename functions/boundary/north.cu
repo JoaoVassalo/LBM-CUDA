@@ -32,7 +32,7 @@ __device__ void north(int size, CInt *I_s, CInt *O_s, int x, int y, float *rho_i
         Is_up += w[i] *
                  (1.f +
                   a_s2 * u_max * c_ix[i] +
-                  a_s4 * 0.5f * u_max * (c_ix[i] * c_ix[i] - inv_as2)) *
+                  a_s4 * 0.5f * u_max * u_max * (c_ix[i] * c_ix[i] - inv_as2)) *
                  c_ix[i] * c_iy[i];
 
         Is_down += w[i] * a_s4 * c_ix[i] * c_ix[i] * c_iy[i] * c_iy[i];
@@ -50,9 +50,9 @@ __device__ void north(int size, CInt *I_s, CInt *O_s, int x, int y, float *rho_i
         Os_up += w[i] *
                  (1.f +
                   a_s2 * u_max * c_ix[i] +
-                  a_s4 * 0.5f * u_max * (c_ix[i] * c_ix[i] - inv_as2));
+                  a_s4 * 0.5f * u_max * u_max * (c_ix[i] * c_ix[i] - inv_as2));
 
-        Os_down += w[i] * a_s4 * c_ix[i] * c_ix[i] * c_iy[i] * c_iy[i];
+        Os_down += w[i] * a_s4 * c_ix[i] * c_iy[i];
     }
     mxy_I /= sum_fi;
 

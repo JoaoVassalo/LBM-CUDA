@@ -12,4 +12,4 @@ vtk.cu
 rm -f ./main
 rm -rf ./plot/vtk
 
-nvcc -G -rdc=true $SRC -o main && ./main
+nvcc -Xptxas -v -rdc=true $SRC -o main && ./main

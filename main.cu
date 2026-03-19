@@ -12,9 +12,11 @@
 int main()
 {
 
-    dim3 block(Nx, Ny);
+    dim3 block(16, 32);
+    dim3 N_block((Nx + block.x - 1) / block.x, (Ny + block.y - 1) / block.y);
 
-    float *rhoA, *rhoB;
+    float *rhoA,
+        *rhoB;
     float *uxA;
     float *uxB;
     float *uyA;
@@ -62,17 +64,19 @@ int main()
     for (int t = 0; t < tf; t++)
     {
 
-        bool id = (t & 1);
-
-        if (!id)
+        if (t & 1)
         {
             lbm_step<<<N_block, block>>>(rhoA, uxA, uyA, mxxA, mxyA, myyA,
                                          rhoB, uxB, uyB, mxxB, mxyB, myyB);
+            cudaError_t err = cudaGetLastError();
+            printf("Kernel error: %s\n", cudaGetErrorString(err));
         }
         else
         {
             lbm_step<<<N_block, block>>>(rhoB, uxB, uyB, mxxB, mxyB, myyB,
                                          rhoA, uxA, uyA, mxxA, mxyA, myyA);
+            cudaError_t err = cudaGetLastError();
+            printf("Kernel error: %s\n", cudaGetErrorString(err));
         }
 
         if (t % t_interval == 0)
