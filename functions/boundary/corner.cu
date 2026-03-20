@@ -12,6 +12,7 @@ __device__ void corner(CInt *I_s, CInt *O_s, int x, int y, float *rho_in, float 
 
     float rho_I = 0.f;
     float sum_wi = 0.f;
+
 #pragma unroll
     for (int k = 0; k < 4; k++)
     {

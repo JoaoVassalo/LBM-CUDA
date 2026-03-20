@@ -9,8 +9,8 @@
 __global__ void initDomain(float *rho, float *ux, float *uy, float *mxx, float *mxy, float *myy)
 {
 
-    int x = threadIdx.x;
-    int y = threadIdx.y;
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
 
     if (x >= Nx && y >= Ny)
         return;

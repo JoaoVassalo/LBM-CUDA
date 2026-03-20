@@ -68,15 +68,11 @@ int main()
         {
             lbm_step<<<N_block, block>>>(rhoA, uxA, uyA, mxxA, mxyA, myyA,
                                          rhoB, uxB, uyB, mxxB, mxyB, myyB);
-            cudaError_t err = cudaGetLastError();
-            printf("Kernel error: %s\n", cudaGetErrorString(err));
         }
         else
         {
             lbm_step<<<N_block, block>>>(rhoB, uxB, uyB, mxxB, mxyB, myyB,
                                          rhoA, uxA, uyA, mxxA, mxyA, myyA);
-            cudaError_t err = cudaGetLastError();
-            printf("Kernel error: %s\n", cudaGetErrorString(err));
         }
 
         if (t % t_interval == 0)

@@ -22,7 +22,8 @@ __device__ void propagation(float *rho_in, float *ux_in, float *uy_in, float *mx
 
    if (x == 0 && y == 0)
    { // Sudoeste
-      corner(Is_W, Os_SW, x, y,
+
+      corner(Is_SW, Os_SW, x, y,
              rho_in, ux_in, uy_in, mxx_in, mxy_in, myy_in,
              rho_out);
 
