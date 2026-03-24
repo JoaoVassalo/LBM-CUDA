@@ -1,8 +1,10 @@
 #Arquivos
 main
+animation/video.mp4
 
 #Pasta
 .vscode/
 plot/vtk/
 idk/
-animation/
+animation/.venv
+animation/videos/*.png

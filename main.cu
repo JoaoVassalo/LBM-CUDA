@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <chrono>
 
 #include "presets/stencil.cuh"
 #include "presets/geometry.h"
@@ -12,7 +13,7 @@
 int main()
 {
 
-    dim3 block(16, 32);
+    dim3 block(32, 16);
     dim3 N_block((Nx + block.x - 1) / block.x, (Ny + block.y - 1) / block.y);
 
     float *rhoA,
@@ -61,6 +62,8 @@ int main()
     float *ux_host = (float *)malloc(size);
     float *uy_host = (float *)malloc(size);
 
+    auto t1 = std::chrono::high_resolution_clock::now();
+
     for (int t = 0; t < tf; t++)
     {
 
@@ -89,4 +92,11 @@ int main()
             write_vti(t, path, rho_host, ux_host, uy_host);
         }
     }
+
+    auto t2 = std::chrono::high_resolution_clock::now();
+
+    auto tempo = std::chrono::duration_cast<std::chrono::seconds>(t2 - t1);
+
+    double MLUPS = (double)(Nx * Ny) * double(tf) / ((double)tempo.count() * 1e6);
+    printf("MLUPS: %f\n", MLUPS);
 }
