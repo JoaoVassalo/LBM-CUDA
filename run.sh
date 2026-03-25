@@ -13,3 +13,7 @@ rm -f ./main
 rm -rf ./plot/vtk
 
 nvcc -Xptxas -v -rdc=true $SRC -o main && ./main
+
+source animation/.venv/bin/activate
+cd animation
+python3 plot_graph.py

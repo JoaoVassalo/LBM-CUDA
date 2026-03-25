@@ -4,7 +4,7 @@
 #include "/home/jvassalo/LBM-CUDA/presets/stencil.cuh"
 
 // Calc Tau.
-constexpr int Re = 7500;
+constexpr int Re = 1000;
 constexpr float u_max = 0.0256f;
 constexpr int delta_t = 1;
 constexpr float ni = u_max * (float)Ny / (float)Re;
