@@ -12,6 +12,7 @@
 #include "functions/lbm_step.cuh"
 #include "functions/calc_tke.cuh"
 #include "functions/grid_id.cuh"
+#include "functions/plot_vel.cuh"
 #include "vtk.cuh"
 
 int main()
@@ -112,25 +113,27 @@ int main()
 
     file.close();
 
-    int mid_up = Nx / 2;
-    int mid_down = (Nx / 2) - 1;
+    float *xplot_dev, *ux_plot_dev, *uy_plot_dev;
 
-    float ux_plot = 0;
-    float uy_plot = 0;
+    cudaMalloc((void **)&xplot_dev, size);
+    cudaMalloc((void **)&ux_plot_dev, size);
+    cudaMalloc((void **)&uy_plot_dev, size);
 
     std::ofstream file2("animation/vel.csv");
     file2 << "x,ux,uy\n";
 
+    plot_vel<<<1, 1>>>(ux_host, uy_host, xplot_dev, ux_plot_dev, uy_plot_dev);
+
+    float *xplot = new float[Nx];
+    float *ux_plot = new float[Nx];
+    float *uy_plot = new float[Nx];
+
+    cudaMemcpy(xplot, xplot_dev, size, cudaMemcpyDeviceToHost);
+    cudaMemcpy(ux_plot, ux_plot_dev, size, cudaMemcpyDeviceToHost);
+    cudaMemcpy(uy_plot, uy_plot_dev, size, cudaMemcpyDeviceToHost);
+
     for (int i = 0; i < Nx; i++)
     {
-
-        ux_plot = (ux_host[grid_id(mid_up, i)] + ux_host[grid_id(mid_down, i)]) / 2.f;
-        ux_plot /= u_max;
-        uy_plot = (uy_host[grid_id(i, mid_up)] + uy_host[grid_id(i, mid_down)]) / 2.f;
-        uy_plot /= u_max;
-
-        float xplot = (float)(i) / (float)Nx;
-
-        file2 << xplot << "," << ux_plot << "," << uy_plot << "\n";
+        file2 << xplot[i] << "," << ux_plot[i] << "," << uy_plot[i] << "\n";
     }
 }
