@@ -18,7 +18,7 @@ __device__ void propagation(float *rho_in, float *ux_in, float *uy_in, float *mx
    int x = blockIdx.x * blockDim.x + threadIdx.x;
    int y = blockIdx.y * blockDim.y + threadIdx.y;
 
-   int index = grid_id(x, y);
+   int index = grid_id();
 
    if (x == 0 && y == 0)
    { // Sudoeste

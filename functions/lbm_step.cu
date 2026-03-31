@@ -14,7 +14,7 @@ __global__ void lbm_step(float *rho_in, float *ux_in, float *uy_in, float *mxx_i
     if (x >= Nx || y >= Ny)
         return;
 
-    int index = grid_id(x, y);
+    int index = grid_id();
 
     propagation(rho_in, ux_in, uy_in, mxx_in, mxy_in, myy_in,
                 rho_out, ux_out, uy_out, mxx_out, mxy_out, myy_out);

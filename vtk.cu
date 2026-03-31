@@ -1,7 +1,7 @@
 #include "vtk.cuh"
 
 #include "./presets/geometry.h"
-#include "./functions/grid_host.cuh"
+#include "./functions/grid_plot.cuh"
 
 #include <filesystem>
 #include <fstream>
@@ -49,7 +49,7 @@ __host__ void write_vti(int step, const std::string &out_dir, float *rho_host, f
     {
         for (int x = 0; x < nx; ++x)
         {
-            const size_t idx = grid_host(x, y);
+            const size_t idx = grid_plot(x, y);
             const float rho = rho_host[idx];
             file << "          " << static_cast<float>(rho) << "\n";
         }
@@ -62,7 +62,7 @@ __host__ void write_vti(int step, const std::string &out_dir, float *rho_host, f
     {
         for (int x = 0; x < nx; ++x)
         {
-            const size_t idx = grid_host(x, y);
+            const size_t idx = grid_plot(x, y);
             const float ux = ux_host[idx];
             file << "          " << static_cast<float>(ux) << "\n";
         }
@@ -75,7 +75,7 @@ __host__ void write_vti(int step, const std::string &out_dir, float *rho_host, f
     {
         for (int x = 0; x < nx; ++x)
         {
-            const size_t idx = grid_host(x, y);
+            const size_t idx = grid_plot(x, y);
             const float uy = uy_host[idx];
             file << "          " << static_cast<float>(uy) << "\n";
         }
@@ -88,7 +88,7 @@ __host__ void write_vti(int step, const std::string &out_dir, float *rho_host, f
     {
         for (int x = 0; x < nx; ++x)
         {
-            const size_t idx = grid_host(x, y);
+            const size_t idx = grid_plot(x, y);
             const float ux = ux_host[idx];
             const float uy = uy_host[idx];
 

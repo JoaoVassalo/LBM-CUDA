@@ -15,7 +15,7 @@ __global__ void initDomain(float *rho, float *ux, float *uy, float *mxx, float *
     if (x >= Nx && y >= Ny)
         return;
 
-    int index = grid_id(x, y);
+    int index = grid_id();
 
     rho[index] = 1.f;
     ux[index] = 0.f;

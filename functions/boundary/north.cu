@@ -16,7 +16,7 @@ __device__ void north(int size, CInt *I_s, CInt *O_s, int x, int y, float *rho_i
     float Os_up = 0.f;
     float Os_down = 0.f;
 
-    int index = grid_id(x, y);
+    int index = grid_id();
 
 #pragma unroll
     for (int k = 0; k < size; k++)

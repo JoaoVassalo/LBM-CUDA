@@ -18,8 +18,8 @@
 int main()
 {
 
-    dim3 block(32, 16);
-    dim3 N_block((Nx + block.x - 1) / block.x, (Ny + block.y - 1) / block.y);
+    dim3 block(BX, BY);
+    dim3 N_block(GX, GY);
 
     float *rhoA,
         *rhoB;
