@@ -13,6 +13,7 @@
 #include "functions/calc_tke.cuh"
 #include "functions/grid_id.cuh"
 #include "functions/grid_plot.cuh"
+#include "config/memory_initialization.cuh"
 #include "vtk.cuh"
 
 int main()
@@ -21,33 +22,9 @@ int main()
     dim3 block(BX, BY);
     dim3 N_block(GX, GY);
 
-    float *rhoA,
-        *rhoB;
-    float *uxA;
-    float *uxB;
-    float *uyA;
-    float *uyB;
-    float *mxxA;
-    float *mxxB;
-    float *mxyA;
-    float *mxyB;
-    float *myyA;
-    float *myyB;
-
     int size = Nx * Ny * sizeof(float);
 
-    cudaMalloc((void **)&rhoA, size);
-    cudaMalloc((void **)&rhoB, size);
-    cudaMalloc((void **)&uxA, size);
-    cudaMalloc((void **)&uxB, size);
-    cudaMalloc((void **)&uyA, size);
-    cudaMalloc((void **)&uyB, size);
-    cudaMalloc((void **)&mxxA, size);
-    cudaMalloc((void **)&mxxB, size);
-    cudaMalloc((void **)&mxyA, size);
-    cudaMalloc((void **)&mxyB, size);
-    cudaMalloc((void **)&myyA, size);
-    cudaMalloc((void **)&myyB, size);
+    memory_init(size);
 
     initDomain<<<N_block, block>>>(rhoA, uxA, uyA, mxxA, mxyA, myyA);
 
@@ -92,9 +69,6 @@ int main()
             cudaMemcpy(rho_host, rhoA, size, cudaMemcpyDeviceToHost);
             cudaMemcpy(ux_host, uxA, size, cudaMemcpyDeviceToHost);
             cudaMemcpy(uy_host, uyA, size, cudaMemcpyDeviceToHost);
-            std::cout << "Iteration " << t << std::endl;
-
-            std::cout << std::endl;
 
             std::string path = "./plot";
 
@@ -133,4 +107,5 @@ int main()
 
         file2 << xplot << "," << ux_plot << "," << uy_plot << "\n";
     }
+    file2.close();
 }

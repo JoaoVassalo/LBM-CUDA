@@ -3,6 +3,8 @@
 #include "../presets/geometry.h"
 #include "../presets/stencil.cuh"
 
+#include <cmath>
+
 __device__ inline int from_id(int x, int y, int i)
 {
     int x_from = x - (int)c_ix[i];
@@ -18,14 +20,5 @@ __device__ inline int from_id(int x, int y, int i)
     if (y_from >= Ny)
         y_from -= Ny;
 
-    int block_x = x_from / blockDim.x;
-    int block_y = y_from / blockDim.y;
-
-    int thread_x = x_from % blockDim.x;
-    int thread_y = y_from % blockDim.y;
-
-    int block_id = block_x + gridDim.x * block_y;
-    int thread_id = thread_x + blockDim.x * thread_y;
-
-    return block_id * blockDim.x * blockDim.y + thread_id;
+    return (((x_from / blockDim.x) + gridDim.x * (y_from / blockDim.y)) * blockDim.x * blockDim.y + (x_from - blockDim.x * (x_from / blockDim.x)) + blockDim.x * (y_from - blockDim.y * (y_from / blockDim.y)));
 }
