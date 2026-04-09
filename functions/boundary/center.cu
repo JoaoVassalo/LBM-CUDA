@@ -5,9 +5,11 @@
 #include "../grid_id.cuh"
 #include "../from_id.cuh"
 
+#include "../../cuda_config/var.cuh"
+
 __device__ void center(int x, int y,
-                       float *rho_in, float *ux_in, float *uy_in, float *mxx_in, float *mxy_in, float *myy_in,
-                       float *rho_out, float *ux_out, float *uy_out, float *mxx_out, float *mxy_out, float *myy_out)
+                       float *mom_in,
+                       float *mom_out)
 {
     int index = grid_id();
     float rho = 0.f;
@@ -22,7 +24,7 @@ __device__ void center(int x, int y,
     {
         int index_from = from_id(x, y, i);
 
-        float fi = f_i(index_from, i, rho_in, ux_in, uy_in, mxx_in, mxy_in, myy_in);
+        float fi = f_i(index_from, i, mom_in);
 
         rho += fi;
 
@@ -33,12 +35,12 @@ __device__ void center(int x, int y,
         mxy += fi * (c_ix[i] * c_iy[i]);
         myy += fi * (c_iy[i] * c_iy[i] - inv_as2);
     }
-    rho_out[index] = rho;
+    mom_out[momIdx<MomentId::rho>(index)] = rho;
 
-    ux_out[index] = ux / rho;
-    uy_out[index] = uy / rho;
+    mom_out[momIdx<MomentId::ux>(index)] = ux / rho;
+    mom_out[momIdx<MomentId::uy>(index)] = uy / rho;
 
-    mxx_out[index] = mxx / rho;
-    mxy_out[index] = mxy / rho;
-    myy_out[index] = myy / rho;
+    mom_out[momIdx<MomentId::mxx>(index)] = mxx / rho;
+    mom_out[momIdx<MomentId::myy>(index)] = myy / rho;
+    mom_out[momIdx<MomentId::mxy>(index)] = mxy / rho;
 }

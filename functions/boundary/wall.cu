@@ -5,8 +5,9 @@
 #include "../from_id.cuh"
 #include "../equations/f_i.cuh"
 
-__device__ void wall(CInt *I_s, CInt *O_s, int x, int y, float *rho_in, float *ux_in, float *uy_in, float *mxx_in, float *mxy_in, float *myy_in,
-                     float *rho_out, float *mxy_out)
+__device__ void wall(CInt *I_s, CInt *O_s, int x, int y,
+                     float *mom_in,
+                     float *mom_out)
 {
     float sum_fi = 0.f;
     float mxy_I = 0.f;
@@ -25,7 +26,7 @@ __device__ void wall(CInt *I_s, CInt *O_s, int x, int y, float *rho_in, float *u
         int i = I_s[k];
         int index_from = from_id(x, y, i);
 
-        float fi = f_i(index_from, i, rho_in, ux_in, uy_in, mxx_in, mxy_in, myy_in);
+        float fi = f_i(index_from, i, mom_in);
         sum_fi += fi;
 
         mxy_I += fi * c_ix[i] * c_iy[i];
@@ -39,7 +40,7 @@ __device__ void wall(CInt *I_s, CInt *O_s, int x, int y, float *rho_in, float *u
         index_from = from_id(x, y, i);
 
         rho_I_rho += w[i] +
-                     w[i] * (1.f - omega) * a_s4 * mxy_in[index_from] * (c_ix[i] * c_iy[i]);
+                     w[i] * (1.f - omega) * a_s4 * mom_in[index_from + 5] * (c_ix[i] * c_iy[i]); // mxy
 
         Os_up += w[i];
 
@@ -47,6 +48,6 @@ __device__ void wall(CInt *I_s, CInt *O_s, int x, int y, float *rho_in, float *u
     }
     mxy_I /= sum_fi;
 
-    rho_out[index] = sum_fi / rho_I_rho;
-    mxy_out[index] = (Is_up - mxy_I * Os_up) / (mxy_I * (1 - omega) * Os_down - Is_down);
+    mom_out[index] = sum_fi / rho_I_rho;                                                      // rho
+    mom_out[index + 5] = (Is_up - mxy_I * Os_up) / (mxy_I * (1 - omega) * Os_down - Is_down); // mxy
 }

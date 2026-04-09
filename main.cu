@@ -7,42 +7,33 @@
 #include "presets/geometry.h"
 #include "presets/config.h"
 #include "presets/physics.h"
+#include "cuda_config/var.cuh"
 
 #include "functions/init_domain.cuh"
 #include "functions/lbm_step.cuh"
 #include "functions/calc_tke.cuh"
 #include "functions/grid_id.cuh"
 #include "functions/grid_plot.cuh"
-#include "config/memory_initialization.cuh"
 #include "vtk.cuh"
 
 int main()
 {
 
-    dim3 block(BX, BY);
-    dim3 N_block(GX, GY);
+    D2Q9 sim;
 
-    int size = Nx * Ny * sizeof(float);
+    cudaMalloc((void **)&sim.momA, sim.size);
+    cudaMalloc((void **)&sim.momB, sim.size);
 
-    memory_init(size);
-
-    initDomain<<<N_block, block>>>(rhoA, uxA, uyA, mxxA, mxyA, myyA);
+    initDomain<<<sim.N_block, sim.block>>>(sim.momA);
 
     cudaError_t err = cudaGetLastError();
     printf("Kernel launch error: %s\n", cudaGetErrorString(err));
 
     cudaDeviceSynchronize();
 
-    cudaMemcpy(rhoB, rhoA, size, cudaMemcpyDeviceToDevice);
-    cudaMemcpy(uxB, uxA, size, cudaMemcpyDeviceToDevice);
-    cudaMemcpy(uyB, uyA, size, cudaMemcpyDeviceToDevice);
-    cudaMemcpy(mxxB, mxxA, size, cudaMemcpyDeviceToDevice);
-    cudaMemcpy(mxyB, mxyA, size, cudaMemcpyDeviceToDevice);
-    cudaMemcpy(myyB, myyA, size, cudaMemcpyDeviceToDevice);
+    cudaMemcpy(sim.momB, sim.momA, sim.size, cudaMemcpyDeviceToDevice);
 
-    float *rho_host = (float *)malloc(size);
-    float *ux_host = (float *)malloc(size);
-    float *uy_host = (float *)malloc(size);
+    float *mom_host = (float *)malloc(sim.size);
 
     std::ofstream file("animation/tke.csv");
     file << "time,tke\n";
@@ -54,27 +45,27 @@ int main()
 
         if (t & 1)
         {
-            lbm_step<<<N_block, block>>>(rhoA, uxA, uyA, mxxA, mxyA, myyA,
-                                         rhoB, uxB, uyB, mxxB, mxyB, myyB);
+            lbm_step<<<sim.N_block, sim.block>>>(sim.momA, sim.momB);
         }
         else
         {
-            lbm_step<<<N_block, block>>>(rhoB, uxB, uyB, mxxB, mxyB, myyB,
-                                         rhoA, uxA, uyA, mxxA, mxyA, myyA);
+            lbm_step<<<sim.N_block, sim.block>>>(sim.momB, sim.momA);
         }
 
         if (t % t_interval == 0)
         {
             cudaDeviceSynchronize();
-            cudaMemcpy(rho_host, rhoA, size, cudaMemcpyDeviceToHost);
-            cudaMemcpy(ux_host, uxA, size, cudaMemcpyDeviceToHost);
-            cudaMemcpy(uy_host, uyA, size, cudaMemcpyDeviceToHost);
+            cudaMemcpy(mom_host, sim.momA, sim.size, cudaMemcpyDeviceToHost);
+
+            std::cout << "Iteration " << t << std::endl;
+
+            std::cout << std::endl;
 
             std::string path = "./plot";
 
-            write_vti(t, path, rho_host, ux_host, uy_host);
+            write_vti(t, path, mom_host);
 
-            calc_tke(file, ux_host, uy_host, t);
+            calc_tke(file, mom_host, t);
         }
     }
 
@@ -98,9 +89,9 @@ int main()
     int mid_down = (Nx / 2) - 1;
     for (int i = 0; i < Nx; i++)
     {
-        ux_plot = (ux_host[grid_plot(mid_up, i)] + ux_host[grid_plot(mid_down, i)]) / 2.f;
+        ux_plot = (mom_host[grid_plot(mid_up, i) + 1] + mom_host[grid_plot(mid_down, i) + 1]) / 2.f; // ux
         ux_plot /= u_max;
-        uy_plot = (uy_host[grid_plot(i, mid_up)] + uy_host[grid_plot(i, mid_down)]) / 2.f;
+        uy_plot = (mom_host[grid_plot(i, mid_up) + 2] + mom_host[grid_plot(i, mid_down) + 2]) / 2.f; // uy
         uy_plot /= u_max;
 
         xplot = (float)(i) / (float)Nx;

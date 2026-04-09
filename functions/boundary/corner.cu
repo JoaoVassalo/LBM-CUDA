@@ -5,8 +5,8 @@
 
 #include <iostream>
 
-__device__ void corner(CInt *I_s, CInt *O_s, int x, int y, float *rho_in, float *ux_in, float *uy_in, float *mxx_in, float *mxy_in, float *myy_in,
-                       float *rho_out)
+__device__ void corner(CInt *I_s, CInt *O_s, int x, int y, float *mom_in,
+                       float *mom_out)
 {
     int index = grid_id();
 
@@ -20,7 +20,7 @@ __device__ void corner(CInt *I_s, CInt *O_s, int x, int y, float *rho_in, float 
 
         int index_from = from_id(x, y, i);
 
-        rho_I += f_i(index_from, i, rho_in, ux_in, uy_in, mxx_in, mxy_in, myy_in);
+        rho_I += f_i(index_from, i, mom_in);
 
         /*---------------------------------------------------------------------*/
         i = O_s[k];
@@ -28,5 +28,5 @@ __device__ void corner(CInt *I_s, CInt *O_s, int x, int y, float *rho_in, float 
         sum_wi += w[i];
     }
 
-    rho_out[index] = rho_I / sum_wi;
+    mom_out[momIdx<MomentId::rho>(index)] = rho_I / sum_wi;
 }

@@ -5,6 +5,11 @@
 
 #include <cmath>
 
+__device__ __forceinline__ int rest(int a, int b)
+{
+    return a - b * (a / b);
+}
+
 __device__ inline int from_id(int x, int y, int i)
 {
     int x_from = x - (int)c_ix[i];
@@ -20,5 +25,17 @@ __device__ inline int from_id(int x, int y, int i)
     if (y_from >= Ny)
         y_from -= Ny;
 
-    return (((x_from / blockDim.x) + gridDim.x * (y_from / blockDim.y)) * blockDim.x * blockDim.y + (x_from - blockDim.x * (x_from / blockDim.x)) + blockDim.x * (y_from - blockDim.y * (y_from / blockDim.y)));
+    int Tx = blockDim.x;
+    int Ty = blockDim.y;
+
+    int tx = rest(x_from, Tx);
+    int ty = rest(y_from, Ty);
+
+    int bx = x_from / Tx;
+    int by = y_from / Ty;
+
+    int Bx = gridDim.x;
+    int By = gridDim.y;
+
+    return ((bx + Bx * by) * Tx * Ty + tx + Tx * ty) * 6;
 }

@@ -12,8 +12,8 @@
 #include "./boundary/wall.cuh"
 #include "./boundary/center.cuh"
 
-__device__ void propagation(float *rho_in, float *ux_in, float *uy_in, float *mxx_in, float *mxy_in, float *myy_in,
-                            float *rho_out, float *ux_out, float *uy_out, float *mxx_out, float *mxy_out, float *myy_out)
+__device__ void propagation(float *mom_in,
+                            float *mom_out)
 {
    int x = blockIdx.x * blockDim.x + threadIdx.x;
    int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -24,114 +24,114 @@ __device__ void propagation(float *rho_in, float *ux_in, float *uy_in, float *mx
    { // Sudoeste
 
       corner(Is_SW, Os_SW, x, y,
-             rho_in, ux_in, uy_in, mxx_in, mxy_in, myy_in,
-             rho_out);
+             mom_in,
+             mom_out);
 
-      ux_out[index] = 0.f;
-      uy_out[index] = 0.f;
+      mom_out[index + 1] = 0.f; // ux
+      mom_out[index + 2] = 0.f; // uy
 
-      mxx_out[index] = 0.f;
-      myy_out[index] = 0.f;
-      mxy_out[index] = 0.f;
+      mom_out[index + 3] = 0.f; // mxx
+      mom_out[index + 4] = 0.f; // myy
+      mom_out[index + 5] = 0.f; // mxy
    }
    else if (x == Nx - 1 && y == 0)
    { // Sudeste
       corner(Is_SE, Os_SE, x, y,
-             rho_in, ux_in, uy_in, mxx_in, mxy_in, myy_in,
-             rho_out);
+             mom_in,
+             mom_out);
 
-      ux_out[index] = 0.f;
-      uy_out[index] = 0.f;
+      mom_out[index + 1] = 0.f; // ux
+      mom_out[index + 2] = 0.f; // uy
 
-      mxx_out[index] = 0.f;
-      myy_out[index] = 0.f;
-      mxy_out[index] = 0.f;
+      mom_out[index + 3] = 0.f; // mxx
+      mom_out[index + 4] = 0.f; // myy
+      mom_out[index + 5] = 0.f; // mxy
    }
    else if (x == 0 && y == Ny - 1)
    { // Noroeste
       constexpr int size = 4;
 
       north(size, Is_NW, Os_NW, x, y,
-            rho_in, ux_in, uy_in, mxx_in, mxy_in, myy_in,
-            rho_out, mxy_out);
+            mom_in,
+            mom_out);
 
-      ux_out[index] = u_max;
-      uy_out[index] = 0;
+      mom_out[index + 1] = u_max; // ux
+      mom_out[index + 2] = 0;     // uy
 
-      mxx_out[index] = u_max * u_max;
-      myy_out[index] = 0.f;
+      mom_out[index + 3] = u_max * u_max; // mxx
+      mom_out[index + 4] = 0.f;           // myy
    }
    else if (x == Nx - 1 && y == Ny - 1)
    { // Nordeste
       constexpr int size = 4;
 
       north(size, Is_NE, Os_NE, x, y,
-            rho_in, ux_in, uy_in, mxx_in, mxy_in, myy_in,
-            rho_out, mxy_out);
+            mom_in,
+            mom_out);
 
-      ux_out[index] = u_max;
-      uy_out[index] = 0.f;
+      mom_out[index + 1] = u_max; // ux
+      mom_out[index + 2] = 0.f;   // uy
 
-      mxx_out[index] = u_max * u_max;
-      myy_out[index] = 0.f;
+      mom_out[index + 3] = u_max * u_max; // mxx
+      mom_out[index + 4] = 0.f;           // myy
    }
    else if (y == 0)
    { // Sul
 
       wall(Is_S, Os_S, x, y,
-           rho_in, ux_in, uy_in, mxx_in, mxy_in, myy_in,
-           rho_out, mxy_out);
+           mom_in,
+           mom_out);
 
-      ux_out[index] = 0.f;
-      uy_out[index] = 0.f;
+      mom_out[index + 1] = 0.f; // ux
+      mom_out[index + 2] = 0.f; // uy
 
-      mxx_out[index] = 0.f;
-      myy_out[index] = 0.f;
+      mom_out[index + 3] = 0.f; // mxx
+      mom_out[index + 4] = 0.f; // myy
    }
    else if (y == Ny - 1)
    { // Norte
       constexpr int size = 6;
 
       north(size, Is_N, Os_N, x, y,
-            rho_in, ux_in, uy_in, mxx_in, mxy_in, myy_in,
-            rho_out, mxy_out);
+            mom_in,
+            mom_out);
 
-      ux_out[index] = u_max;
-      uy_out[index] = 0.f;
+      mom_out[index + 1] = u_max; // ux
+      mom_out[index + 2] = 0.f;   // uy
 
-      mxx_out[index] = u_max * u_max;
-      myy_out[index] = 0.f;
+      mom_out[index + 3] = u_max * u_max; // mxx
+      mom_out[index + 4] = 0.f;           // myy
    }
    else if (x == 0)
    { // Oeste
 
       wall(Is_W, Os_W, x, y,
-           rho_in, ux_in, uy_in, mxx_in, mxy_in, myy_in,
-           rho_out, mxy_out);
+           mom_in,
+           mom_out);
 
-      ux_out[index] = 0.f;
-      uy_out[index] = 0.f;
+      mom_out[index + 1] = 0.f; // ux
+      mom_out[index + 2] = 0.f; // uy
 
-      mxx_out[index] = 0.f;
-      myy_out[index] = 0.f;
+      mom_out[index + 3] = 0.f; // mxx
+      mom_out[index + 4] = 0.f; // myy
    }
    else if (x == Nx - 1)
    { // Leste
 
       wall(Is_E, Os_E, x, y,
-           rho_in, ux_in, uy_in, mxx_in, mxy_in, myy_in,
-           rho_out, mxy_out);
+           mom_in,
+           mom_out);
 
-      ux_out[index] = 0.f;
-      uy_out[index] = 0.f;
+      mom_out[index + 1] = 0.f; // ux
+      mom_out[index + 2] = 0.f; // uy
 
-      mxx_out[index] = 0.f;
-      myy_out[index] = 0.f;
+      mom_out[index + 3] = 0.f; // mxx
+      mom_out[index + 4] = 0.f; // myy
    }
    else
    { // Centro
       center(x, y,
-             rho_in, ux_in, uy_in, mxx_in, mxy_in, myy_in,
-             rho_out, ux_out, uy_out, mxx_out, mxy_out, myy_out);
+             mom_in,
+             mom_out);
    }
 }

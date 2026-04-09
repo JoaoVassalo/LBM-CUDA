@@ -3,6 +3,8 @@
 #include "./presets/geometry.h"
 #include "./functions/grid_plot.cuh"
 
+#include "cuda_config/var.cuh"
+
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
@@ -10,7 +12,7 @@
 #include <iostream>
 #include <string>
 
-__host__ void write_vti(int step, const std::string &out_dir, float *rho_host, float *ux_host, float *uy_host)
+__host__ void write_vti(int step, const std::string &out_dir, float *mom_host)
 {
     namespace fs = std::filesystem;
 
@@ -50,7 +52,7 @@ __host__ void write_vti(int step, const std::string &out_dir, float *rho_host, f
         for (int x = 0; x < nx; ++x)
         {
             const size_t idx = grid_plot(x, y);
-            const float rho = rho_host[idx];
+            const float rho = mom_host[idx]; // rho
             file << "          " << static_cast<float>(rho) << "\n";
         }
     }
@@ -63,7 +65,7 @@ __host__ void write_vti(int step, const std::string &out_dir, float *rho_host, f
         for (int x = 0; x < nx; ++x)
         {
             const size_t idx = grid_plot(x, y);
-            const float ux = ux_host[idx];
+            const float ux = mom_host[idx + 1]; // ux
             file << "          " << static_cast<float>(ux) << "\n";
         }
     }
@@ -76,7 +78,7 @@ __host__ void write_vti(int step, const std::string &out_dir, float *rho_host, f
         for (int x = 0; x < nx; ++x)
         {
             const size_t idx = grid_plot(x, y);
-            const float uy = uy_host[idx];
+            const float uy = mom_host[idx + 2]; // uy
             file << "          " << static_cast<float>(uy) << "\n";
         }
     }
@@ -89,8 +91,8 @@ __host__ void write_vti(int step, const std::string &out_dir, float *rho_host, f
         for (int x = 0; x < nx; ++x)
         {
             const size_t idx = grid_plot(x, y);
-            const float ux = ux_host[idx];
-            const float uy = uy_host[idx];
+            const float ux = mom_host[momIdx<MomentId::ux>(idx)]; // ux
+            const float uy = mom_host[momIdx<MomentId::uy>(idx)]; // uy
 
             file << "          "
                  << static_cast<float>(ux) << " "
