@@ -1,5 +1,7 @@
 #include "propagation.cuh"
 
+#include <iostream>
+
 #include "../presets/geometry.h"
 #include "../presets/stencil.cuh"
 #include "../presets/physics.h"
@@ -27,15 +29,16 @@ __device__ void propagation(float *mom_in,
              mom_in,
              mom_out);
 
-      mom_out[index + 1] = 0.f; // ux
-      mom_out[index + 2] = 0.f; // uy
+      mom_out[momIdx<MomentId::ux>(index)] = 0.f; // ux
+      mom_out[momIdx<MomentId::uy>(index)] = 0.f; // uy
 
-      mom_out[index + 3] = 0.f; // mxx
-      mom_out[index + 4] = 0.f; // myy
-      mom_out[index + 5] = 0.f; // mxy
+      mom_out[momIdx<MomentId::mxx>(index)] = 0.f; // mxx
+      mom_out[momIdx<MomentId::myy>(index)] = 0.f; // myy
+      mom_out[momIdx<MomentId::myy>(index)] = 0.f; // mxy
    }
    else if (x == Nx - 1 && y == 0)
    { // Sudeste
+
       corner(Is_SE, Os_SE, x, y,
              mom_in,
              mom_out);
@@ -130,6 +133,7 @@ __device__ void propagation(float *mom_in,
    }
    else
    { // Centro
+
       center(x, y,
              mom_in,
              mom_out);

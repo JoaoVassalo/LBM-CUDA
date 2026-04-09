@@ -35,7 +35,7 @@ __device__ inline int from_id(int x, int y, int i)
     int by = y_from / Ty;
 
     int Bx = gridDim.x;
-    int By = gridDim.y;
+    // int By = gridDim.y;
 
     return ((bx + Bx * by) * Tx * Ty + tx + Tx * ty) * 6;
 }

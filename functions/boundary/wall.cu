@@ -11,7 +11,6 @@ __device__ void wall(CInt *I_s, CInt *O_s, int x, int y,
 {
     float sum_fi = 0.f;
     float mxy_I = 0.f;
-    float rho_I_rho = 0.f;
 
     float Is_up = 0.f;
     float Is_down = 0.f;
@@ -39,15 +38,12 @@ __device__ void wall(CInt *I_s, CInt *O_s, int x, int y,
         i = O_s[k];
         index_from = from_id(x, y, i);
 
-        rho_I_rho += w[i] +
-                     w[i] * (1.f - omega) * a_s4 * mom_in[index_from + 5] * (c_ix[i] * c_iy[i]); // mxy
-
         Os_up += w[i];
 
         Os_down += w[i] * a_s4 * c_ix[i] * c_iy[i];
     }
     mxy_I /= sum_fi;
 
-    mom_out[index] = sum_fi / rho_I_rho;                                                      // rho
-    mom_out[index + 5] = (Is_up - mxy_I * Os_up) / (mxy_I * (1 - omega) * Os_down - Is_down); // mxy
+    mom_out[index + 5] = (Is_up - mxy_I * Os_up) / (mxy_I * (1.f - omega) * Os_down - Is_down);                                 // mxy
+    mom_out[momIdx<MomentId::rho>(index)] = sum_fi / ((1.f - omega) * Os_down * mom_out[momIdx<MomentId::mxy>(index)] + Os_up); // rho
 }
