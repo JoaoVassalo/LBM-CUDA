@@ -16,10 +16,10 @@ __global__ void initDomain(float *mom)
 
     int index = grid_id();
 
-    mom[index] = 1.f;     // rho
-    mom[index + 1] = 0.f; // ux
-    mom[index + 2] = 0.f; // uy
-    mom[index + 3] = 0.f; // mxx
-    mom[index + 4] = 0.f; // mxy
-    mom[index + 5] = 0.f; // myy
+    mom[momIdx<MomentId::rho>(index)] = 1.f; // rho
+    mom[momIdx<MomentId::ux>(index)] = 0.f;  // ux
+    mom[momIdx<MomentId::uy>(index)] = 0.f;  // uy
+    mom[momIdx<MomentId::mxx>(index)] = 0.f; // mxx
+    mom[momIdx<MomentId::mxy>(index)] = 0.f; // mxy
+    mom[momIdx<MomentId::myy>(index)] = 0.f; // myy
 }
