@@ -1,8 +1,8 @@
 #pragma once
 
 // Grid size.
-constexpr int Nx = 1024;
-constexpr int Ny = 1024;
+constexpr int Nx = 64;
+constexpr int Ny = 64;
 constexpr int grid_num = Nx * Ny;
 
 // Simulation time.
