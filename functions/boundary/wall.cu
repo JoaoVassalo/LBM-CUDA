@@ -44,6 +44,6 @@ __device__ void wall(CInt *I_s, CInt *O_s, int x, int y,
     }
     mxy_I /= sum_fi;
 
-    mom_out[index + 5] = (Is_up - mxy_I * Os_up) / (mxy_I * (1.f - omega) * Os_down - Is_down);                                 // mxy
+    mom_out[momIdx<MomentId::mxy>(index)] = (Is_up - mxy_I * Os_up) / (mxy_I * (1.f - omega) * Os_down - Is_down);              // mxy
     mom_out[momIdx<MomentId::rho>(index)] = sum_fi / ((1.f - omega) * Os_down * mom_out[momIdx<MomentId::mxy>(index)] + Os_up); // rho
 }

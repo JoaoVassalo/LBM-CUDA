@@ -2,6 +2,7 @@
 
 #include "../presets/config.h"
 #include "../presets/geometry.h"
+#include "../functions/rest.cuh"
 
 enum MomentId
 {
@@ -29,21 +30,11 @@ struct D2Q9
 template <int I>
 __host__ __device__ __forceinline__ int momIdx(int index)
 {
-    // int blockId = index - BX * BY * (index / (BX * BY));
-    int blockId = index / (BX * BY);
-    return index + BX * BY * (blockId * D2Q9::num_var + I);
+    constexpr int blockSize = BX * BY;
+    constexpr int blockStride = blockSize * D2Q9::num_var;
+
+    int blockId = index / blockSize;
+    int localId = rest(index, blockSize);
+
+    return blockId * blockStride + I * blockSize + localId;
 }
-
-// template <int I>
-// __host__ __device__ __forceinline__ int momIdx(int cellIdx)
-// {
-//     const int blockSize = BX * BY;
-//     int blockId = cellIdx / blockSize;  // Qual bloco estamos
-//     int localIdx = cellIdx % blockSize; // Posição da célula dentro do bloco
-
-//     // Cálculo do deslocamento:
-//     // 1. Início do bloco: blockId * blockSize * num_var
-//     // 2. Salto da variável: I * blockSize
-//     // 3. Posição na "camada": localIdx
-//     return (blockId * D2Q9::num_var * blockSize) + (I * blockSize) + localIdx;
-// }

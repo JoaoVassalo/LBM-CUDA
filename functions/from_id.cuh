@@ -3,12 +3,9 @@
 #include "../presets/geometry.h"
 #include "../presets/stencil.cuh"
 
-#include <cmath>
+#include "rest.cuh"
 
-__device__ __forceinline__ int rest(int a, int b)
-{
-    return a - b * (a / b);
-}
+#include <cmath>
 
 __device__ inline int from_id(int x, int y, int i)
 {
@@ -37,5 +34,5 @@ __device__ inline int from_id(int x, int y, int i)
     int Bx = gridDim.x;
     // int By = gridDim.y;
 
-    return ((bx + Bx * by) * Tx * Ty + tx + Tx * ty) * 6;
+    return ((bx + Bx * by) * Tx * Ty + tx + Tx * ty);
 }

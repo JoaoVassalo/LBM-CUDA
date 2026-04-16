@@ -52,7 +52,7 @@ __host__ void write_vti(int step, const std::string &out_dir, float *mom_host)
         for (int x = 0; x < nx; ++x)
         {
             const size_t idx = grid_plot(x, y);
-            const float rho = mom_host[idx]; // rho
+            const float rho = mom_host[momIdx<MomentId::rho>(idx)]; // rho
             file << "          " << static_cast<float>(rho) << "\n";
         }
     }
@@ -65,7 +65,7 @@ __host__ void write_vti(int step, const std::string &out_dir, float *mom_host)
         for (int x = 0; x < nx; ++x)
         {
             const size_t idx = grid_plot(x, y);
-            const float ux = mom_host[idx + 1]; // ux
+            const float ux = mom_host[momIdx<MomentId::ux>(idx)]; // ux
             file << "          " << static_cast<float>(ux) << "\n";
         }
     }
@@ -78,7 +78,7 @@ __host__ void write_vti(int step, const std::string &out_dir, float *mom_host)
         for (int x = 0; x < nx; ++x)
         {
             const size_t idx = grid_plot(x, y);
-            const float uy = mom_host[idx + 2]; // uy
+            const float uy = mom_host[momIdx<MomentId::uy>(idx)]; // uy
             file << "          " << static_cast<float>(uy) << "\n";
         }
     }
