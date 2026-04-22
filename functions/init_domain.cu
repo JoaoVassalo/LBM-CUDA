@@ -6,7 +6,7 @@
 #include "grid_id.cuh"
 #include "pop_id.cuh"
 
-__global__ void initDomain(float *mom)
+__global__ void initDomain(float *mom, float *layer)
 {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -22,4 +22,14 @@ __global__ void initDomain(float *mom)
     mom[momIdx<MomentId::mxx>(index)] = 0.f; // mxx
     mom[momIdx<MomentId::mxy>(index)] = 0.f; // mxy
     mom[momIdx<MomentId::myy>(index)] = 0.f; // myy
+
+    if (y < 3)
+    {
+        layer[momIdx<MomentId::rho>(index)] = 1.f; // rho
+        layer[momIdx<MomentId::ux>(index)] = 2.f;  // ux
+        layer[momIdx<MomentId::uy>(index)] = 3.f;  // uy
+        layer[momIdx<MomentId::mxx>(index)] = 4.f; // mxx
+        layer[momIdx<MomentId::mxy>(index)] = 5.f; // mxy
+        layer[momIdx<MomentId::myy>(index)] = 6.f; // myy
+    }
 }

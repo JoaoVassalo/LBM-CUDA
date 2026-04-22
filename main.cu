@@ -21,10 +21,10 @@ int main()
 
     D2Q9 sim;
 
-    cudaMalloc((void **)&sim.momA, sim.size);
-    cudaMalloc((void **)&sim.momB, sim.size);
+    cudaMalloc((void **)&sim.mom, sim.size);
+    cudaMalloc((void **)&sim.layer, sim.layer_size);
 
-    initDomain<<<sim.N_block, sim.block>>>(sim.momA);
+    initDomain<<<sim.N_block, sim.block>>>(sim.mom, sim.layer);
 
     cudaError_t err = cudaGetLastError();
     printf("Kernel launch error: %s\n", cudaGetErrorString(err));
