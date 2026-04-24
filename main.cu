@@ -31,9 +31,7 @@ int main()
 
     cudaDeviceSynchronize();
 
-    cudaMemcpy(sim.momB, sim.momA, sim.size, cudaMemcpyDeviceToDevice);
-
-    float *mom_host = (float *)malloc(sim.size);
+       float *mom_host = (float *)malloc(sim.size);
 
     std::ofstream file("animation/tke.csv");
     file << "time,tke\n";
