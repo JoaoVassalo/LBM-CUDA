@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../presets/geometry.h"
-#include "../presets/stencil.cuh"
+#include "../config/geometry.h"
+#include "../config/stencil.cuh"
 
 #include "rest.cuh"
 

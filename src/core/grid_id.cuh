@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../presets/geometry.h"
-#include "../cuda_config/var.cuh"
+#include "../config/geometry.h"
+#include "../config/var.cuh"
 
 __device__ inline int grid_id()
 {

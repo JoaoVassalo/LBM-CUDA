@@ -13,3 +13,9 @@ constexpr int layer_num = LNx * LNy;
 // Simulation time.
 constexpr int tf = 4e6;
 constexpr int t_interval = 4e4;
+
+// Block size
+#define BX 32
+#define BY 16
+#define GX (Nx / BX)
+#define GY (Ny / BY)

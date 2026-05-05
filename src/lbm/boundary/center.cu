@@ -1,11 +1,11 @@
-#include "../../presets/config.h"
-#include "../../presets/stencil.cuh"
+#include "../config/config.h"
+#include "../config/stencil.cuh"
 
-#include "../equations/f_i.cuh"
-#include "../grid_id.cuh"
-#include "../from_id.cuh"
+#include "../lbm/f_i.cuh"
+#include "../core/grid_id.cuh"
+#include "../core/from_id.cuh"
 
-#include "../../cuda_config/var.cuh"
+#include "../config/var.cuh"
 
 __device__ void center(int x, int y,
                        float *mom_in,

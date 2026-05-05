@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../presets/config.h"
-#include "../presets/geometry.h"
-#include "../functions/rest.cuh"
+#include "config.h"
+#include "geometry.h"
+#include "../core/rest.cuh"
 
 enum MomentId
 {

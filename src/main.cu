@@ -7,13 +7,16 @@
 #include "presets/geometry.h"
 #include "presets/config.h"
 #include "presets/physics.h"
-#include "cuda_config/var.cuh"
+
+#include "lbm_config/mom_config.cuh"
+#include "lbm_config/var.cuh"
 
 #include "functions/init_domain.cuh"
 #include "functions/lbm_step.cuh"
 #include "functions/calc_tke.cuh"
 #include "functions/grid_id.cuh"
 #include "functions/grid_plot.cuh"
+
 #include "vtk.cuh"
 
 int main()
@@ -31,7 +34,7 @@ int main()
 
     cudaDeviceSynchronize();
 
-       float *mom_host = (float *)malloc(sim.size);
+    float *mom_host = (float *)malloc(sim.size);
 
     std::ofstream file("animation/tke.csv");
     file << "time,tke\n";

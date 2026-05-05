@@ -1,10 +1,11 @@
 #pragma once
 
-#include "../../presets/stencil.cuh"
-#include "../../cuda_config/var.cuh"
+#include "../config/var.cuh"
+#include "../config/stencil.cuh"
 
 __device__ inline float f_i(int index, int i, float *mom)
 {
+
     return mom[momIdx<MomentId::rho>(index)] * w[i] * // rho
            (1.f +
             a_s2 * mom[momIdx<MomentId::ux>(index)] * c_ix[i] +                               // ux

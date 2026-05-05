@@ -1,7 +1,7 @@
 #pragma once
 
-#include "/home/jvassalo/LBM-CUDA/presets/geometry.h"
-#include "/home/jvassalo/LBM-CUDA/presets/stencil.cuh"
+#include "geometry.h"
+#include "stencil.cuh"
 
 // Calc Tau.
 constexpr int Re = 1000;
