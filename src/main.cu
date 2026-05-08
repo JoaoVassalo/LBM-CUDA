@@ -3,25 +3,25 @@
 #include <chrono>
 #include <fstream>
 
-#include "presets/stencil.cuh"
-#include "presets/geometry.h"
-#include "presets/config.h"
-#include "presets/physics.h"
+#include "config/stencil.cuh"
+#include "config/geometry.h"
+#include "config/mom_config.cuh"
+#include "config/physics.h"
 
-#include "lbm_config/mom_config.cuh"
-#include "lbm_config/var.cuh"
+#include "lbm/init/init_domain.cuh"
+#include "lbm/step.cuh"
+#include "lbm/build/build_mom.cuh"
 
-#include "functions/init_domain.cuh"
-#include "functions/lbm_step.cuh"
-#include "functions/calc_tke.cuh"
-#include "functions/grid_id.cuh"
-#include "functions/grid_plot.cuh"
+#include "core/calc_tke.cuh"
+#include "core/grid_id.cuh"
+#include "core/grid_plot.cuh"
 
 #include "vtk.cuh"
 
 int main()
 {
 
+    return 0;
     D2Q9 sim;
 
     cudaMalloc((void **)&sim.mom, sim.size);
@@ -46,11 +46,11 @@ int main()
 
         if (t & 1)
         {
-            lbm_step<<<sim.N_block, sim.block>>>(sim.momA, sim.momB);
+            step<<<sim.N_block, sim.block>>>(sim.momA, sim.momB);
         }
         else
         {
-            lbm_step<<<sim.N_block, sim.block>>>(sim.momB, sim.momA);
+            step<<<sim.N_block, sim.block>>>(sim.momB, sim.momA);
         }
 
         if (t % t_interval == 0)

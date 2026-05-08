@@ -1,6 +1,12 @@
-#include "../config/mom_config.cuh"
+#include "boundary.cuh"
 
-__host__ __device__ applyBoundary()
+#include "../../config/mom_config.cuh"
+#include "../build/build_grid.cuh"
+
+#include "../core/grid_id.cuh"
+#include "../core/to_u8.cuh"
+
+__device__ void applyBoundary(uint8_t *node, uint8_t *mask)
 {
-    if (mask & i)
+    int index = grid_id();
 }

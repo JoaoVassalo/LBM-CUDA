@@ -2,9 +2,9 @@
 #include "propagation.cuh"
 #include "grid_id.cuh"
 
-#include "../presets/geometry.h"
+#include "../config/geometry.h"
 
-__global__ void lbm_step(float *mom_in, float *mom_out)
+__global__ void step(float *mom)
 {
 
     int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -15,7 +15,7 @@ __global__ void lbm_step(float *mom_in, float *mom_out)
 
     int index = grid_id();
 
-    propagation(mom_in, mom_out);
+    propagation(mom);
 
-    collision(index, mom_out);
+    collision(index, mom);
 }

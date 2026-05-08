@@ -1,10 +1,13 @@
-#include "../presets/stencil.cuh"
-#include "../presets/geometry.h"
-#include "../presets/config.h"
+#include "../../config/stencil.cuh"
+#include "../../config/geometry.h"
+#include "../../config/mom_config.cuh"
 
-#include "equilibrium.cuh"
-#include "grid_id.cuh"
-#include "pop_id.cuh"
+#include "../build/build_mom.cuh"
+
+#include "../equilibrium.cuh"
+
+#include "../../core/grid_id.cuh"
+#include "../../core/pop_id.cuh"
 
 __global__ void initDomain(float *mom, float *layer)
 {
@@ -22,14 +25,4 @@ __global__ void initDomain(float *mom, float *layer)
     mom[momIdx<MomentId::mxx>(index)] = 0.f; // mxx
     mom[momIdx<MomentId::mxy>(index)] = 0.f; // mxy
     mom[momIdx<MomentId::myy>(index)] = 0.f; // myy
-
-    if (y < 3)
-    {
-        layer[momIdx<MomentId::rho>(index)] = 1.f; // rho
-        layer[momIdx<MomentId::ux>(index)] = 2.f;  // ux
-        layer[momIdx<MomentId::uy>(index)] = 3.f;  // uy
-        layer[momIdx<MomentId::mxx>(index)] = 4.f; // mxx
-        layer[momIdx<MomentId::mxy>(index)] = 5.f; // mxy
-        layer[momIdx<MomentId::myy>(index)] = 6.f; // myy
-    }
 }

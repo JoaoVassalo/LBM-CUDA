@@ -1,8 +1,5 @@
 #pragma once
 
-#include "../config/geometry.h"
-#include "../config/var.cuh"
-
 __device__ inline int grid_id()
 {
     return ((blockIdx.x + gridDim.x * blockIdx.y) * blockDim.x * blockDim.y +

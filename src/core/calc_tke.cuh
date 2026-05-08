@@ -1,5 +1,5 @@
-#include "../presets/physics.h"
-#include "../presets/geometry.h"
+#include "../config/physics.h"
+#include "../config/geometry.h"
 #include <fstream>
 
 inline void calc_tke(std::ofstream &file, float *mom, int t)

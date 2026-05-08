@@ -1,7 +1,6 @@
 #pragma once
 
-#include "../presets/geometry.h"
-#include "../presets/config.h"
+#include "../config/geometry.h"
 #include "rest.cuh"
 
 __host__ inline int grid_plot(int x, int y)
