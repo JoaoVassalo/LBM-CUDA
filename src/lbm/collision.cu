@@ -1,8 +1,8 @@
-#include "../presets/geometry.h"
-#include "../presets/physics.h"
+#include "../config/geometry.h"
+#include "../config/physics.h"
 
 #include "collision.cuh"
-#include "../cuda_config/var.cuh"
+#include "build/build_mom.cuh"
 
 __device__ void collision(int index, float *mom)
 {

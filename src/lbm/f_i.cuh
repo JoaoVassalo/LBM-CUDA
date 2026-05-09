@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../config/var.cuh"
+#include "build/build_mom.cuh"
 #include "../config/stencil.cuh"
 
 __device__ inline float f_i(int index, int i, float *mom)
