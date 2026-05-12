@@ -16,14 +16,20 @@ struct Grid2D
     uint8_t *node;
 };
 
-__host__ void build_grid(D2Q9 sim)
+__device__ void build_directions(uint8_t node, uint8_t mask)
 {
-    Grid2D grid;
 
-    cudaMalloc((void **)grid.mask, sizeof(uint8_t) * Nx * Ny);
-    cudaMalloc((void **)grid.node, sizeof(uint8_t) * Nx * Ny);
+    int *out;
 
-    init_grid<<<sim.N_block, sim.block>>>(grid.node, grid.mask);
+    int out_cont = 0;
+
+    out[out_cont++] = 0;
+
+    for (int i = 1; i < Q; i++)
+    {
+        if (mask & (1u << i - 1))
+            out[out_cont++] = i;
+    }
 }
 
 __device__ void init_grid(uint8_t *node, uint8_t *mask)
@@ -62,4 +68,14 @@ __device__ void init_grid(uint8_t *node, uint8_t *mask)
     }
 
     mask[index] = m;
+}
+
+__host__ void build_grid(D2Q9 sim)
+{
+    Grid2D grid;
+
+    cudaMalloc((void **)grid.mask, sizeof(uint8_t) * Nx * Ny);
+    cudaMalloc((void **)grid.node, sizeof(uint8_t) * Nx * Ny);
+
+    init_grid<<<sim.N_block, sim.block>>>(grid.node, grid.mask);
 }
