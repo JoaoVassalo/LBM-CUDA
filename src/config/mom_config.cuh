@@ -2,6 +2,7 @@
 
 #include "stencil.cuh"
 #include "physics.h"
+#include "../lbm/build/build_grid.cuh"
 
 enum Boundary
 {
@@ -16,34 +17,35 @@ enum Boundary
     Southeast
 };
 
-__host__ void calc_constant(float ux, float uy, int size,
+__host__ void calc_constant(float ux, float uy,
                             float &C1, float &C2, float &C3, float &C4)
 {
-    for (int k = 0; k < size; k++)
+    for (int k = 0; k < Q; k++)
     {
         // Os
-        int i = Os_E[k];
+        if (mask & (1u << k))
+        {
+            C1 += w[k] *
+                      (1.f +
+                       a_s2 * ux * c_ix[k] +
+                       a_s2 * uy * c_iy[k] +
+                       a_s4 * 0.5f * ux * ux +
+                       a_s4 * 0.5f * uy * uy) +
+                  omega * a_s4 * 0.5f * ux * uy * c_ix[k] * c_iy[k];
+            C2 += (1.f - omega) * w[k] * a_s4 * 0.5f * c_ix[k] * c_iy[k];
 
-        C1 += w[i] *
+            /*--------------------------------------------------------------------------*/
+            // Is
+            int i = income(k);
+
+            C3 += w[i] *
                   (1.f +
-                   a_s2 * ux * c_ix[i] +
-                   a_s2 * uy * c_iy[i] +
-                   a_s4 * 0.5f * ux * ux +
-                   a_s4 * 0.5f * uy * uy) +
-              omega * a_s4 * 0.5f * ux * uy * c_ix[i] * c_iy[i];
-        C2 += (1.f - omega) * w[i] * a_s4 * 0.5f * c_ix[i] * c_iy[i];
-
-        /*--------------------------------------------------------------------------*/
-        // Is
-        i = Is_E[k];
-
-        C3 += w[i] *
-              (1.f +
-               a_s2 * ux * c_ix[i] + a_s2 * uy * c_iy[i] +
-               a_s4 * 0.5f * ux * ux * (c_ix[i] * c_ix[i] - inv_as2) +
-               a_s4 * 0.5f * uy * uy * (c_iy[i] * c_iy[i] - inv_as2)) *
-              c_ix[i] * c_iy[i];
-        C4 += w[i] * a_s4 * c_ix[i] * c_iy[i] * c_ix[i] * c_iy[i];
+                   a_s2 * ux * c_ix[i] + a_s2 * uy * c_iy[i] +
+                   a_s4 * 0.5f * ux * ux * (c_ix[i] * c_ix[i] - inv_as2) +
+                   a_s4 * 0.5f * uy * uy * (c_iy[i] * c_iy[i] - inv_as2)) *
+                  c_ix[i] * c_iy[i];
+            C4 += w[i] * a_s4 * c_ix[i] * c_iy[i] * c_ix[i] * c_iy[i];
+        }
     }
 }
 
@@ -56,7 +58,6 @@ struct Constants
 template <>
 struct Constants<Boundary::East>
 {
-    static constexpr int size = 6;
 
     static constexpr float ux = 0.f;
     static constexpr float uy = 0.f;
@@ -67,7 +68,7 @@ struct Constants<Boundary::East>
           C4 = 0.f;
     __host__ Constants()
     {
-        calc_constant(ux, uy, size, C1, C2, C3, C4);
+        calc_constant(ux, uy, C1, C2, C3, C4);
     }
 };
 
@@ -75,7 +76,6 @@ struct Constants<Boundary::East>
 template <>
 struct Constants<Boundary::North>
 {
-    static constexpr int size = 6;
 
     static constexpr float ux = 1.f;
     static constexpr float uy = 0.f;
@@ -87,14 +87,13 @@ struct Constants<Boundary::North>
 
     __host__ Constants()
     {
-        calc_constant(ux, uy, size, C1, C2, C3, C4);
+        calc_constant(ux, uy, C1, C2, C3, C4);
     }
 };
 // West
 template <>
 struct Constants<Boundary::West>
 {
-    static constexpr int size = 6;
 
     static constexpr float ux = 0.f;
     static constexpr float uy = 0.f;
@@ -106,14 +105,13 @@ struct Constants<Boundary::West>
 
     __host__ Constants()
     {
-        calc_constant(ux, uy, size, C1, C2, C3, C4);
+        calc_constant(ux, uy, C1, C2, C3, C4);
     }
 };
 // South
 template <>
 struct Constants<Boundary::South>
 {
-    static constexpr int size = 6;
 
     static constexpr float ux = 0.f;
     static constexpr float uy = 0.f;
@@ -125,14 +123,13 @@ struct Constants<Boundary::South>
 
     __host__ Constants()
     {
-        calc_constant(ux, uy, size, C1, C2, C3, C4);
+        calc_constant(ux, uy, C1, C2, C3, C4);
     }
 };
 // Northeast
 template <>
 struct Constants<Boundary::Northeast>
 {
-    static constexpr int size = 4;
 
     static constexpr float ux = 1.f;
     static constexpr float uy = 0.f;
@@ -144,14 +141,13 @@ struct Constants<Boundary::Northeast>
 
     __host__ Constants()
     {
-        calc_constant(ux, uy, size, C1, C2, C3, C4);
+        calc_constant(ux, uy, C1, C2, C3, C4);
     }
 };
 // Northwest
 template <>
 struct Constants<Boundary::Northwest>
 {
-    static constexpr int size = 4;
 
     static constexpr float ux = 1.f;
     static constexpr float uy = 0.f;
@@ -163,14 +159,13 @@ struct Constants<Boundary::Northwest>
 
     __host__ Constants()
     {
-        calc_constant(ux, uy, size, C1, C2, C3, C4);
+        calc_constant(ux, uy, C1, C2, C3, C4);
     }
 };
 // Southwest
 template <>
 struct Constants<Boundary::Southwest>
 {
-    static constexpr int size = 4;
 
     static constexpr float ux = 0.f;
     static constexpr float uy = 0.f;
@@ -182,14 +177,13 @@ struct Constants<Boundary::Southwest>
 
     __host__ Constants()
     {
-        calc_constant(ux, uy, size, C1, C2, C3, C4);
+        calc_constant(ux, uy, C1, C2, C3, C4);
     }
 };
 // Southeast
 template <>
 struct Constants<Boundary::Southeast>
 {
-    static constexpr int size = 4;
 
     static constexpr float ux = 0.f;
     static constexpr float uy = 0.f;
@@ -201,6 +195,6 @@ struct Constants<Boundary::Southeast>
 
     __host__ Constants()
     {
-        calc_constant(ux, uy, size, C1, C2, C3, C4);
+        calc_constant(ux, uy, C1, C2, C3, C4);
     }
 };

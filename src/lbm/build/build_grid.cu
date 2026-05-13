@@ -16,19 +16,37 @@ struct Grid2D
     uint8_t *node;
 };
 
-__device__ void build_directions(uint8_t node, uint8_t mask)
+__host__ __device_builtin__ __forceinline__ int income(int i)
 {
-
-    int *out;
-
-    int out_cont = 0;
-
-    out[out_cont++] = 0;
-
-    for (int i = 1; i < Q; i++)
+    switch (i)
     {
-        if (mask & (1u << i - 1))
-            out[out_cont++] = i;
+    case 0:
+        return 0;
+        break;
+    case 1:
+        return 3;
+        break;
+    case 2:
+        return 4;
+        break;
+    case 3:
+        return 1;
+        break;
+    case 4:
+        return 2;
+        break;
+    case 5:
+        return 7;
+        break;
+    case 6:
+        return 8;
+        break;
+    case 7:
+        return 5;
+        break;
+    default: // case 8
+        return 6;
+        break;
     }
 }
 
