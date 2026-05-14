@@ -20,5 +20,5 @@ __device__ void propagation(float *mom, float *layer, uint8_t *mask, uint8_t *no
 {
    int index = grid_id();
 
-   applyBoundary(node, mask, );
+      applyBoundary(node, mask, );
 }

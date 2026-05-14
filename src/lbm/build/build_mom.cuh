@@ -15,6 +15,7 @@ enum MomentId
 
 struct D2Q9
 {
+
     float *mom;
     float *layer;
 
@@ -23,8 +24,8 @@ struct D2Q9
     dim3 block = dim3(BX, BY);
     dim3 N_block = dim3(GX, GY);
 
-    size_t size = Nx * Ny * sizeof(float) * num_var;
-    size_t layer_size = LNx * LNy * sizeof(float) * num_var;
+    size_t size = Geometry::Nx * Geometry::Ny * sizeof(float) * num_var;
+    size_t layer_size = layer::LNx * layer::LNy * sizeof(float) * num_var;
 };
 
 template <int I>

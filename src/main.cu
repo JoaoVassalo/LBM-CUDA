@@ -48,6 +48,8 @@ int main()
 
     for (int t = 0; t < tf; t++)
     {
+        build_layer<<<>>>;
+
         step<<<sim.N_block, sim.block>>>(sim.mom, sim.layer);
 
         if (t % t_interval == 0)
