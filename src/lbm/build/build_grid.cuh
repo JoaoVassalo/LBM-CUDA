@@ -1,8 +1,15 @@
 #pragma once
 
 #include <cstdint>
+#include "../../config/geometry.h"
 
-struct Grid2D;
+struct Grid2D
+{
+    uint8_t *mask;
+    uint8_t *node;
+
+    static constexpr int size = Nx * Ny * sizeof(uint8_t);
+};
 
 enum class domainTags : uint8_t
 {
@@ -12,6 +19,6 @@ enum class domainTags : uint8_t
 
 __host__ __device_builtin__ __forceinline__ int income(int i);
 
-__host__ void build_grid(D2Q9 sim);
+__host__ void build_grid(D2Q9 sim, Grid2D grid);
 
 __device__ void init_grid(uint8_t *node, uint8_t *mask);

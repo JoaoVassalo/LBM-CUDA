@@ -4,7 +4,7 @@
 
 #include "../config/geometry.h"
 
-__global__ void step(float *mom)
+__global__ void step(float *mom, float *layer)
 {
 
     int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -15,7 +15,7 @@ __global__ void step(float *mom)
 
     int index = grid_id();
 
-    propagation(mom);
+    propagation(mom, layer, );
 
     collision(index, mom);
 }

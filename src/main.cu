@@ -2,6 +2,7 @@
 #include <string>
 #include <chrono>
 #include <fstream>
+#include <cstdint>
 
 #include "config/stencil.cuh"
 #include "config/geometry.h"
@@ -27,7 +28,11 @@ int main()
     cudaMalloc((void **)&sim.mom, sim.size);
     cudaMalloc((void **)&sim.layer, sim.layer_size);
 
-    initDomain<<<sim.N_block, sim.block>>>(sim.mom, sim.layer);
+    initDomain<<<sim.N_block, sim.block>>>(sim.mom);
+
+    Grid2D grid;
+
+    build_grid(sim, grid);
 
     cudaError_t err = cudaGetLastError();
     printf("Kernel launch error: %s\n", cudaGetErrorString(err));
@@ -43,20 +48,12 @@ int main()
 
     for (int t = 0; t < tf; t++)
     {
-
-        if (t & 1)
-        {
-            step<<<sim.N_block, sim.block>>>(sim.momA, sim.momB);
-        }
-        else
-        {
-            step<<<sim.N_block, sim.block>>>(sim.momB, sim.momA);
-        }
+        step<<<sim.N_block, sim.block>>>(sim.mom, sim.layer);
 
         if (t % t_interval == 0)
         {
             cudaDeviceSynchronize();
-            cudaMemcpy(mom_host, sim.momA, sim.size, cudaMemcpyDeviceToHost);
+            cudaMemcpy(mom_host, sim.mom, sim.size, cudaMemcpyDeviceToHost);
 
             std::cout << "Iteration " << t << std::endl;
 

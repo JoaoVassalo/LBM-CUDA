@@ -9,7 +9,7 @@
 #include "../../core/grid_id.cuh"
 #include "../../core/pop_id.cuh"
 
-__global__ void initDomain(float *mom, float *layer)
+__global__ void initDomain(float *mom)
 {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;

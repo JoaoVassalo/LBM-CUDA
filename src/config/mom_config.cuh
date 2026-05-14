@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 #include "stencil.cuh"
 #include "physics.h"
 #include "../lbm/build/build_grid.cuh"
@@ -17,14 +19,15 @@ enum Boundary
     Southeast
 };
 
-__host__ void calc_constant(float ux, float uy,
-                            float &C1, float &C2, float &C3, float &C4)
+__host__ __device__ __forceinline__ void calc_constant(float ux, float uy, uint8_t mask,
+                                                       float &C1, float &C2, float &C3, float &C4)
 {
     for (int k = 0; k < Q; k++)
     {
-        // Os
+
         if (mask & (1u << k))
         {
+            // Os
             C1 += w[k] *
                       (1.f +
                        a_s2 * ux * c_ix[k] +
@@ -66,9 +69,9 @@ struct Constants<Boundary::East>
           C2 = 0.f,
           C3 = 0.f,
           C4 = 0.f;
-    __host__ Constants()
+    __host__ Constants(uint8_t mask)
     {
-        calc_constant(ux, uy, C1, C2, C3, C4);
+        calc_constant(ux, uy, mask, C1, C2, C3, C4);
     }
 };
 
@@ -85,9 +88,9 @@ struct Constants<Boundary::North>
           C3 = 0.f,
           C4 = 0.f;
 
-    __host__ Constants()
+    __host__ Constants(uint8_t mask)
     {
-        calc_constant(ux, uy, C1, C2, C3, C4);
+        calc_constant(ux, uy, mask, C1, C2, C3, C4);
     }
 };
 // West
@@ -103,9 +106,9 @@ struct Constants<Boundary::West>
           C3 = 0.f,
           C4 = 0.f;
 
-    __host__ Constants()
+    __host__ Constants(uint8_t mask)
     {
-        calc_constant(ux, uy, C1, C2, C3, C4);
+        calc_constant(ux, uy, mask, C1, C2, C3, C4);
     }
 };
 // South
@@ -121,9 +124,9 @@ struct Constants<Boundary::South>
           C3 = 0.f,
           C4 = 0.f;
 
-    __host__ Constants()
+    __host__ Constants(uint8_t mask)
     {
-        calc_constant(ux, uy, C1, C2, C3, C4);
+        calc_constant(ux, uy, mask, C1, C2, C3, C4);
     }
 };
 // Northeast
@@ -139,9 +142,9 @@ struct Constants<Boundary::Northeast>
           C3 = 0.f,
           C4 = 0.f;
 
-    __host__ Constants()
+    __host__ Constants(uint8_t mask)
     {
-        calc_constant(ux, uy, C1, C2, C3, C4);
+        calc_constant(ux, uy, mask, C1, C2, C3, C4);
     }
 };
 // Northwest
@@ -157,9 +160,9 @@ struct Constants<Boundary::Northwest>
           C3 = 0.f,
           C4 = 0.f;
 
-    __host__ Constants()
+    __host__ Constants(uint8_t mask)
     {
-        calc_constant(ux, uy, C1, C2, C3, C4);
+        calc_constant(ux, uy, mask, C1, C2, C3, C4);
     }
 };
 // Southwest
@@ -175,9 +178,9 @@ struct Constants<Boundary::Southwest>
           C3 = 0.f,
           C4 = 0.f;
 
-    __host__ Constants()
+    __host__ Constants(uint8_t mask)
     {
-        calc_constant(ux, uy, C1, C2, C3, C4);
+        calc_constant(ux, uy, mask, C1, C2, C3, C4);
     }
 };
 // Southeast
@@ -193,8 +196,8 @@ struct Constants<Boundary::Southeast>
           C3 = 0.f,
           C4 = 0.f;
 
-    __host__ Constants()
+    __host__ Constants(uint8_t mask)
     {
-        calc_constant(ux, uy, C1, C2, C3, C4);
+        calc_constant(ux, uy, mask, C1, C2, C3, C4);
     }
 };

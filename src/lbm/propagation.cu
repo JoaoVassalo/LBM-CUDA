@@ -16,12 +16,9 @@
 #include "grid_id.cuh"
 #include "from_id.cuh"
 
-__device__ void propagation(float *mom, uint8_t *mask, uint8_t *node)
+__device__ void propagation(float *mom, float *layer, uint8_t *mask, uint8_t *node)
 {
    int index = grid_id();
 
-   if (node[index] & to_u8(domainTags::Fluid))
-   {
-      applyBoundary(mask);
-   }
+   applyBoundary(node, mask, );
 }

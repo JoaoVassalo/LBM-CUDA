@@ -4,9 +4,14 @@
 #include "../build/build_grid.cuh"
 
 #include "../core/grid_id.cuh"
+#include "../core/from_id.cuh"
 #include "../core/to_u8.cuh"
+#include "../core/def_bc.cuh"
 
-__device__ void applyBoundary(uint8_t *node, uint8_t *mask, float *mom_in, float *mom_out)
+#include "../f_i.cuh"
+
+__device__ void applyBoundary(uint8_t *node, uint8_t *mask, float *mom_in,
+                              float *mom_out)
 {
     const int x = blockIdx.x * blockDim.x + threadIdx.x;
     const int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -15,11 +20,13 @@ __device__ void applyBoundary(uint8_t *node, uint8_t *mask, float *mom_in, float
 
     if (node[index] & to_u8(domainTags::Boundary))
     {
-        boundary(mask[index], x, y, mom_in, mom_out);
+        boundary(mask[index], node[index], x, y, mom_in,
+                 mom_out);
     }
     else
     {
-        center(x, y, mom_in, mom_out);
+        center(x, y, mom_in,
+               mom_out);
     }
 }
 
@@ -61,7 +68,71 @@ __device__ void center(int x, int y,
     mom_out[momIdx<MomentId::mxy>(index)] = mxy / rho;
 }
 
-__device__ void boundary(uint8_t mask_in, int x, int y, float *mom_in,
+__device__ void boundary(uint8_t mask_in, uint8_t node_in, int x, int y, float *mom_in,
                          float *mom_out)
 {
+
+    int index = grid_id();
+    float sum_fi = 0.f;
+    float mxy_I = 0.f;
+
+    for (int i = 0; i < Q; i++)
+    {
+        if (mask_in & (1u << i))
+        {
+            int index_from = from_id(x, y, i);
+
+            float fi = f_i(index_from, i, mom_in);
+            sum_fi += fi;
+            mxy_I += fi * c_ix[i] * c_iy[i];
+        }
+    }
+
+    mxy_I /= sum_fi;
+
+    switch (static_cast<Boundary>(node_in))
+    {
+    case Boundary::East:
+        Constants<Boundary::East> c(mask_in);
+        mom_out[momIdx<MomentId::mxy>(index)] = (c.C3 - c.C1 * mxy_I) / (c.C2 * mxy_I - c.C4);
+        mom_out[momIdx<MomentId::rho>(index)] = sum_fi / (c.C1 + c.C2 * mom_out[momIdx<MomentId::mxy>(index)]);
+        break;
+    case Boundary::North:
+        Constants<Boundary::North> c(mask_in);
+        mom_out[momIdx<MomentId::mxy>(index)] = (c.C3 - c.C1 * mxy_I) / (c.C2 * mxy_I - c.C4);
+        mom_out[momIdx<MomentId::rho>(index)] = sum_fi / (c.C1 + c.C2 * mom_out[momIdx<MomentId::mxy>(index)]);
+        break;
+    case Boundary::West:
+        Constants<Boundary::West> c(mask_in);
+        mom_out[momIdx<MomentId::mxy>(index)] = (c.C3 - c.C1 * mxy_I) / (c.C2 * mxy_I - c.C4);
+        mom_out[momIdx<MomentId::rho>(index)] = sum_fi / (c.C1 + c.C2 * mom_out[momIdx<MomentId::mxy>(index)]);
+        break;
+    case Boundary::South:
+        Constants<Boundary::South> c(mask_in);
+        mom_out[momIdx<MomentId::mxy>(index)] = (c.C3 - c.C1 * mxy_I) / (c.C2 * mxy_I - c.C4);
+        mom_out[momIdx<MomentId::rho>(index)] = sum_fi / (c.C1 + c.C2 * mom_out[momIdx<MomentId::mxy>(index)]);
+        break;
+    case Boundary::Northeast:
+        Constants<Boundary::Northeast> c(mask_in);
+        mom_out[momIdx<MomentId::mxy>(index)] = (c.C3 - c.C1 * mxy_I) / (c.C2 * mxy_I - c.C4);
+        mom_out[momIdx<MomentId::rho>(index)] = sum_fi / (c.C1 + c.C2 * mom_out[momIdx<MomentId::mxy>(index)]);
+        break;
+    case Boundary::Northwest:
+        Constants<Boundary::Northwest> c(mask_in);
+        mom_out[momIdx<MomentId::mxy>(index)] = (c.C3 - c.C1 * mxy_I) / (c.C2 * mxy_I - c.C4);
+        mom_out[momIdx<MomentId::rho>(index)] = sum_fi / (c.C1 + c.C2 * mom_out[momIdx<MomentId::mxy>(index)]);
+        break;
+    case Boundary::Southwest:
+        Constants<Boundary::Southwest> c(mask_in);
+        mom_out[momIdx<MomentId::mxy>(index)] = (c.C3 - c.C1 * mxy_I) / (c.C2 * mxy_I - c.C4);
+        mom_out[momIdx<MomentId::rho>(index)] = sum_fi / (c.C1 + c.C2 * mom_out[momIdx<MomentId::mxy>(index)]);
+        break;
+    case Boundary::Southeast:
+        Constants<Boundary::Southeast> c(mask_in);
+        mom_out[momIdx<MomentId::mxy>(index)] = (c.C3 - c.C1 * mxy_I) / (c.C2 * mxy_I - c.C4);
+        mom_out[momIdx<MomentId::rho>(index)] = sum_fi / (c.C1 + c.C2 * mom_out[momIdx<MomentId::mxy>(index)]);
+        break;
+    default:
+        break;
+    }
 }

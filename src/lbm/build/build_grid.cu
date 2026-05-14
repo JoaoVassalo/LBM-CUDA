@@ -5,16 +5,11 @@
 
 #include "../../core/grid_id.cuh"
 #include "../../core/to_u8.cuh"
+#include "../../core/def_bc.cuh"
 
 #include "build_mom.cuh"
 
 // Got this from https://github.com/brunoyanjos/lbm/blob/ldc2D/
-
-struct Grid2D
-{
-    uint8_t *mask;
-    uint8_t *node;
-};
 
 __host__ __device_builtin__ __forceinline__ int income(int i)
 {
@@ -50,28 +45,14 @@ __host__ __device_builtin__ __forceinline__ int income(int i)
     }
 }
 
-__device__ void init_grid(uint8_t *node, uint8_t *mask)
+__global__ void init_grid(uint8_t *node, uint8_t *mask)
 {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
 
     const int index = grid_id();
 
-    const bool top = (y == Ny - 1);
-    const bool left = (x == Nx - 1);
-    const bool down = (y == 0);
-    const bool right = (x == 0);
-
-    const int bc_count = (int)top + (int)left + (int)down + (int)right;
-
-    uint8_t wid = to_u8(domainTags::Fluid);
-
-    if (bc_count > 0)
-    {
-        wid = to_u8(domainTags::Boundary);
-    }
-
-    node[index] = wid;
+    node[index] = to_u8(def_bc(x, y));
 
     uint8_t m = 0u;
 
@@ -88,12 +69,10 @@ __device__ void init_grid(uint8_t *node, uint8_t *mask)
     mask[index] = m;
 }
 
-__host__ void build_grid(D2Q9 sim)
+__host__ void build_grid(D2Q9 sim, Grid2D grid)
 {
-    Grid2D grid;
-
-    cudaMalloc((void **)grid.mask, sizeof(uint8_t) * Nx * Ny);
-    cudaMalloc((void **)grid.node, sizeof(uint8_t) * Nx * Ny);
+    cudaMalloc((void **)grid.mask, grid.size);
+    cudaMalloc((void **)grid.node, grid.size);
 
     init_grid<<<sim.N_block, sim.block>>>(grid.node, grid.mask);
 }

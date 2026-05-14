@@ -1,4 +1,3 @@
 #pragma once
 
-__device__ void propagation(float *mom_in,
-                            float *mom_out);
+__device__ void propagation(float *mom, float *layer, uint8_t *mask, uint8_t *node);
