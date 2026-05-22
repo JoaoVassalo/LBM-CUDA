@@ -4,8 +4,6 @@
 
 #include "../build/build_mom.cuh"
 
-#include "../equilibrium.cuh"
-
 #include "../../core/grid_id.cuh"
 #include "../../core/pop_id.cuh"
 
@@ -14,7 +12,7 @@ __global__ void initDomain(float *mom)
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
 
-    if (x >= Nx || y >= Ny)
+    if (x >= Geometry::Nx || y >= Geometry::Ny)
         return;
 
     int index = grid_id();

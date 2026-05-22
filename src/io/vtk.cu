@@ -1,9 +1,9 @@
 #include "vtk.cuh"
 
-#include "./presets/geometry.h"
-#include "./functions/grid_plot.cuh"
+#include "../config/geometry.h"
+#include "../core/grid_plot.cuh"
 
-#include "cuda_config/var.cuh"
+#include "../lbm/build/build_mom.cuh"
 
 #include <filesystem>
 #include <fstream>
@@ -31,8 +31,8 @@ __host__ void write_vti(int step, const std::string &out_dir, float *mom_host)
         return;
     }
 
-    const int nx = Nx;
-    const int ny = Ny;
+    const int nx = Geometry::Nx;
+    const int ny = Geometry::Ny;
 
     file << "<?xml version=\"1.0\"?>\n";
     file << "<VTKFile type=\"ImageData\" version=\"0.1\" byte_order=\"LittleEndian\">\n";

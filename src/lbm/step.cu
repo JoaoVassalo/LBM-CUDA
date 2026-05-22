@@ -1,21 +1,13 @@
-#include "collision.cuh"
-#include "propagation.cuh"
-#include "grid_id.cuh"
+#include "step.cuh"
 
-#include "../config/geometry.h"
-
-__global__ void step(float *mom, float *layer)
+__host__ void step(D2Q9 sim, Grid2D grid)
 {
+    seed_layer<<<sim.layer_Nblock, sim.layer_block>>>(sim, grid);
 
-    int x = blockIdx.x * blockDim.x + threadIdx.x;
-    int y = blockIdx.y * blockDim.y + threadIdx.y;
+    for (int y = 1; y < Geometry::Ny - 1; y++)
+    {
+        advance_layer<<<sim.layer_Nblock, sim.layer_block>>>(sim, grid, y);
+    }
 
-    if (x >= Nx || y >= Ny)
-        return;
-
-    int index = grid_id();
-
-    propagation(mom, layer, );
-
-    collision(index, mom);
+    end_layer<<<sim.layer_Nblock, sim.layer_block>>>(sim, grid);
 }

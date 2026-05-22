@@ -13,14 +13,14 @@ __device__ inline int from_id(int x, int y, int i)
     int y_from = y - (int)c_iy[i];
 
     if (x_from < 0)
-        x_from += Nx;
-    if (x_from >= Nx)
-        x_from -= Nx;
+        x_from += Geometry::Nx;
+    if (x_from >= Geometry::Nx)
+        x_from -= Geometry::Nx;
 
     if (y_from < 0)
-        y_from += Ny;
-    if (y_from >= Ny)
-        y_from -= Ny;
+        y_from += Geometry::Ny;
+    if (y_from >= Geometry::Ny)
+        y_from -= Geometry::Ny;
 
     int Tx = blockDim.x;
     int Ty = blockDim.y;

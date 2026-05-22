@@ -10,29 +10,8 @@
 
 #include "../f_i.cuh"
 
-__device__ void applyBoundary(uint8_t *node, uint8_t *mask, float *mom_in,
-                              float *mom_out)
-{
-    const int x = blockIdx.x * blockDim.x + threadIdx.x;
-    const int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-    const int index = grid_id();
-
-    if (node[index] & to_u8(domainTags::Boundary))
-    {
-        boundary(mask[index], node[index], x, y, mom_in,
-                 mom_out);
-    }
-    else
-    {
-        center(x, y, mom_in,
-               mom_out);
-    }
-}
-
 __device__ void center(int x, int y,
-                       float *mom_in,
-                       float *mom_out)
+                       D2Q9 sim)
 {
     int index = grid_id();
     float rho = 0.f;
@@ -47,7 +26,7 @@ __device__ void center(int x, int y,
     {
         int index_from = from_id(x, y, i);
 
-        float fi = f_i(index_from, i, mom_in);
+        float fi = f_i(index_from, i, sim.layer);
 
         rho += fi;
 
@@ -58,18 +37,17 @@ __device__ void center(int x, int y,
         mxy += fi * (c_ix[i] * c_iy[i]);
         myy += fi * (c_iy[i] * c_iy[i] - inv_as2);
     }
-    mom_out[momIdx<MomentId::rho>(index)] = rho;
+    sim.mom[momIdx<MomentId::rho>(index)] = rho;
 
-    mom_out[momIdx<MomentId::ux>(index)] = ux / rho;
-    mom_out[momIdx<MomentId::uy>(index)] = uy / rho;
+    sim.mom[momIdx<MomentId::ux>(index)] = ux / rho;
+    sim.mom[momIdx<MomentId::uy>(index)] = uy / rho;
 
-    mom_out[momIdx<MomentId::mxx>(index)] = mxx / rho;
-    mom_out[momIdx<MomentId::myy>(index)] = myy / rho;
-    mom_out[momIdx<MomentId::mxy>(index)] = mxy / rho;
+    sim.mom[momIdx<MomentId::mxx>(index)] = mxx / rho;
+    sim.mom[momIdx<MomentId::myy>(index)] = myy / rho;
+    sim.mom[momIdx<MomentId::mxy>(index)] = mxy / rho;
 }
 
-__device__ void boundary(uint8_t mask_in, uint8_t node_in, int x, int y, float *mom_in,
-                         float *mom_out)
+__device__ void boundary(uint8_t mask_in, uint8_t node_in, int x, int y, D2Q9 sim)
 {
 
     int index = grid_id();
@@ -82,7 +60,7 @@ __device__ void boundary(uint8_t mask_in, uint8_t node_in, int x, int y, float *
         {
             int index_from = from_id(x, y, i);
 
-            float fi = f_i(index_from, i, mom_in);
+            float fi = f_i(index_from, i, sim.layer);
             sum_fi += fi;
             mxy_I += fi * c_ix[i] * c_iy[i];
         }
@@ -94,43 +72,43 @@ __device__ void boundary(uint8_t mask_in, uint8_t node_in, int x, int y, float *
     {
     case Boundary::East:
         Constants<Boundary::East> c(mask_in);
-        mom_out[momIdx<MomentId::mxy>(index)] = (c.C3 - c.C1 * mxy_I) / (c.C2 * mxy_I - c.C4);
-        mom_out[momIdx<MomentId::rho>(index)] = sum_fi / (c.C1 + c.C2 * mom_out[momIdx<MomentId::mxy>(index)]);
+        sim.mom[momIdx<MomentId::mxy>(index)] = (c.C3 - c.C1 * mxy_I) / (c.C2 * mxy_I - c.C4);
+        sim.mom[momIdx<MomentId::rho>(index)] = sum_fi / (c.C1 + c.C2 * sim.mom[momIdx<MomentId::mxy>(index)]);
         break;
     case Boundary::North:
         Constants<Boundary::North> c(mask_in);
-        mom_out[momIdx<MomentId::mxy>(index)] = (c.C3 - c.C1 * mxy_I) / (c.C2 * mxy_I - c.C4);
-        mom_out[momIdx<MomentId::rho>(index)] = sum_fi / (c.C1 + c.C2 * mom_out[momIdx<MomentId::mxy>(index)]);
+        sim.mom[momIdx<MomentId::mxy>(index)] = (c.C3 - c.C1 * mxy_I) / (c.C2 * mxy_I - c.C4);
+        sim.mom[momIdx<MomentId::rho>(index)] = sum_fi / (c.C1 + c.C2 * sim.mom[momIdx<MomentId::mxy>(index)]);
         break;
     case Boundary::West:
         Constants<Boundary::West> c(mask_in);
-        mom_out[momIdx<MomentId::mxy>(index)] = (c.C3 - c.C1 * mxy_I) / (c.C2 * mxy_I - c.C4);
-        mom_out[momIdx<MomentId::rho>(index)] = sum_fi / (c.C1 + c.C2 * mom_out[momIdx<MomentId::mxy>(index)]);
+        sim.mom[momIdx<MomentId::mxy>(index)] = (c.C3 - c.C1 * mxy_I) / (c.C2 * mxy_I - c.C4);
+        sim.mom[momIdx<MomentId::rho>(index)] = sum_fi / (c.C1 + c.C2 * sim.mom[momIdx<MomentId::mxy>(index)]);
         break;
     case Boundary::South:
         Constants<Boundary::South> c(mask_in);
-        mom_out[momIdx<MomentId::mxy>(index)] = (c.C3 - c.C1 * mxy_I) / (c.C2 * mxy_I - c.C4);
-        mom_out[momIdx<MomentId::rho>(index)] = sum_fi / (c.C1 + c.C2 * mom_out[momIdx<MomentId::mxy>(index)]);
+        sim.mom[momIdx<MomentId::mxy>(index)] = (c.C3 - c.C1 * mxy_I) / (c.C2 * mxy_I - c.C4);
+        sim.mom[momIdx<MomentId::rho>(index)] = sum_fi / (c.C1 + c.C2 * sim.mom[momIdx<MomentId::mxy>(index)]);
         break;
     case Boundary::Northeast:
         Constants<Boundary::Northeast> c(mask_in);
-        mom_out[momIdx<MomentId::mxy>(index)] = (c.C3 - c.C1 * mxy_I) / (c.C2 * mxy_I - c.C4);
-        mom_out[momIdx<MomentId::rho>(index)] = sum_fi / (c.C1 + c.C2 * mom_out[momIdx<MomentId::mxy>(index)]);
+        sim.mom[momIdx<MomentId::mxy>(index)] = (c.C3 - c.C1 * mxy_I) / (c.C2 * mxy_I - c.C4);
+        sim.mom[momIdx<MomentId::rho>(index)] = sum_fi / (c.C1 + c.C2 * sim.mom[momIdx<MomentId::mxy>(index)]);
         break;
     case Boundary::Northwest:
         Constants<Boundary::Northwest> c(mask_in);
-        mom_out[momIdx<MomentId::mxy>(index)] = (c.C3 - c.C1 * mxy_I) / (c.C2 * mxy_I - c.C4);
-        mom_out[momIdx<MomentId::rho>(index)] = sum_fi / (c.C1 + c.C2 * mom_out[momIdx<MomentId::mxy>(index)]);
+        sim.mom[momIdx<MomentId::mxy>(index)] = (c.C3 - c.C1 * mxy_I) / (c.C2 * mxy_I - c.C4);
+        sim.mom[momIdx<MomentId::rho>(index)] = sum_fi / (c.C1 + c.C2 * sim.mom[momIdx<MomentId::mxy>(index)]);
         break;
     case Boundary::Southwest:
         Constants<Boundary::Southwest> c(mask_in);
-        mom_out[momIdx<MomentId::mxy>(index)] = (c.C3 - c.C1 * mxy_I) / (c.C2 * mxy_I - c.C4);
-        mom_out[momIdx<MomentId::rho>(index)] = sum_fi / (c.C1 + c.C2 * mom_out[momIdx<MomentId::mxy>(index)]);
+        sim.mom[momIdx<MomentId::mxy>(index)] = (c.C3 - c.C1 * mxy_I) / (c.C2 * mxy_I - c.C4);
+        sim.mom[momIdx<MomentId::rho>(index)] = sum_fi / (c.C1 + c.C2 * sim.mom[momIdx<MomentId::mxy>(index)]);
         break;
     case Boundary::Southeast:
         Constants<Boundary::Southeast> c(mask_in);
-        mom_out[momIdx<MomentId::mxy>(index)] = (c.C3 - c.C1 * mxy_I) / (c.C2 * mxy_I - c.C4);
-        mom_out[momIdx<MomentId::rho>(index)] = sum_fi / (c.C1 + c.C2 * mom_out[momIdx<MomentId::mxy>(index)]);
+        sim.mom[momIdx<MomentId::mxy>(index)] = (c.C3 - c.C1 * mxy_I) / (c.C2 * mxy_I - c.C4);
+        sim.mom[momIdx<MomentId::rho>(index)] = sum_fi / (c.C1 + c.C2 * sim.mom[momIdx<MomentId::mxy>(index)]);
         break;
     default:
         break;

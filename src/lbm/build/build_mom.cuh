@@ -15,14 +15,16 @@ enum MomentId
 
 struct D2Q9
 {
-
     float *mom;
-    float *layer;
+    float *layer[3];
 
     static constexpr int num_var = 6; // Number of moments in the stencil
 
     dim3 block = dim3(BX, BY);
     dim3 N_block = dim3(GX, GY);
+
+    dim3 layer_block = dim3(LBX, LBY);
+    dim3 layer_Nblock = dim3(LGX, LGY);
 
     size_t size = Geometry::Nx * Geometry::Ny * sizeof(float) * num_var;
     size_t layer_size = layer::LNx * layer::LNy * sizeof(float) * num_var;

@@ -21,8 +21,6 @@
 
 int main()
 {
-
-    return 0;
     D2Q9 sim;
 
     cudaMalloc((void **)&sim.mom, sim.size);
@@ -31,8 +29,6 @@ int main()
     initDomain<<<sim.N_block, sim.block>>>(sim.mom);
 
     Grid2D grid;
-
-    build_grid(sim, grid);
 
     cudaError_t err = cudaGetLastError();
     printf("Kernel launch error: %s\n", cudaGetErrorString(err));
@@ -48,9 +44,7 @@ int main()
 
     for (int t = 0; t < tf; t++)
     {
-        build_layer<<<>>>;
-
-        step<<<sim.N_block, sim.block>>>(sim.mom, sim.layer);
+        step(sim, grid);
 
         if (t % t_interval == 0)
         {
@@ -73,7 +67,7 @@ int main()
 
     auto tempo = std::chrono::duration_cast<std::chrono::seconds>(t2 - t1);
 
-    double MLUPS = (double)(Nx * Ny) * double(tf) / ((double)tempo.count() * 1e6);
+    double MLUPS = (double)(Geometry::Nx * Geometry::Ny) * double(tf) / ((double)tempo.count() * 1e6);
     printf("MLUPS: %f\n", MLUPS);
 
     file.close();
@@ -85,16 +79,16 @@ int main()
     float uy_plot;
     float xplot;
 
-    int mid_up = Nx / 2;
-    int mid_down = (Nx / 2) - 1;
-    for (int i = 0; i < Nx; i++)
+    int mid_up = Geometry::Nx / 2;
+    int mid_down = (Geometry::Nx / 2) - 1;
+    for (int i = 0; i < Geometry::Nx; i++)
     {
         ux_plot = (mom_host[grid_plot(mid_up, i) + 1] + mom_host[grid_plot(mid_down, i) + 1]) / 2.f; // ux
         ux_plot /= u_max;
         uy_plot = (mom_host[grid_plot(i, mid_up) + 2] + mom_host[grid_plot(i, mid_down) + 2]) / 2.f; // uy
         uy_plot /= u_max;
 
-        xplot = (float)(i) / (float)Nx;
+        xplot = (float)(i) / (float)Geometry::Nx;
 
         file2 << xplot << "," << ux_plot << "," << uy_plot << "\n";
     }

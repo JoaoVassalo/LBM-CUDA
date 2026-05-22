@@ -5,7 +5,7 @@
 inline void calc_tke(std::ofstream &file, float *mom, int t)
 {
     float tke = 0;
-    for (int i = 0; i < (Nx - 1) * (Ny - 1); i++)
+    for (int i = 0; i < (Geometry::Nx - 1) * (Geometry::Ny - 1); i++)
     {
         tke += (mom[i + 1] * mom[i + 1]      // ux
                 + mom[i + 2] * mom[i + 2]) / // uy

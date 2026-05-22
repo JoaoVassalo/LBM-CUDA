@@ -11,7 +11,7 @@
 
 // Got this from https://github.com/brunoyanjos/lbm/blob/ldc2D/
 
-__host__ __device_builtin__ __forceinline__ int income(int i)
+__host__ __device__ __forceinline__ int income(int i)
 {
     switch (i)
     {
@@ -61,7 +61,7 @@ __global__ void init_grid(uint8_t *node, uint8_t *mask)
     {
         unsigned const int xn = x + c_ix[i];
         unsigned const int yn = y + c_iy[i];
-        if (xn > Nx || yn > Ny)
+        if (xn > Geometry::Nx || yn > Geometry::Ny)
             continue;
         m |= (1u << (i - 1));
     }

@@ -1,3 +1,3 @@
 #pragma once
 
-__device__ void propagation(float *mom, float *layer, uint8_t *mask, uint8_t *node);
+__global__ void propagation(D2Q9 sim, Grid2D grid);

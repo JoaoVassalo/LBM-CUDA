@@ -9,15 +9,15 @@ __host__ __device__ Boundary def_bc(int x, int y)
     { // Sudoeste
         return Boundary::Southwest;
     }
-    else if (x == Nx - 1 && y == 0)
+    else if (x == Geometry::Nx - 1 && y == 0)
     { // Sudeste
         return Boundary::Southeast;
     }
-    else if (x == 0 && y == Ny - 1)
+    else if (x == 0 && y == Geometry::Ny - 1)
     { // Noroeste
         return Boundary::Northwest;
     }
-    else if (x == Nx - 1 && y == Ny - 1)
+    else if (x == Geometry::Nx - 1 && y == Geometry::Ny - 1)
     { // Nordeste
         return Boundary::Northeast;
     }
@@ -25,7 +25,7 @@ __host__ __device__ Boundary def_bc(int x, int y)
     { // Sul
         return Boundary::South;
     }
-    else if (y == Ny - 1)
+    else if (y == Geometry::Ny - 1)
     { // Norte
         return Boundary::North;
     }
@@ -33,7 +33,7 @@ __host__ __device__ Boundary def_bc(int x, int y)
     { // Oeste
         return Boundary::West;
     }
-    else if (x == Nx - 1)
+    else if (x == Geometry::Nx - 1)
     { // Leste
         return Boundary::East;
     }

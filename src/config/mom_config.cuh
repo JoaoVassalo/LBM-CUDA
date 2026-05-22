@@ -22,9 +22,23 @@ enum Boundary
 __host__ __device__ __forceinline__ void calc_constant(float ux, float uy, uint8_t mask,
                                                        float &C1, float &C2, float &C3, float &C4)
 {
+    C1 += w[0] *
+              (1.f +
+               a_s2 * ux * c_ix[0] +
+               a_s2 * uy * c_iy[0] +
+               a_s4 * 0.5f * ux * ux +
+               a_s4 * 0.5f * uy * uy) +
+          omega * a_s4 * 0.5f * ux * uy * c_ix[0] * c_iy[0];
+    C2 += (1.f - omega) * w[0] * a_s4 * 0.5f * c_ix[0] * c_iy[0];
+    C3 += w[0] *
+          (1.f +
+           a_s2 * ux * c_ix[0] + a_s2 * uy * c_iy[0] +
+           a_s4 * 0.5f * ux * ux * (c_ix[0] * c_ix[0] - inv_as2) +
+           a_s4 * 0.5f * uy * uy * (c_iy[0] * c_iy[0] - inv_as2)) *
+          c_ix[0] * c_iy[0];
+    C4 += w[0] * a_s4 * c_ix[0] * c_iy[0] * c_ix[0] * c_iy[0];
     for (int k = 0; k < Q; k++)
     {
-
         if (mask & (1u << k))
         {
             // Os

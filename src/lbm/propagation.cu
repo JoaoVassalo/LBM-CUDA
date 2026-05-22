@@ -16,9 +16,19 @@
 #include "grid_id.cuh"
 #include "from_id.cuh"
 
-__device__ void propagation(float *mom, float *layer, uint8_t *mask, uint8_t *node)
+__global__ void propagation(D2Q9 sim, Grid2D grid)
 {
-   int index = grid_id();
+   const int x = blockIdx.x * blockDim.x + threadIdx.x;
+   const int y = blockIdx.y * blockDim.y + threadIdx.y;
 
-      applyBoundary(node, mask, );
+   const int index = grid_id();
+
+   if (grid.node[index] & to_u8(domainTags::Boundary))
+   {
+      boundary(grid.mask[index], grid.node[index], x, y, sim);
+   }
+   else
+   {
+      center(x, y, sim);
+   }
 }

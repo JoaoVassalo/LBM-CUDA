@@ -13,10 +13,16 @@ struct Geometry
 #define GX (Geometry::Nx / BX)
 #define GY (Geometry::Ny / BY)
 
+// Layer block size
+#define LBX 256
+#define LBY 1
+#define LGX (Geometry::Nx / LBX)
+#define LGY (Geometry::Ny / LBY)
+
 struct layer
 {
     static const int LNx = Geometry::Nx;
-    static const int LNy = 4;
+    static const int LNy = 3;
     static const int layer_num = Geometry::Ny / LNy;
 };
 
