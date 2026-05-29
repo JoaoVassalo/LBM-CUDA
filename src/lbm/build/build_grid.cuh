@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include "../../config/geometry.h"
+#include "build_mom.cuh"
 
 struct Grid2D
 {

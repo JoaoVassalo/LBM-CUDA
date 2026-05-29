@@ -23,8 +23,10 @@ int main()
 {
     D2Q9 sim;
 
+    layer layer;
+
     cudaMalloc((void **)&sim.mom, sim.size);
-    cudaMalloc((void **)&sim.layer, sim.layer_size);
+    cudaMalloc((void **)&layer.layer, layer.layer_size);
 
     initDomain<<<sim.N_block, sim.block>>>(sim.mom);
 

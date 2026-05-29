@@ -83,7 +83,7 @@ struct Constants<Boundary::East>
           C2 = 0.f,
           C3 = 0.f,
           C4 = 0.f;
-    __host__ Constants(uint8_t mask)
+    __host__ __device__ Constants(uint8_t mask)
     {
         calc_constant(ux, uy, mask, C1, C2, C3, C4);
     }
@@ -102,7 +102,7 @@ struct Constants<Boundary::North>
           C3 = 0.f,
           C4 = 0.f;
 
-    __host__ Constants(uint8_t mask)
+    __host__ __device__ Constants(uint8_t mask)
     {
         calc_constant(ux, uy, mask, C1, C2, C3, C4);
     }
@@ -120,7 +120,7 @@ struct Constants<Boundary::West>
           C3 = 0.f,
           C4 = 0.f;
 
-    __host__ Constants(uint8_t mask)
+    __host__ __device__ Constants(uint8_t mask)
     {
         calc_constant(ux, uy, mask, C1, C2, C3, C4);
     }
@@ -138,7 +138,7 @@ struct Constants<Boundary::South>
           C3 = 0.f,
           C4 = 0.f;
 
-    __host__ Constants(uint8_t mask)
+    __host__ __device__ Constants(uint8_t mask)
     {
         calc_constant(ux, uy, mask, C1, C2, C3, C4);
     }
@@ -156,7 +156,7 @@ struct Constants<Boundary::Northeast>
           C3 = 0.f,
           C4 = 0.f;
 
-    __host__ Constants(uint8_t mask)
+    __host__ __device__ Constants(uint8_t mask)
     {
         calc_constant(ux, uy, mask, C1, C2, C3, C4);
     }
@@ -174,7 +174,7 @@ struct Constants<Boundary::Northwest>
           C3 = 0.f,
           C4 = 0.f;
 
-    __host__ Constants(uint8_t mask)
+    __host__ __device__ Constants(uint8_t mask)
     {
         calc_constant(ux, uy, mask, C1, C2, C3, C4);
     }
@@ -192,7 +192,7 @@ struct Constants<Boundary::Southwest>
           C3 = 0.f,
           C4 = 0.f;
 
-    __host__ Constants(uint8_t mask)
+    __host__ __device__ Constants(uint8_t mask)
     {
         calc_constant(ux, uy, mask, C1, C2, C3, C4);
     }
@@ -210,7 +210,7 @@ struct Constants<Boundary::Southeast>
           C3 = 0.f,
           C4 = 0.f;
 
-    __host__ Constants(uint8_t mask)
+    __host__ __device__ Constants(uint8_t mask)
     {
         calc_constant(ux, uy, mask, C1, C2, C3, C4);
     }

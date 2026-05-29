@@ -1,10 +1,12 @@
 #pragma once
 
-#include "build_layer.cuh"
+#include "layer_manager.cuh"
+#include "../../core/constexpr_for.cuh"
 #include "../../config/geometry.h"
+#include "../../config/layer_config.cuh"
 #include "../build/build_grid.cuh"
 #include "../propagation.cuh"
 
-__device__ void seed_layer(D2Q9 sim, Grid2D grid);
-__device__ void advance_layer(D2Q9 sim, Grid2D grid, int y);
-__device__ void end_layer(D2Q9 sim, Grid2D grid);
+__global__ void seed_layer(D2Q9 sim, layer layer, Grid2D grid);
+__global__ void advance_layer(D2Q9 sim, layer layer, Grid2D grid, int y);
+__global__ void end_layer(D2Q9 sim, layer layer, Grid2D grid);

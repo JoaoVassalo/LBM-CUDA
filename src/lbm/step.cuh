@@ -7,7 +7,7 @@
 #include "../config/geometry.h"
 
 #include "build/build_grid.cuh"
-#include "layer/build_layer.cuh"
+#include "layer/layer_manager.cuh"
 #include "layer/layer_pipeline.cuh"
 #include "build/build_mom.cuh"
 

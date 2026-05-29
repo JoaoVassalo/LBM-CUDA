@@ -1,22 +1,19 @@
 #include "layer_pipeline.cuh"
 
-__global__ void seed_layer(D2Q9 sim, Grid2D grid)
+__global__ void seed_layer(D2Q9 sim, layer layer, Grid2D grid)
 {
-    first_layer(sim);
-    propagation(sim, grid);
+    init_layers(sim, layer);
+    propagation(sim, layer, grid);
 }
 
-__global__ void advance_layer(D2Q9 sim, Grid2D grid, int y)
+__global__ void advance_layer(D2Q9 sim, layer layer, Grid2D grid, int y)
 {
-    for (int i = 0; i < sim.layer_size; i++)
-    {
-        other_layers(sim, y, i);
-        propagation(sim, grid);
-    }
+    propagation(sim, layer, grid);
+    constexpr_for<int(0), layer::LNy>([&](const auto i)
+                                      { swap_layers(sim, layer); });
 }
 
-__global__ void end_layer(D2Q9 sim, Grid2D grid)
+__global__ void end_layer(D2Q9 sim, layer layer, Grid2D grid)
 {
-    last_layer(sim);
-    propagation(sim, grid);
+    propagation(sim, layer, grid);
 }
