@@ -12,12 +12,12 @@
 #include "lbm/init/init_domain.cuh"
 #include "lbm/step.cuh"
 #include "lbm/build/build_mom.cuh"
+#include "lbm/build/build_grid.cuh"
 
 #include "core/calc_tke.cuh"
-#include "core/grid_id.cuh"
-#include "core/grid_plot.cuh"
+#include "core/indexing.cuh"
 
-#include "vtk.cuh"
+#include "io/vtk.cuh"
 
 int main()
 {
@@ -26,11 +26,16 @@ int main()
     layer layer;
 
     cudaMalloc((void **)&sim.mom, sim.size);
-    cudaMalloc((void **)&layer.layer, layer.layer_size);
+
+    for (int i = 0; i < layer::LNy; ++i)
+    {
+        cudaMalloc((void **)&layer.buffer[i], layer::buffer_bytesize);
+    }
 
     initDomain<<<sim.N_block, sim.block>>>(sim.mom);
 
     Grid2D grid;
+    build_grid(sim, grid);
 
     cudaError_t err = cudaGetLastError();
     printf("Kernel launch error: %s\n", cudaGetErrorString(err));
@@ -46,7 +51,7 @@ int main()
 
     for (int t = 0; t < tf; t++)
     {
-        step(sim, grid);
+        step(sim, layer, grid);
 
         if (t % t_interval == 0)
         {

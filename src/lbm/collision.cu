@@ -1,5 +1,6 @@
 #include "../config/geometry.h"
 #include "../config/physics.h"
+#include "../core/indexing.cuh"
 
 #include "collision.cuh"
 #include "build/build_mom.cuh"

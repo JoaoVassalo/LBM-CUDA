@@ -2,7 +2,6 @@
 
 #include "collision.cuh"
 #include "propagation.cuh"
-#include "grid_id.cuh"
 
 #include "../config/geometry.h"
 
@@ -11,4 +10,4 @@
 #include "layer/layer_pipeline.cuh"
 #include "build/build_mom.cuh"
 
-__host__ void step(D2Q9 sim, Grid2D grid);
+__host__ void step(D2Q9 sim, layer layer, Grid2D grid);

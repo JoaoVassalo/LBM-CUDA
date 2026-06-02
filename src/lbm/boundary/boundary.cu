@@ -1,9 +1,8 @@
 #include "boundary.cuh"
 
-__device__ void center(int x, int y,
-                       D2Q9 sim, layer layer)
+__device__ void center(int x, int y, int index,
+                       D2Q9 sim, layer current_layer)
 {
-    int index = grid_id();
     float rho = 0.f;
     float ux = 0.f;
     float uy = 0.f;
@@ -14,9 +13,9 @@ __device__ void center(int x, int y,
     constexpr_for<0, Q>([&](auto qi)
                         {
         constexpr int i = decltype(qi)::value;
-        int index_from = from_id(x, y, i);
+        int index_from = from_layer_row_major(x, y, i);
 
-        float fi = f_i(index_from, i, layer.layer);
+        float fi = f_i<i>(index_from, current_layer);
 
         rho += fi;
 
@@ -37,24 +36,24 @@ __device__ void center(int x, int y,
     sim.mom[momIdx<MomentId::mxy>(index)] = mxy / rho;
 }
 
-__device__ void boundary(uint8_t mask_in, uint8_t node_in, int x, int y, D2Q9 sim, layer layer)
+__device__ void boundary(uint8_t mask_in, uint8_t node_in, int x, int y, int index, D2Q9 sim, layer current_layer)
 {
-
-    int index = grid_id();
     float sum_fi = 0.f;
     float mxy_I = 0.f;
 
-    for (int i = 0; i < Q; i++)
+    constexpr_for<0, Q>([&](auto qi)
     {
+        constexpr int i = decltype(qi)::value;
+
         if (mask_in & (1u << i))
         {
-            int index_from = from_id(x, y, i);
+            int index_from = from_layer_row_major(x, y, i);
 
-            float fi = f_i(index_from, i, layer.layer);
+            float fi = f_i<i>(index_from, current_layer);
             sum_fi += fi;
             mxy_I += fi * c_ix[i] * c_iy[i];
         }
-    }
+    });
 
     mxy_I /= sum_fi;
 

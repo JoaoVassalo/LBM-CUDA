@@ -4,8 +4,7 @@
 
 #include "../build/build_mom.cuh"
 
-#include "../../core/grid_id.cuh"
-#include "../../core/pop_id.cuh"
+#include "../../core/indexing.cuh"
 
 __global__ void initDomain(float *mom)
 {

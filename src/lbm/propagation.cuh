@@ -13,8 +13,6 @@
 
 #include "boundary/boundary.cuh"
 
-#include "pop_id.cuh"
-#include "grid_id.cuh"
-#include "from_id.cuh"
-
+__device__ void propagate_layer_at(D2Q9 sim, layer layer, Grid2D grid, int y);
+__device__ void propagate_layer(D2Q9 sim, layer layer, Grid2D grid);
 __global__ void propagation(D2Q9 sim, layer layer, Grid2D grid);

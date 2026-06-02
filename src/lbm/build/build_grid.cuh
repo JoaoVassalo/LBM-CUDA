@@ -18,8 +18,31 @@ enum class domainTags : uint8_t
     Boundary = 1,
 };
 
-__host__ __device_builtin__ __forceinline__ int income(int i);
+__host__ __device__ __forceinline__ int income(int i)
+{
+    switch (i)
+    {
+    case 0:
+        return 0;
+    case 1:
+        return 3;
+    case 2:
+        return 4;
+    case 3:
+        return 1;
+    case 4:
+        return 2;
+    case 5:
+        return 7;
+    case 6:
+        return 8;
+    case 7:
+        return 5;
+    default:
+        return 6;
+    }
+}
 
-__host__ void build_grid(D2Q9 sim, Grid2D grid);
+__host__ void build_grid(D2Q9 sim, Grid2D &grid);
 
 __global__ void init_grid(uint8_t *node, uint8_t *mask);

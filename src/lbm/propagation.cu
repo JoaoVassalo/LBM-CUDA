@@ -1,18 +1,30 @@
 #include "propagation.cuh"
 
-__global__ void propagation(D2Q9 sim, layer layer, Grid2D grid)
+__device__ void propagate_layer_at(D2Q9 sim, layer current_layer, Grid2D grid, int y)
 {
    const int x = blockIdx.x * blockDim.x + threadIdx.x;
-   const int y = blockIdx.y * blockDim.y + threadIdx.y;
 
-   const int index = grid_id();
+   if (x >= Geometry::Nx)
+      return;
+
+   const int index = grid_index_from_xy(x, y);
 
    if (grid.node[index] & to_u8(domainTags::Boundary))
    {
-      boundary(grid.mask[index], grid.node[index], x, y, sim, layer);
+      boundary(grid.mask[index], grid.node[index], x, y, index, sim, current_layer);
    }
    else
    {
-      center(x, y, sim, layer);
+      center(x, y, index, sim, current_layer);
    }
+}
+
+__device__ void propagate_layer(D2Q9 sim, layer current_layer, Grid2D grid)
+{
+   propagate_layer_at(sim, current_layer, grid, current_layer.yref);
+}
+
+__global__ void propagation(D2Q9 sim, layer current_layer, Grid2D grid)
+{
+   propagate_layer(sim, current_layer, grid);
 }

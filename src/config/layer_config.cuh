@@ -7,18 +7,21 @@
 #define LBX 64
 #define LBY 1
 #define LGX (Geometry::Nx / LBX)
-#define LGY (Geometry::Ny / LBY)
+#define LGY 1
 
 struct layer
 {
     static constexpr int LNx = Geometry::Nx;
-    static const int LNy = 3;
-    static const int layer_num = Geometry::Ny / LNy;
+    static constexpr int LNy = 3;
+    static constexpr int layer_num = Geometry::Ny;
 
     dim3 layer_block = dim3(LBX, LBY);
     dim3 layer_Nblock = dim3(LGX, LGY);
 
-    float *layer[3];
-    static constexpr size_t layer_size = LNx * LNy * sizeof(float) * D2Q9::num_var;
+    float *buffer[3];
+    static constexpr size_t buffer_size = LNx * D2Q9::num_var;
+    static constexpr size_t buffer_bytesize = buffer_size * sizeof(float);
+    static constexpr size_t layer_size = buffer_size * LNy;
+    static constexpr size_t layer_bytesize = buffer_bytesize * LNy;
     int yref = 0;
 };

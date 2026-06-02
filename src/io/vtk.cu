@@ -1,7 +1,7 @@
 #include "vtk.cuh"
 
 #include "../config/geometry.h"
-#include "../core/grid_plot.cuh"
+#include "../core/indexing.cuh"
 
 #include "../lbm/build/build_mom.cuh"
 

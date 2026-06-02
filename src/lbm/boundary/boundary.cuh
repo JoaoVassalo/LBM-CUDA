@@ -13,8 +13,8 @@
 
 #include "../f_i.cuh"
 
-__device__ void center(int x, int y,
+__device__ void center(int x, int y, int index,
                        D2Q9 sim, layer layer);
 
-__device__ void boundary(uint8_t mask_in, uint8_t node_in, int x, int y,
+__device__ void boundary(uint8_t mask_in, uint8_t node_in, int x, int y, int index,
                          D2Q9 sim, layer layer);

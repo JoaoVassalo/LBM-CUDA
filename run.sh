@@ -14,6 +14,7 @@ rm -rf ./plot/vtk
 
 # ===== Compilação =====
 nvcc \
+    -std=c++20 \
     -Xptxas -v \
     -rdc=true \
     -I$SRC_DIR \

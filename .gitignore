@@ -10,3 +10,5 @@ animation/.venv
 animation/videos/*.png
 animation/*.png
 animation/*.csv
+.agents/
+.codex/
