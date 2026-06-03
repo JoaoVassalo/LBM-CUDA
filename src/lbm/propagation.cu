@@ -1,6 +1,6 @@
 #include "propagation.cuh"
 
-__device__ void propagate_layer_at(D2Q9 sim, layer current_layer, Grid2D grid, int y)
+__global__ void propagate_layer_at(D2Q9 sim, layer current_layer, Grid2D grid, int y)
 {
    const int x = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -17,14 +17,4 @@ __device__ void propagate_layer_at(D2Q9 sim, layer current_layer, Grid2D grid, i
    {
       center(x, y, index, sim, current_layer);
    }
-}
-
-__device__ void propagate_layer(D2Q9 sim, layer current_layer, Grid2D grid)
-{
-   propagate_layer_at(sim, current_layer, grid, current_layer.yref);
-}
-
-__global__ void propagation(D2Q9 sim, layer current_layer, Grid2D grid)
-{
-   propagate_layer(sim, current_layer, grid);
 }
