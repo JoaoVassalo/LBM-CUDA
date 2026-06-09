@@ -91,9 +91,9 @@ int main()
     for (int i = 0; i < Geometry::Nx; i++)
     {
         ux_plot = (mom_host[grid_plot(mid_up, i) + 1] + mom_host[grid_plot(mid_down, i) + 1]) / 2.f; // ux
-        ux_plot /= u_max;
+        // ux_plot /= u_max;
         uy_plot = (mom_host[grid_plot(i, mid_up) + 2] + mom_host[grid_plot(i, mid_down) + 2]) / 2.f; // uy
-        uy_plot /= u_max;
+        // uy_plot /= u_max;
 
         xplot = (float)(i) / (float)Geometry::Nx;
 

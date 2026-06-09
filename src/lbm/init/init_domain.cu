@@ -22,4 +22,9 @@ __global__ void initDomain(float *mom)
     mom[momIdx<MomentId::mxx>(index)] = 0.f; // mxx
     mom[momIdx<MomentId::mxy>(index)] = 0.f; // mxy
     mom[momIdx<MomentId::myy>(index)] = 0.f; // myy
+
+    if (y == Geometry::Ny)
+    {
+        mom[momIdx<MomentId::uy>(index)] = u_max;
+    }
 }
