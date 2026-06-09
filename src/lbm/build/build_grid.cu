@@ -16,7 +16,7 @@ __global__ void init_grid(uint8_t *node, uint8_t *mask)
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
 
-    const int index = grid_id();
+    const int index = grid_id(x, y);
 
     node[index] = to_u8(def_bc(x, y));
 

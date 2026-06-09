@@ -14,17 +14,10 @@ __global__ void initDomain(float *mom)
     if (x >= Geometry::Nx || y >= Geometry::Ny)
         return;
 
-    int index = grid_id();
-
-    mom[momIdx<MomentId::rho>(index)] = 1.f; // rho
-    mom[momIdx<MomentId::ux>(index)] = 0.f;  // ux
-    mom[momIdx<MomentId::uy>(index)] = 0.f;  // uy
-    mom[momIdx<MomentId::mxx>(index)] = 0.f; // mxx
-    mom[momIdx<MomentId::mxy>(index)] = 0.f; // mxy
-    mom[momIdx<MomentId::myy>(index)] = 0.f; // myy
-
-    if (y == Geometry::Ny)
-    {
-        mom[momIdx<MomentId::uy>(index)] = u_max;
-    }
+    mom[momIdx<MomentId::rho>(x, y)] = 1.f; // rho
+    mom[momIdx<MomentId::ux>(x, y)] = 0.f;  // ux
+    mom[momIdx<MomentId::uy>(x, y)] = 0.f;  // uy
+    mom[momIdx<MomentId::mxx>(x, y)] = 0.f; // mxx
+    mom[momIdx<MomentId::mxy>(x, y)] = 0.f; // mxy
+    mom[momIdx<MomentId::myy>(x, y)] = 0.f; // myy
 }

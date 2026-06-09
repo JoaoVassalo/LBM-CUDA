@@ -5,9 +5,9 @@
 
 // Layer block size
 #define LBX 64
-#define LBY 1
+#define LBY layer::LNy
 #define LGX (Geometry::Nx / LBX)
-#define LGY 1
+#define LGY (layer::LNy - 2)
 
 struct layer
 {
