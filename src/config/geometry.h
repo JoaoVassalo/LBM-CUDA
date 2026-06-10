@@ -8,5 +8,5 @@ struct Geometry
 };
 
 // Simulation time.
-constexpr int tf = 1e3;
+constexpr int tf = 1e2;
 constexpr int t_interval = tf / 100;

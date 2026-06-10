@@ -25,7 +25,7 @@ nvcc \
 ./main
 
 # ===== Pós-processamento =====
-source animation/.venv/bin/activate
+#source animation/.venv/bin/activate
 
-cd src/io
-python3 plot_graph.py
+#cd src/io
+#python3 plot_graph.py

@@ -13,7 +13,7 @@ __device__ void center(int x, int y, int index,
     constexpr_for<0, Q>([&](auto qi)
                         {
         constexpr int i = decltype(qi)::value;
-        int index_from = from_id(x, y, i);
+        int index_from = from_layer_id(x, i);
 
         float fi = f_i<i>(index_from, current_layer);
 
@@ -49,7 +49,7 @@ __device__ void boundary(uint8_t mask_in, uint8_t node_in,
 
         if (mask_in & (1u << i))
         {
-            int index_from = from_id(x, y, i);
+            int index_from = from_layer_id(x, i);
 
             float fi = f_i<i>(index_from, current_layer);
             sum_fi += fi;

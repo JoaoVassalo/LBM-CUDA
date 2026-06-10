@@ -3,6 +3,7 @@
 #include <chrono>
 #include <fstream>
 #include <cstdint>
+#include <bitset>
 
 #include "config/stencil.cuh"
 #include "config/geometry.h"
@@ -44,14 +45,34 @@ int main()
 
     float *mom_host = (float *)malloc(sim.size);
 
+    std::string path = "./plot";
+
+    cudaMemcpy(mom_host, sim.mom, sim.size, cudaMemcpyDeviceToHost);
+
+    write_vti(0, path, mom_host);
+
     std::ofstream file("animation/tke.csv");
     file << "time,tke\n";
 
     auto t1 = std::chrono::high_resolution_clock::now();
 
-    for (int t = 0; t < tf; t++)
+    for (int t = 1; t < tf; t++)
     {
         step(sim, layer, grid);
+
+        if (t == 1)
+        {
+            cudaDeviceSynchronize();
+            cudaMemcpy(mom_host, sim.mom, sim.size, cudaMemcpyDeviceToHost);
+
+            std::cout << "Iteration " << t << std::endl;
+
+            std::cout << std::endl;
+
+            write_vti(t, path, mom_host);
+
+            calc_tke(file, mom_host, t);
+        }
 
         if (t % t_interval == 0)
         {
@@ -61,8 +82,6 @@ int main()
             std::cout << "Iteration " << t << std::endl;
 
             std::cout << std::endl;
-
-            std::string path = "./plot";
 
             write_vti(t, path, mom_host);
 
