@@ -14,6 +14,7 @@ __host__ __device__ __forceinline__ int grid_id(int x, int y)
 {
     return y * Geometry::Nx + x;
 }
+
 __device__ inline int from_id(int x, int y, int i)
 {
     int x_from = x - (int)c_ix[i];
@@ -35,10 +36,17 @@ __device__ inline int from_id(int x, int y, int i)
 template <int I>
 __host__ __device__ __forceinline__ int momIdx(int x, int y)
 {
-    return (y * Geometry::Nx + x) * D2Q9::num_var + static_cast<int>(I);
+    return (y * Geometry::Nx + x) * D2Q9::num_var + I;
 }
+
 template <int I>
-__device__ __forceinline__ int layerIdx(int x)
+__host__ __device__ __forceinline__ int momIdx(int index)
+{
+    return index * D2Q9::num_var + I;
+}
+
+template <int I>
+__host__ __device__ __forceinline__ int layerIdx(int x)
 {
     return x * D2Q9::num_var + static_cast<int>(I);
 }

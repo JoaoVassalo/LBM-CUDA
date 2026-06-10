@@ -7,9 +7,7 @@ __global__ void propagate_layer_at(D2Q9 sim, layer current_layer, Grid2D grid, i
    if (x >= Geometry::Nx)
       return;
 
-   const int index = grid_index_from_xy(x, y);
-
-   center(x, y, index, sim, current_layer);
+   const int index = grid_id(x, y);
 
    if (grid.node[index] & to_u8(domainTags::Boundary))
    {

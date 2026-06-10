@@ -5,9 +5,9 @@
 constexpr int D = 2;
 constexpr int Q = 9;
 
-extern __device__ __constant__ float w[Q];
-extern __device__ __constant__ float c_ix[Q];
-extern __device__ __constant__ float c_iy[Q];
+extern __constant__ float w[Q];
+extern __constant__ float c_ix[Q];
+extern __constant__ float c_iy[Q];
 
 const float a_s = sqrtf(3);
 const float a_s2 = 3.f;

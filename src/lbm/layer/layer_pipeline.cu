@@ -8,8 +8,8 @@ __host__ void seed_layer(D2Q9 sim, layer layer, Grid2D grid)
 
 __host__ void advance_layer(D2Q9 sim, layer layer, Grid2D grid, int y)
 {
-    swap_layers<<<layer.layer_Nblock, layer.layer_block>>>(sim, layer);
     propagate_layer_at<<<layer.layer_Nblock, layer.layer_block>>>(sim, layer, grid, y);
+    swap_layers<<<layer.layer_Nblock, layer.layer_block>>>(sim, layer, y);
 }
 
 __host__ void final_layers(D2Q9 sim, layer layer, Grid2D grid)

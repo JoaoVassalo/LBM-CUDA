@@ -1,10 +1,4 @@
-#include "../../config/stencil.cuh"
-#include "../../config/geometry.h"
-#include "../../config/mom_config.cuh"
-
-#include "../build/build_mom.cuh"
-
-#include "../../core/indexing.cuh"
+#include "init_domain.cuh"
 
 __global__ void initDomain(float *mom)
 {
@@ -14,10 +8,12 @@ __global__ void initDomain(float *mom)
     if (x >= Geometry::Nx || y >= Geometry::Ny)
         return;
 
-    mom[momIdx<MomentId::rho>(x, y)] = 1.f; // rho
-    mom[momIdx<MomentId::ux>(x, y)] = 0.f;  // ux
-    mom[momIdx<MomentId::uy>(x, y)] = 0.f;  // uy
-    mom[momIdx<MomentId::mxx>(x, y)] = 0.f; // mxx
-    mom[momIdx<MomentId::mxy>(x, y)] = 0.f; // mxy
-    mom[momIdx<MomentId::myy>(x, y)] = 0.f; // myy
+    int index = grid_id(x, y);
+
+    mom[momIdx<MomentId::rho>(index)] = 1.f; // rho
+    mom[momIdx<MomentId::ux>(index)] = 0.f;  // ux
+    mom[momIdx<MomentId::uy>(index)] = 0.f;  // uy
+    mom[momIdx<MomentId::mxx>(index)] = 0.f; // mxx
+    mom[momIdx<MomentId::mxy>(index)] = 0.f; // mxy
+    mom[momIdx<MomentId::myy>(index)] = 0.f; // myy
 }

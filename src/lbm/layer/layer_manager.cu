@@ -15,7 +15,7 @@ __global__ void init_layers(D2Q9 sim, layer current_layer)
         {
             constexpr int y = decltype(ly)::value;
 
-            current_layer.buffer[momIdx<moment>(x, y)] = sim.mom[momIdx<moment>(x, y)]
+            current_layer.buffer[y][layerIdx<moment>(x)] = sim.mom[momIdx<moment>(x, y)];
         }); });
 }
 
@@ -37,5 +37,5 @@ __global__ void swap_layers(D2Q9 sim, layer current_layer, int y)
 
         current_layer.buffer[0][layer_index] = middle;
         current_layer.buffer[1][layer_index] = front;
-        current_layer.buffer[2][layer_index] = sim.mom[momIdx<moment>(next_domain_index)]; });
+        current_layer.buffer[2][layer_index] = sim.mom[momIdx<moment>(x, y)]; });
 }

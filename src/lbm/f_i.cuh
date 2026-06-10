@@ -7,11 +7,14 @@
 template <int I>
 __device__ __forceinline__ float f_i(int index, layer current_layer)
 {
-    return layer_moment_read<MomentId::rho>(current_layer, index) * w[I] *
+    int x = rest(index, Geometry::Nx);
+    int y = index / Geometry::Nx;
+
+    return current_layer.buffer[y][layerIdx<MomentId::rho>(x)] * w[I] *
            (1.f +
-            a_s2 * layer_moment_read<MomentId::ux>(current_layer, index) * c_ix[I] +
-            a_s2 * layer_moment_read<MomentId::uy>(current_layer, index) * c_iy[I] +
-            a_s4 * 0.5f * layer_moment_read<MomentId::mxx>(current_layer, index) * (c_ix[I] * c_ix[I] - inv_as2) +
-            a_s4 * layer_moment_read<MomentId::mxy>(current_layer, index) * (c_ix[I] * c_iy[I]) +
-            a_s4 * 0.5f * layer_moment_read<MomentId::myy>(current_layer, index) * (c_iy[I] * c_iy[I] - inv_as2));
+            a_s2 * current_layer.buffer[y][layerIdx<MomentId::ux>(x)] * c_ix[I] +
+            a_s2 * current_layer.buffer[y][layerIdx<MomentId::uy>(x)] * c_iy[I] +
+            a_s4 * 0.5f * current_layer.buffer[y][layerIdx<MomentId::mxx>(x)] * (c_ix[I] * c_ix[I] - inv_as2) +
+            a_s4 * current_layer.buffer[y][layerIdx<MomentId::mxy>(x)] * (c_ix[I] * c_iy[I]) +
+            a_s4 * 0.5f * current_layer.buffer[y][layerIdx<MomentId::myy>(x)] * (c_iy[I] * c_iy[I] - inv_as2));
 }

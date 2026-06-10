@@ -1,5 +1,5 @@
 #!/bin/bash
-#set -e
+set -e
 
 # ===== Diretórios =====
 SRC_DIR="./src"
@@ -27,5 +27,5 @@ nvcc \
 # ===== Pós-processamento =====
 source animation/.venv/bin/activate
 
-cd animation
+cd src/io
 python3 plot_graph.py
