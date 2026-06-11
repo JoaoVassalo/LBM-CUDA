@@ -16,9 +16,4 @@ __global__ void initDomain(float *mom)
     mom[momIdx<MomentId::mxx>(index)] = 0.f; // mxx
     mom[momIdx<MomentId::mxy>(index)] = 0.f; // mxy
     mom[momIdx<MomentId::myy>(index)] = 0.f; // myy
-
-    if (x == 1)
-    {
-        mom[momIdx<MomentId::ux>(index)] = u_max; // ux
-    }
 }
