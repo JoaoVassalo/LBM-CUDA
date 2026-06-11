@@ -1,6 +1,6 @@
 #include "boundary.cuh"
 
-__device__ void center(int x, int y, int index,
+__device__ void center(uint8_t mask_in, int x, int y, int index,
                        D2Q9 sim, layer current_layer)
 {
     float rho = 0.f;
@@ -10,21 +10,34 @@ __device__ void center(int x, int y, int index,
     float mxy = 0.f;
     float myy = 0.f;
 
-    constexpr_for<0, Q>([&](auto qi)
+    float fi = f_i<0>(x, current_layer);
+
+    rho += fi;
+
+    ux += fi * (float)c_ix[0];
+    uy += fi * (float)c_iy[0];
+
+    mxx += fi * (c_ix[0] * c_ix[0] - inv_as2);
+    mxy += fi * (c_ix[0] * c_iy[0]);
+    myy += fi * (c_iy[0] * c_iy[0] - inv_as2);
+
+    constexpr_for<1, Q>([&](auto qi)
                         {
         constexpr int i = decltype(qi)::value;
-        int index_from = from_layer_id(x, i);
 
-        float fi = f_i<i>(index_from, current_layer);
+        if (mask_in & (1u << (i - 1)))
+        {
+            fi = f_i<i>(x, current_layer);
 
-        rho += fi;
+            rho += fi;
 
-        ux += fi * (float)c_ix[i];
-        uy += fi * (float)c_iy[i];
+            ux += fi * (float)c_ix[i];
+            uy += fi * (float)c_iy[i];
 
-        mxx += fi * (c_ix[i] * c_ix[i] - inv_as2);
-        mxy += fi * (c_ix[i] * c_iy[i]);
-        myy += fi * (c_iy[i] * c_iy[i] - inv_as2); });
+            mxx += fi * (c_ix[i] * c_ix[i] - inv_as2);
+            mxy += fi * (c_ix[i] * c_iy[i]);
+            myy += fi * (c_iy[i] * c_iy[i] - inv_as2);
+        } });
 
     sim.mom[momIdx<MomentId::rho>(index)] = rho;
 
@@ -43,15 +56,18 @@ __device__ void boundary(uint8_t mask_in, uint8_t node_in,
     float sum_fi = 0.f;
     float mxy_I = 0.f;
 
-    constexpr_for<0, Q>([&](auto qi)
+    float fi = f_i<0>(x, current_layer);
+    sum_fi += fi;
+    mxy_I += fi * c_ix[0] * c_iy[0];
+
+    constexpr_for<1, Q>([&](auto qi)
                         {
         constexpr int i = decltype(qi)::value;
 
-        if (mask_in & (1u << i))
+        if (mask_in & (1u << (i - 1)))
         {
-            int index_from = from_layer_id(x, i);
 
-            float fi = f_i<i>(index_from, current_layer);
+            fi = f_i<i>(x, current_layer);
             sum_fi += fi;
             mxy_I += fi * c_ix[i] * c_iy[i];
         } });

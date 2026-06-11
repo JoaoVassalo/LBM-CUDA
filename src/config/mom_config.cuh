@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <stdio.h>
 
 #include "stencil.cuh"
 #include "physics.h"
@@ -37,9 +38,9 @@ __device__ __forceinline__ void calc_constant(float ux, float uy, uint8_t mask,
            a_s4 * 0.5f * uy * uy * (c_iy[0] * c_iy[0] - inv_as2)) *
           c_ix[0] * c_iy[0];
     C4 += w[0] * a_s4 * c_ix[0] * c_iy[0] * c_ix[0] * c_iy[0];
-    for (int k = 0; k < Q; k++)
+    for (int k = 1; k < Q; k++)
     {
-        if (mask & (1u << k))
+        if (mask & (1u << (k - 1)))
         {
             // Os
             C1 += w[k] *
@@ -94,7 +95,7 @@ template <>
 struct Constants<Boundary::North>
 {
 
-    static constexpr float ux = 1.f;
+    static constexpr float ux = u_max;
     static constexpr float uy = 0.f;
 
     float C1 = 0.f,
@@ -148,7 +149,7 @@ template <>
 struct Constants<Boundary::Northeast>
 {
 
-    static constexpr float ux = 1.f;
+    static constexpr float ux = u_max;
     static constexpr float uy = 0.f;
 
     float C1 = 0.f,
@@ -166,7 +167,7 @@ template <>
 struct Constants<Boundary::Northwest>
 {
 
-    static constexpr float ux = 1.f;
+    static constexpr float ux = u_max;
     static constexpr float uy = 0.f;
 
     float C1 = 0.f,
