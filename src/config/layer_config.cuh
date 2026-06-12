@@ -4,8 +4,8 @@
 #include "lbm/build/build_mom.cuh"
 
 // Layer block size
-#define LBX 64
-#define LBY layer::LNy
+#define LBX 128
+#define LBY 1
 #define LGX (Geometry::Nx / LBX)
 #define LGY (layer::LNy - 2)
 

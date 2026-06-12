@@ -38,7 +38,6 @@ __device__ void center(uint8_t mask_in, int x, int y, int index,
             mxy += fi * (c_ix[i] * c_iy[i]);
             myy += fi * (c_iy[i] * c_iy[i] - inv_as2);
         } });
-
     sim.mom[momIdx<MomentId::rho>(index)] = rho;
 
     sim.mom[momIdx<MomentId::ux>(index)] = ux / rho;
@@ -53,6 +52,11 @@ __device__ void boundary(uint8_t mask_in, uint8_t node_in,
                          int x, int y, int index,
                          D2Q9 sim, layer current_layer)
 {
+    if (y == Geometry::Ny - 1)
+    {
+        printf("top");
+    }
+
     float sum_fi = 0.f;
     float mxy_I = 0.f;
 
