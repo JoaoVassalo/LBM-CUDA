@@ -36,3 +36,29 @@ __device__ inline int from_id(int x, int y, int i)
 
     return ((bx + Bx * by) * Tx * Ty + tx + Tx * ty);
 }
+
+__device__ inline int grid_id()
+{
+    return ((blockIdx.x + gridDim.x * blockIdx.y) * blockDim.x * blockDim.y +
+            (threadIdx.x + blockDim.x * threadIdx.y));
+}
+
+__host__ inline int grid_plot(int x, int y)
+{
+    int blockX = x / BX;
+    int blockY = y / BY;
+
+    int localX = rest(x, BX);
+    int localY = rest(y, BY);
+
+    int blockId = blockX + GX * blockY;
+    int localId = localX + BX * localY;
+
+    return blockId * (BX * BY) + localId;
+}
+
+__device__ inline int
+pop_id(int g_id, int i)
+{
+    return (g_id * Q + i);
+}

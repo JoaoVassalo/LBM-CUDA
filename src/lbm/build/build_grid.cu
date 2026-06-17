@@ -59,10 +59,15 @@ __global__ void init_grid(uint8_t *node, uint8_t *mask)
 #pragma unroll
     for (int i = 1; i < Q; i++)
     {
-        unsigned const int xn = x + c_ix[i];
-        unsigned const int yn = y + c_iy[i];
-        if (xn > Nx || yn > Ny)
+        int xn = x + c_ix[i];
+        int yn = y + c_iy[i];
+
+        if (xn < 0 || xn >= Nx ||
+            yn < 0 || yn >= Ny)
+        {
             continue;
+        }
+
         m |= (1u << (i - 1));
     }
 

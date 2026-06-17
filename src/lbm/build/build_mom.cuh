@@ -15,7 +15,8 @@ enum MomentId
 
 struct D2Q9
 {
-    float *mom;
+    float *mom[2];
+
     float *layer;
 
     static constexpr int num_var = 6; // Number of moments in the stencil

@@ -1,10 +1,6 @@
-#include "collision.cuh"
-#include "propagation.cuh"
-#include "grid_id.cuh"
+#include "step.cuh"
 
-#include "../config/geometry.h"
-
-__global__ void step(float *mom, float *layer)
+__global__ void step(float **mom, float *layer, uint8_t *mask, uint8_t *node, int step_i)
 {
 
     int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -13,9 +9,7 @@ __global__ void step(float *mom, float *layer)
     if (x >= Nx || y >= Ny)
         return;
 
-    int index = grid_id();
+    propagation(mom, layer, mask, node, step_i);
 
-    propagation(mom, layer, );
-
-    collision(index, mom);
+    collision(mom[step_i]);
 }

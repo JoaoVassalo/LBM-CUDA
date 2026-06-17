@@ -14,8 +14,7 @@
 #include "lbm/build/build_mom.cuh"
 
 #include "core/calc_tke.cuh"
-#include "core/grid_id.cuh"
-#include "core/grid_plot.cuh"
+#include "core/indexing.cuh"
 
 #include "vtk.cuh"
 
@@ -25,10 +24,10 @@ int main()
     return 0;
     D2Q9 sim;
 
-    cudaMalloc((void **)&sim.mom, sim.size);
-    cudaMalloc((void **)&sim.layer, sim.layer_size);
+    for (int i = 0; i < 2; i++)
+        cudaMalloc((void **)&sim.mom[i], sim.size);
 
-    initDomain<<<sim.N_block, sim.block>>>(sim.mom);
+    initDomain<<<sim.N_block, sim.block>>>(sim.mom[0]);
 
     Grid2D grid;
 
@@ -48,12 +47,13 @@ int main()
 
     for (int t = 0; t < tf; t++)
     {
-        step<<<sim.N_block, sim.block>>>(sim.mom, sim.layer);
+        int step_i = t & 1;
+        step<<<sim.N_block, sim.block>>>(sim.mom, sim.layer, grid.mask, grid.node, step_i);
 
-        if (t % t_interval == 0)
+        if (rest(t, t_interval) == 0)
         {
             cudaDeviceSynchronize();
-            cudaMemcpy(mom_host, sim.mom, sim.size, cudaMemcpyDeviceToHost);
+            cudaMemcpy(mom_host, sim.mom[0], sim.size, cudaMemcpyDeviceToHost);
 
             std::cout << "Iteration " << t << std::endl;
 

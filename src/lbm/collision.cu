@@ -1,11 +1,9 @@
-#include "../config/geometry.h"
-#include "../config/physics.h"
-
 #include "collision.cuh"
-#include "build/build_mom.cuh"
 
-__device__ void collision(int index, float *mom)
+__device__ void collision(float *mom)
 {
+    int index = grid_id();
+
     const float ux = mom[momIdx<MomentId::ux>(index)];
     const float uy = mom[momIdx<MomentId::uy>(index)];
 

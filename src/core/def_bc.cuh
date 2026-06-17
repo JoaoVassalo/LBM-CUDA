@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../config/geometry.h"
-#include "mom_config.cuh"
+#include "../config/mom_config.cuh"
 
 __host__ __device__ Boundary def_bc(int x, int y)
 {

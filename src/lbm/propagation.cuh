@@ -1,3 +1,22 @@
 #pragma once
 
-__device__ void propagation(float *mom, float *layer, uint8_t *mask, uint8_t *node);
+#include <iostream>
+
+#include "../config/geometry.h"
+#include "../config/stencil.cuh"
+#include "../config/physics.h"
+#include "../config/mom_config.cuh"
+
+#include "build/build_grid.cuh"
+
+#include "../core/to_u8.cuh"
+#include "../core/indexing.cuh"
+#include "../core/def_bc.cuh"
+
+#include "../f_i.cuh"
+
+#include "pop_id.cuh"
+#include "grid_id.cuh"
+#include "from_id.cuh"
+
+__device__ void propagation(float **mom, float *layer, uint8_t *mask, uint8_t *node, int step_i);

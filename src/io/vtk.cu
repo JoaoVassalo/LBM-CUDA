@@ -1,17 +1,5 @@
 #include "vtk.cuh"
 
-#include "./presets/geometry.h"
-#include "./functions/grid_plot.cuh"
-
-#include "cuda_config/var.cuh"
-
-#include <filesystem>
-#include <fstream>
-#include <iomanip>
-#include <sstream>
-#include <iostream>
-#include <string>
-
 __host__ void write_vti(int step, const std::string &out_dir, float *mom_host)
 {
     namespace fs = std::filesystem;
