@@ -1,3 +1,5 @@
 #pragma once
 
-__device__ void collision(int index, float *mom);
+#include "build/build_mom.cuh"
+
+__global__ void collide_layer_at(D2Q9 sim, int y);

@@ -6,6 +6,7 @@
 #include "../../config/layer_config.cuh"
 #include "../build/build_grid.cuh"
 #include "../propagation.cuh"
+#include "../collision.cuh"
 
 __host__ void seed_layer(D2Q9 sim, layer layer, Grid2D grid);
 __host__ void advance_layer(D2Q9 sim, layer layer, Grid2D grid, int y);
