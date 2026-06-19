@@ -52,11 +52,6 @@ __device__ void boundary(uint8_t mask_in, uint8_t node_in,
                          int x, int y, int index,
                          D2Q9 sim, layer current_layer)
 {
-    if (y == Geometry::Ny - 1)
-    {
-        printf("top");
-    }
-
     float sum_fi = 0.f;
     float mxy_I = 0.f;
 
