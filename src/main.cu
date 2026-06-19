@@ -1,122 +1,17 @@
-#include <iostream>
-#include <string>
-#include <chrono>
-#include <fstream>
-#include <cstdint>
-#include <bitset>
-
-#include "config/stencil.cuh"
-#include "config/geometry.h"
-#include "config/mom_config.cuh"
-#include "config/physics.h"
-
-#include "lbm/init/init_domain.cuh"
-#include "lbm/step.cuh"
-#include "lbm/build/build_mom.cuh"
-#include "lbm/build/build_grid.cuh"
-
-#include "core/calc_tke.cuh"
-#include "core/indexing.cuh"
-
-#include "io/vtk.cuh"
+#include "config/stencilConfig.cuh"
+#include "config/gridConfig.cuh"
+#include "lbm/initialization/initDomain.cuh"
+#include "lbm/initialization/initGrid.cuh"
 
 int main()
 {
     D2Q9 sim;
 
-    layer layer;
+    cudaMalloc((void **)&sim.mom, sim.momByteSize);
 
-    cudaMalloc((void **)&sim.mom, sim.size);
-
-    for (int i = 0; i < layer::LNy; ++i)
-    {
-        cudaMalloc((void **)&layer.buffer[i], layer::buffer_bytesize);
-    }
-
-    initDomain<<<sim.N_block, sim.block>>>(sim.mom);
+    initDomain<<<block, blockNumber>>>(sim.mom);
 
     Grid2D grid;
-    build_grid(sim, grid);
 
-    cudaError_t err = cudaGetLastError();
-    printf("Kernel launch error: %s\n", cudaGetErrorString(err));
-
-    cudaDeviceSynchronize();
-
-    float *mom_host = (float *)malloc(sim.size);
-
-    std::string path = "./plot";
-
-    cudaMemcpy(mom_host, sim.mom, sim.size, cudaMemcpyDeviceToHost);
-
-    write_vti(0, path, mom_host);
-
-    std::ofstream file("animation/tke.csv");
-    file << "time,tke\n";
-
-    auto t1 = std::chrono::high_resolution_clock::now();
-
-    for (int t = 1; t < tf; t++)
-    {
-        step(sim, layer, grid);
-
-        if (t == 1)
-        {
-            cudaDeviceSynchronize();
-            cudaMemcpy(mom_host, sim.mom, sim.size, cudaMemcpyDeviceToHost);
-
-            std::cout << "Iteration " << t << std::endl;
-
-            std::cout << std::endl;
-
-            write_vti(t, path, mom_host);
-
-            calc_tke(file, mom_host, t);
-        }
-
-        if (t % t_interval == 0)
-        {
-            cudaDeviceSynchronize();
-            cudaMemcpy(mom_host, sim.mom, sim.size, cudaMemcpyDeviceToHost);
-
-            std::cout << "Iteration " << t << std::endl;
-
-            std::cout << std::endl;
-
-            write_vti(t, path, mom_host);
-
-            calc_tke(file, mom_host, t);
-        }
-    }
-
-    auto t2 = std::chrono::high_resolution_clock::now();
-
-    auto tempo = std::chrono::duration_cast<std::chrono::seconds>(t2 - t1);
-
-    double MLUPS = (double)(Geometry::Nx * Geometry::Ny) * double(tf) / ((double)tempo.count() * 1e6);
-    printf("MLUPS: %f\n", MLUPS);
-
-    file.close();
-
-    std::ofstream file2("animation/vel.csv");
-    file2 << "x,ux,uy\n";
-
-    float ux_plot;
-    float uy_plot;
-    float xplot;
-
-    int mid_up = Geometry::Nx / 2;
-    int mid_down = (Geometry::Nx / 2) - 1;
-    for (int i = 0; i < Geometry::Nx; i++)
-    {
-        ux_plot = (mom_host[momIdx<MomentId::ux>(mid_up, i)] + mom_host[momIdx<MomentId::ux>(mid_down, i)]) / 2.f; // ux
-        ux_plot /= u_max;
-        uy_plot = (mom_host[momIdx<MomentId::uy>(i, mid_up)] + mom_host[momIdx<MomentId::uy>(i, mid_down)]) / 2.f; // uy
-        uy_plot /= u_max;
-
-        xplot = (float)(i) / (float)Geometry::Nx;
-
-        file2 << xplot << "," << ux_plot << "," << uy_plot << "\n";
-    }
-    file2.close();
+    initGrid<<<block, blockNumber>>>(grid.mask, grid.node);
 }

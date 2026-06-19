@@ -1,1 +1,0 @@
-This directory is necessary to run the animation code. Please don't delete.
