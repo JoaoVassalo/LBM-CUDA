@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../config/geometry.h"
-#include "../core/rest.cuh"
+#include "../../core/rest.cuh"
 
 enum MomentId
 {
@@ -25,7 +25,6 @@ struct D2Q9
     dim3 N_block = dim3(GX, GY);
 
     size_t size = Nx * Ny * sizeof(float) * num_var;
-    size_t layer_size = LNx * LNy * sizeof(float) * num_var;
 };
 
 template <int I>

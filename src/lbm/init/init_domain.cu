@@ -1,3 +1,5 @@
+#include "init_domain.cuh"
+
 #include "../../config/stencil.cuh"
 #include "../../config/geometry.h"
 #include "../../config/mom_config.cuh"
@@ -6,8 +8,7 @@
 
 #include "../equilibrium.cuh"
 
-#include "../../core/grid_id.cuh"
-#include "../../core/pop_id.cuh"
+#include "../../core/indexing.cuh"
 
 __global__ void initDomain(float *mom)
 {

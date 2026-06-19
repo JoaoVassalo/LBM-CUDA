@@ -13,10 +13,6 @@
 #include "../core/indexing.cuh"
 #include "../core/def_bc.cuh"
 
-#include "../f_i.cuh"
+#include "f_i.cuh"
 
-#include "pop_id.cuh"
-#include "grid_id.cuh"
-#include "from_id.cuh"
-
-__device__ void propagation(float **mom, float *layer, uint8_t *mask, uint8_t *node, int step_i);
+__device__ void propagation(int x, int y, float **mom, float *layer, uint8_t *mask, uint8_t *node, int step_i);

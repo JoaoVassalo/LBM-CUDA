@@ -3,7 +3,7 @@
 #include "../config/geometry.h"
 #include "../config/mom_config.cuh"
 
-__host__ __device__ Boundary def_bc(int x, int y)
+__host__ __device__ __forceinline__ Boundary def_bc(int x, int y)
 {
     if (x == 0 && y == 0)
     { // Sudoeste

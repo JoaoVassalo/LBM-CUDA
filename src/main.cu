@@ -3,6 +3,7 @@
 #include <chrono>
 #include <fstream>
 #include <cstdint>
+#include <bitset>
 
 #include "config/stencil.cuh"
 #include "config/geometry.h"
@@ -16,12 +17,10 @@
 #include "core/calc_tke.cuh"
 #include "core/indexing.cuh"
 
-#include "vtk.cuh"
+#include "io/vtk.cuh"
 
 int main()
 {
-
-    return 0;
     D2Q9 sim;
 
     for (int i = 0; i < 2; i++)
@@ -40,6 +39,12 @@ int main()
 
     float *mom_host = (float *)malloc(sim.size);
 
+    std::string path = "./plot";
+
+    cudaMemcpy(mom_host, sim.mom[0], sim.size, cudaMemcpyDeviceToHost);
+
+    write_vti(0, path, mom_host);
+
     std::ofstream file("animation/tke.csv");
     file << "time,tke\n";
 
@@ -49,6 +54,20 @@ int main()
     {
         int step_i = t & 1;
         step<<<sim.N_block, sim.block>>>(sim.mom, sim.layer, grid.mask, grid.node, step_i);
+
+        if (t == 1)
+        {
+            cudaDeviceSynchronize();
+            cudaMemcpy(mom_host, sim.mom[1], sim.size, cudaMemcpyDeviceToHost);
+
+            std::cout << "Iteration " << t << std::endl;
+
+            std::cout << std::endl;
+
+            write_vti(t, path, mom_host);
+
+            calc_tke(file, mom_host, t);
+        }
 
         if (rest(t, t_interval) == 0)
         {

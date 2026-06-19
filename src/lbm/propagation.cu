@@ -1,32 +1,16 @@
 #include "propagation.cuh"
 
-__device__ void propagation(int x, int y, float **mom, float *layer, uint8_t *mask, uint8_t *node, int step_i)
-{
-   applyBoundary(x, y, node, mask, mom[step_i], mom[1 - step_i]);
-}
-
-__device__ void applyBoundary(int x, int y, uint8_t *node, uint8_t *mask, float *mom_in,
-                              float *mom_out)
-{
-   const int index = grid_id();
-
-   if (node[index] & to_u8(domainTags::Boundary))
-   {
-      boundary(x, y, mask[index], node[index], mom_in,
-               mom_out);
-   }
-   else
-   {
-      center(x, y, mom_in,
-             mom_out);
-   }
-}
-
 __device__ void center(int x, int y,
                        float *mom_in,
                        float *mom_out)
 {
+   printf("centro?");
+
+   if (y == Nx - 1)
+      printf("top dentro do centro vai tomar no cu");
+
    int index = grid_id();
+
    float rho = 0.f;
    float ux = 0.f;
    float uy = 0.f;
@@ -34,8 +18,21 @@ __device__ void center(int x, int y,
    float mxy = 0.f;
    float myy = 0.f;
 
+   int index_from = from_id(x, y, 0);
+
+   float fi = f_i(index_from, 0, mom_in);
+
+   rho += fi;
+
+   ux += fi * (float)c_ix[0];
+   uy += fi * (float)c_iy[0];
+
+   mxx += fi * (c_ix[0] * c_ix[0] - inv_as2);
+   mxy += fi * (c_ix[0] * c_iy[0]);
+   myy += fi * (c_iy[0] * c_iy[0] - inv_as2);
+
 #pragma unroll
-   for (int i = 0; i < Q; i++)
+   for (int i = 1; i < Q; i++)
    {
       int index_from = from_id(x, y, i);
 
@@ -68,7 +65,13 @@ __device__ void boundary(int x, int y, uint8_t mask_in, uint8_t node_in, float *
    float sum_fi = 0.f;
    float mxy_I = 0.f;
 
-   for (int i = 0; i < Q; i++)
+   int index_from = from_id(x, y, 0);
+
+   float fi = f_i(index_from, 0, mom_in);
+   sum_fi += fi;
+   mxy_I += fi * c_ix[0] * c_iy[0];
+
+   for (int i = 1; i < Q; i++)
    {
       if (mask_in & (1u << i))
       {
@@ -85,46 +88,126 @@ __device__ void boundary(int x, int y, uint8_t mask_in, uint8_t node_in, float *
    switch (static_cast<Boundary>(node_in))
    {
    case Boundary::East:
+   {
       Constants<Boundary::East> c(mask_in);
       mom_out[momIdx<MomentId::mxy>(index)] = (c.C3 - c.C1 * mxy_I) / (c.C2 * mxy_I - c.C4);
       mom_out[momIdx<MomentId::rho>(index)] = sum_fi / (c.C1 + c.C2 * mom_out[momIdx<MomentId::mxy>(index)]);
+      mom_out[momIdx<MomentId::ux>(index)] = 0.f;
+      mom_out[momIdx<MomentId::uy>(index)] = 0.f;
+      mom_out[momIdx<MomentId::mxx>(index)] = 0.f;
+      mom_out[momIdx<MomentId::myy>(index)] = 0.f;
+      printf("EAST      x=%d y=%d\n", x, y);
       break;
+   }
    case Boundary::North:
+   {
       Constants<Boundary::North> c(mask_in);
       mom_out[momIdx<MomentId::mxy>(index)] = (c.C3 - c.C1 * mxy_I) / (c.C2 * mxy_I - c.C4);
       mom_out[momIdx<MomentId::rho>(index)] = sum_fi / (c.C1 + c.C2 * mom_out[momIdx<MomentId::mxy>(index)]);
+      mom_out[momIdx<MomentId::ux>(index)] = u_max;
+      mom_out[momIdx<MomentId::uy>(index)] = 0.f;
+      mom_out[momIdx<MomentId::mxx>(index)] = 0.f;
+      mom_out[momIdx<MomentId::myy>(index)] = 0.f;
+      printf("NORTH      x=%d y=%d\n", x, y);
       break;
+   }
    case Boundary::West:
+   {
       Constants<Boundary::West> c(mask_in);
       mom_out[momIdx<MomentId::mxy>(index)] = (c.C3 - c.C1 * mxy_I) / (c.C2 * mxy_I - c.C4);
       mom_out[momIdx<MomentId::rho>(index)] = sum_fi / (c.C1 + c.C2 * mom_out[momIdx<MomentId::mxy>(index)]);
+      mom_out[momIdx<MomentId::ux>(index)] = 0.f;
+      mom_out[momIdx<MomentId::uy>(index)] = 0.f;
+      mom_out[momIdx<MomentId::mxx>(index)] = 0.f;
+      mom_out[momIdx<MomentId::myy>(index)] = 0.f;
+      printf("WEST      x=%d y=%d\n", x, y);
       break;
+   }
    case Boundary::South:
+   {
       Constants<Boundary::South> c(mask_in);
       mom_out[momIdx<MomentId::mxy>(index)] = (c.C3 - c.C1 * mxy_I) / (c.C2 * mxy_I - c.C4);
       mom_out[momIdx<MomentId::rho>(index)] = sum_fi / (c.C1 + c.C2 * mom_out[momIdx<MomentId::mxy>(index)]);
+      mom_out[momIdx<MomentId::ux>(index)] = 0.f;
+      mom_out[momIdx<MomentId::uy>(index)] = 0.f;
+      mom_out[momIdx<MomentId::mxx>(index)] = 0.f;
+      mom_out[momIdx<MomentId::myy>(index)] = 0.f;
+      printf("SOUTH      x=%d y=%d\n", x, y);
       break;
+   }
    case Boundary::Northeast:
+   {
       Constants<Boundary::Northeast> c(mask_in);
       mom_out[momIdx<MomentId::mxy>(index)] = (c.C3 - c.C1 * mxy_I) / (c.C2 * mxy_I - c.C4);
       mom_out[momIdx<MomentId::rho>(index)] = sum_fi / (c.C1 + c.C2 * mom_out[momIdx<MomentId::mxy>(index)]);
+      mom_out[momIdx<MomentId::ux>(index)] = u_max;
+      mom_out[momIdx<MomentId::uy>(index)] = 0.f;
+      mom_out[momIdx<MomentId::mxx>(index)] = 0.f;
+      mom_out[momIdx<MomentId::myy>(index)] = 0.f;
+      printf("NORTHEAST      x=%d y=%d\n", x, y);
       break;
+   }
    case Boundary::Northwest:
+   {
       Constants<Boundary::Northwest> c(mask_in);
       mom_out[momIdx<MomentId::mxy>(index)] = (c.C3 - c.C1 * mxy_I) / (c.C2 * mxy_I - c.C4);
       mom_out[momIdx<MomentId::rho>(index)] = sum_fi / (c.C1 + c.C2 * mom_out[momIdx<MomentId::mxy>(index)]);
+      mom_out[momIdx<MomentId::ux>(index)] = u_max;
+      mom_out[momIdx<MomentId::uy>(index)] = 0.f;
+      mom_out[momIdx<MomentId::mxx>(index)] = 0.f;
+      mom_out[momIdx<MomentId::myy>(index)] = 0.f;
+      printf("NORTHWEST      x=%d y=%d\n", x, y);
       break;
+   }
    case Boundary::Southwest:
+   {
       Constants<Boundary::Southwest> c(mask_in);
       mom_out[momIdx<MomentId::mxy>(index)] = (c.C3 - c.C1 * mxy_I) / (c.C2 * mxy_I - c.C4);
       mom_out[momIdx<MomentId::rho>(index)] = sum_fi / (c.C1 + c.C2 * mom_out[momIdx<MomentId::mxy>(index)]);
+      mom_out[momIdx<MomentId::ux>(index)] = 0.f;
+      mom_out[momIdx<MomentId::uy>(index)] = 0.f;
+      mom_out[momIdx<MomentId::mxx>(index)] = 0.f;
+      mom_out[momIdx<MomentId::myy>(index)] = 0.f;
+      printf("SOUTHWEST      x=%d y=%d\n", x, y);
       break;
+   }
    case Boundary::Southeast:
+   {
       Constants<Boundary::Southeast> c(mask_in);
       mom_out[momIdx<MomentId::mxy>(index)] = (c.C3 - c.C1 * mxy_I) / (c.C2 * mxy_I - c.C4);
       mom_out[momIdx<MomentId::rho>(index)] = sum_fi / (c.C1 + c.C2 * mom_out[momIdx<MomentId::mxy>(index)]);
-      break;
-   default:
+      mom_out[momIdx<MomentId::ux>(index)] = 0.f;
+      mom_out[momIdx<MomentId::uy>(index)] = 0.f;
+      mom_out[momIdx<MomentId::mxx>(index)] = 0.f;
+      mom_out[momIdx<MomentId::myy>(index)] = 0.f;
+      printf("SOUTHEAST      x=%d y=%d\n", x, y);
       break;
    }
+   default:
+   {
+      break;
+   }
+   }
+}
+
+__device__ void applyBoundary(int x, int y, uint8_t *node, uint8_t *mask, float *mom_in,
+                              float *mom_out)
+{
+   const int index = grid_id();
+
+   if (node[index] != to_u8(domainTags::Boundary))
+   {
+      boundary(x, y, mask[index], node[index], mom_in,
+               mom_out);
+   }
+   else
+   {
+      center(x, y, mom_in,
+             mom_out);
+   }
+}
+
+__device__ void propagation(int x, int y, float **mom, float *layer, uint8_t *mask, uint8_t *node, int step_i)
+{
+   applyBoundary(x, y, node, mask, mom[step_i], mom[1 - step_i]);
 }

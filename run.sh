@@ -1,19 +1,31 @@
 #!/bin/bash
 set -e
 
-SRC="
-main.cu
-functions/*.cu
-functions/boundary/*.cu
-presets/stencil.cu
-vtk.cu
-"
+# ===== Diretórios =====
+SRC_DIR="./src"
+BUILD="./main"
 
-rm -f ./main
+# ===== Arquivos CUDA =====
+SRC=$(find $SRC_DIR -name "*.cu")
+
+# ===== Limpeza =====
+rm -f $BUILD
 rm -rf ./plot/vtk
 
-nvcc -Xptxas -v -rdc=true -I. $SRC -o main && ./main
+# ===== Compilação =====
+nvcc \
+    -std=c++20 \
+    -Xptxas -v \
+    -rdc=true \
+    -I$SRC_DIR \
+    $SRC \
+    -o $BUILD
 
-source animation/.venv/bin/activate
-cd animation
-python3 plot_graph.py
+# ===== Execução =====
+./main
+
+# ===== Pós-processamento =====
+#source animation/.venv/bin/activate
+
+#cd src/io
+#python3 plot_graph.py
