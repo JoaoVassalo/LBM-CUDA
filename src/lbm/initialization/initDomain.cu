@@ -8,10 +8,10 @@ __global__ void initDomain(float *mom)
     if (x >= Geometry::NX || y >= Geometry::NY)
         return;
 
-    mom[momIdx<momIdD2Q9::rho>(x, y)] = 1.f;
-    mom[momIdx<momIdD2Q9::ux>(x, y)] = 0.f;
-    mom[momIdx<momIdD2Q9::uy>(x, y)] = 0.f;
-    mom[momIdx<momIdD2Q9::mxx>(x, y)] = 0.f;
-    mom[momIdx<momIdD2Q9::mxy>(x, y)] = 0.f;
-    mom[momIdx<momIdD2Q9::myy>(x, y)] = 0.f;
+    mom[momIdx<momId::rho>(x, y)] = 1.f;
+    mom[momIdx<momId::ux>(x, y)] = 0.f;
+    mom[momIdx<momId::uy>(x, y)] = 0.f;
+    mom[momIdx<momId::mxx>(x, y)] = 0.f;
+    mom[momIdx<momId::mxy>(x, y)] = 0.f;
+    mom[momIdx<momId::myy>(x, y)] = 0.f;
 }

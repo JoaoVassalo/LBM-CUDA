@@ -18,13 +18,17 @@ __global__ void initGrid(uint8_t *mask, uint8_t *node)
 
     for (int i = 1; i < D2Q9::Q; i++)
     {
-        int xn = x + c_ix[i];
-        int yn = y + c_iy[i];
+        int xn = x + D2Q9::cx(i);
+        int yn = y + D2Q9::cy(i);
 
         if (xn < 0 || xn >= Geometry::NX ||
             yn < 0 || yn >= Geometry::NY)
         {
             continue;
         }
+
+        m |= (1u << (i - 1));
     }
+
+    mask[index] = m;
 }

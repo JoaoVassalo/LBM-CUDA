@@ -18,3 +18,9 @@ __host__ __device__ __forceinline__ int momIdx(int index)
 {
     return index * D2Q9::momNum + I;
 }
+
+template <auto I>
+__host__ __device__ __forceinline__ int layerIdx(auto x)
+{
+    return x * D2Q9::momNum + I;
+}
