@@ -18,4 +18,8 @@ __host__ void simulation(moments sim, Grid2D grid)
 __host__ void step(moments sim, Grid2D grid)
 {
     initLayer(sim, grid);
+
+    for (size_t y = 1; y < Geometry::NY - 1; y++)
+    {
+        }
 }
