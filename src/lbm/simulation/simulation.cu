@@ -21,5 +21,5 @@ __host__ void step(moments sim, Grid2D grid)
 
     for (size_t y = 1; y < Geometry::NY - 1; y++)
     {
-        }
+    }
 }
