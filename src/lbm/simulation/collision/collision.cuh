@@ -5,3 +5,5 @@
 #include "../../../config/stencilConfig.cuh"
 
 #include "../../../core/indexing.cuh"
+
+__device__ void collide(moments sim, int y);

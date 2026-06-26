@@ -1,6 +1,6 @@
 #include "initialization.cuh"
 
-__host__ __forceinline__ void initialization(moments sim, Grid2D grid)
+__host__ void initialization(moments sim, Grid2D grid)
 {
     constexpr size_t momByteSize = D2Q9::momByteSize;
     constexpr size_t layerByteSize = D2Q9::layerByteSize;
@@ -24,7 +24,7 @@ __host__ __forceinline__ void initialization(moments sim, Grid2D grid)
 
     initGrid<<<block, blockNumber>>>(grid.mask, grid.node);
 
-    cudaError_t err = cudaGetLastError();
+    err = cudaGetLastError();
     printf("Kernel launch error: %s\n", cudaGetErrorString(err));
 
     sim.mom_host = (float *)malloc(momByteSize);

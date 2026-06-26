@@ -1,5 +1,7 @@
 #pragma once
 
+#include "stencilConfig.cuh"
+
 struct moments
 {
     float *mom;

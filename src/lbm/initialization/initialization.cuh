@@ -15,4 +15,4 @@
 #include <cstdint>
 #include <bitset>
 
-__host__ __forceinline__ void initialization(moments sim, Grid2D grid);
+__host__ void initialization(moments sim, Grid2D grid);

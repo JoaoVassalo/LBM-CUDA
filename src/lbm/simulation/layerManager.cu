@@ -30,12 +30,12 @@ __global__ void swapLayerMem(moments sim, int y)
                                                                                           {
             constexpr int moment = static_cast<int>(decltype(mom)::value);
 
-            const int layerIdx = layerIdx<moment>(x); 
+            const int layerIndex = layerIdx<moment>(x); 
         
-            const float mid = sim.layer[1][layerIdx];
-            const float top = sim.layer[2][layerIdx];
+            const float mid = sim.layer[1][layerIndex];
+            const float top = sim.layer[2][layerIndex];
 
-            sim.layer[0][layerIdx] = mid;
-            sim.layer[1][layerIdx] = top;
-            sim.layer[2][layerIdx] = sim.mom[momIdx<moment>(x, y)]; });
+            sim.layer[0][layerIndex] = mid;
+            sim.layer[1][layerIndex] = top;
+            sim.layer[2][layerIndex] = sim.mom[momIdx<moment>(x, y)]; });
 }

@@ -5,14 +5,14 @@
 namespace Geometry
 {
     // Geometry definition
-    static const int NX = 64;
-    static const int NY = 64;
-    static const int NZ = 0;
+    constexpr int NX = 64;
+    constexpr int NY = 64;
+    constexpr int NZ = 0;
 
     // Layer definition
-    static const int LNX = NX;
-    static const int LNY = 3;
-    static const int LNZ = 0;
+    constexpr int LNX = NX;
+    constexpr int LNY = 3;
+    constexpr int LNZ = 0;
 };
 
 // Defining block size and number for kernel initialization, in this branch we use this part mainly for the initialization part.
@@ -21,8 +21,8 @@ namespace Geometry
 #define GX (Geometry::NX / BX)
 #define GY (Geometry::NY / BY)
 
-dim3 block = dim3(BX, BY);
-dim3 blockNumber = dim3(GX, GY);
+inline dim3 block(BX, BY);
+inline dim3 blockNumber(GX, GY);
 
 // Defining block size and number for kernel using layer.
 #define LBX Geometry::LNX
@@ -30,27 +30,27 @@ dim3 blockNumber = dim3(GX, GY);
 #define LGX (Geometry::LNX / LBX)
 #define LGY (Geometry::LNY / LBY)
 
-dim3 blockLayer = dim3(LBX, LBY);
-dim3 blockNumberLayer = dim3(LGX, LGY);
+inline dim3 blockLayer = dim3(LBX, LBY);
+inline dim3 blockNumberLayer = dim3(LGX, LGY);
 
 // Stencil definition
 namespace D2Q9
 {
-    static const int D = 2;
-    static const int Q = 9;
+    constexpr int D = 2;
+    constexpr int Q = 9;
 
-    static const int momSize = Geometry::NX * Geometry::NY;
-    static const int momByteSize = Geometry::NX * Geometry::NY * sizeof(float);
+    constexpr int momSize = Geometry::NX * Geometry::NY;
+    constexpr int momByteSize = Geometry::NX * Geometry::NY * sizeof(float);
 
-    static const int layerSize = Geometry::NX * Geometry::NY;
-    static const int layerByteSize = Geometry::NX * Geometry::NY * sizeof(float);
+    constexpr int layerSize = Geometry::NX * Geometry::NY;
+    constexpr int layerByteSize = Geometry::NX * Geometry::NY * sizeof(float);
 
-    static const int momNum = 6; // Moment number for D2Q9 is set at 6. Look at momConfig.cuh for more details.
+    constexpr int momNum = 6; // Moment number for D2Q9 is set at 6. Look at momConfig.cuh for more details.
 
     const float a_s = sqrtf(3);
-    const float a_s2 = 3.f;
-    const float a_s4 = 9.f;
-    const float inv_as2 = 1.f / a_s2;
+    constexpr float a_s2 = 3.f;
+    constexpr float a_s4 = 9.f;
+    constexpr float inv_as2 = 1.f / a_s2;
 
     __host__ __device__ __forceinline__ float w(int i)
     {
@@ -68,6 +68,8 @@ namespace D2Q9
         case 7:
         case 8:
             return 1.f / 36.f;
+        default:
+            return 0.f;
         }
     }
 
@@ -93,6 +95,8 @@ namespace D2Q9
             return -1.f;
         case 8:
             return 1.f;
+        default:
+            return 0.f;
         }
     }
 
@@ -118,6 +122,33 @@ namespace D2Q9
             return -1.f;
         case 8:
             return -1.f;
+        default:
+            return 0.f;
+        }
+    }
+
+    __host__ __device__ __forceinline__ int income(int i)
+    {
+        switch (i)
+        {
+        case 0:
+            return 0;
+        case 1:
+            return 3;
+        case 2:
+            return 4;
+        case 3:
+            return 1;
+        case 4:
+            return 2;
+        case 5:
+            return 7;
+        case 6:
+            return 8;
+        case 7:
+            return 5;
+        default:
+            return 6;
         }
     }
 };

@@ -2,19 +2,19 @@
 
 #include "stencilConfig.cuh"
 
-namespace time
+namespace timeConfig
 {
-    size_t tf = 4e6;
-    size_t printNumber = 100;
-    size_t tInterval = tf / printNumber;
+    inline constexpr size_t tf = 4'000'000;
+    inline constexpr size_t printNumber = 100;
+    inline constexpr size_t tInterval = tf / printNumber;
 }
 
 namespace physics
 {
-    constexpr int Re = 1000;
-    constexpr float u_max = 0.0256f;
-    constexpr int delta_t = 1;
-    constexpr float ni = u_max * (float)Geometry::NY / (float)Re;
-    const float tau = ni * a_s2 + 0.5f;
-    const float omega = 1.0f / tau;
+    inline constexpr int Re = 1000;
+    inline constexpr float u_max = 0.0256f;
+    inline constexpr int delta_t = 1;
+    inline constexpr float ni = u_max * (float)Geometry::NY / (float)Re;
+    inline constexpr float tau = ni * D2Q9::a_s2 + 0.5f;
+    inline constexpr float omega = 1.0f / tau;
 }

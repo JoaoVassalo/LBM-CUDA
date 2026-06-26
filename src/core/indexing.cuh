@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../config/stencilConfig.cuh"
+#include "../config/stencilConfig.cuh"
 
 __host__ __device__ __forceinline__ int gridId(int x, int y)
 {

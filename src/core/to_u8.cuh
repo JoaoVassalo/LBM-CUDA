@@ -4,5 +4,5 @@
 
 __device__ __forceinline__ uint8_t to_u8(auto num)
 {
-    return static_cast<uint8_t>(num)
+    return static_cast<uint8_t>(num);
 }

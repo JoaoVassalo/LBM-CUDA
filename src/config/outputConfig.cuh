@@ -5,6 +5,6 @@
 
 namespace output
 {
-    std::string vtkPath = "./plot";
-    std::ofstream tkePath("io/out/tke.csv");
+    inline const std::string vtkPath = "./plot";
+    // std::ofstream tkePath("io/out/tke.csv");
 }

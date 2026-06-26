@@ -1,15 +1,7 @@
 #include "boundary.cuh"
 
-#include <iostream> // DEBUG
-
-__device__ void center(moments sim, int y)
+__device__ void center(moments sim, int x, int y)
 {
-    int x = threadIdx.x + blockDim.x * blockIdx.x;
-
-    if (x >= Geometry::NX || x < 0)
-        printf("Out of bounds"); // DEBUG
-    return;
-
     float rho = 0.f;
     float ux = 0.f;
     float uy = 0.f;
@@ -45,14 +37,8 @@ __device__ void center(moments sim, int y)
     sim.layer[1][layerIdx<momId::myy>(x)] = myy;
 }
 
-__device__ void boundary(moments sim, Grid2D grid, int y)
+__device__ void boundary(moments sim, Grid2D grid, int x, int y)
 {
-    int x = threadIdx.x + blockDim.x * blockIdx.x;
-
-    if (x >= Geometry::NX || x < 0)
-        printf("Out of bounds"); // DEBUG
-    return;
-
     int index = gridId(x, y);
 
     float rho = 0.f;
@@ -125,22 +111,22 @@ __device__ void boundary(moments sim, Grid2D grid, int y)
                  D2Q9::a_s4 *
                  (D2Q9::cx(i) * D2Q9::cy(i)) *
                  (D2Q9::cx(i) * D2Q9::cy(i));
-        }
-        else
-        {
+
             // O_s
-            C1 = D2Q9::w(i) *
+            int k = D2Q9::income(i);
+
+            C1 = D2Q9::w(k) *
                      (1.f +
-                      D2Q9::a_s2 * ux * D2Q9::cx(i) +
-                      D2Q9::a_s2 * uy * D2Q9::cy(i) +
+                      D2Q9::a_s2 * ux * D2Q9::cx(k) +
+                      D2Q9::a_s2 * uy * D2Q9::cy(k) +
                       D2Q9::a_s4 * 0.5f * ux * ux +
                       D2Q9::a_s4 * 0.5f * uy * uy) +
                  physics::omega *
-                     (D2Q9::w(i) * D2Q9::a_s4 * ux * uy *
-                      (D2Q9::cx(i) * D2Q9::cy(i)));
+                     (D2Q9::w(k) * D2Q9::a_s4 * ux * uy *
+                      (D2Q9::cx(k) * D2Q9::cy(k)));
             C2 = (1.f - physics::omega) *
-                 (D2Q9::w(i) * D2Q9::a_s4 *
-                  (D2Q9::cx(i) * D2Q9::cy(i)));
+                 (D2Q9::w(k) * D2Q9::a_s4 *
+                  (D2Q9::cx(k) * D2Q9::cy(k)));
         }
 
     mxy = (C3 - C1 * mxy_I) / (C2 * mxy_I - C4);
@@ -155,4 +141,14 @@ __device__ void boundary(moments sim, Grid2D grid, int y)
     sim.layer[id][layerIdx<momId::mxx>(x)] = mxx;
     sim.layer[id][layerIdx<momId::mxy>(x)] = mxy;
     sim.layer[id][layerIdx<momId::myy>(x)] = myy;
+}
+
+__device__ void applyBoundary(moments sim, Grid2D grid, int x, int y)
+{
+    int index = gridId(x, y);
+
+    if (grid.node[index] != to_u8(Boundary::Center))
+        boundary(sim, grid, x, y);
+    else
+        center(sim, x, y);
 }
