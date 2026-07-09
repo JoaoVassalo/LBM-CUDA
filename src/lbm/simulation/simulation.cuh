@@ -11,4 +11,4 @@
 
 #include <chrono>
 
-__host__ void simulation(moments sim, Grid2D grid);
+__host__ void simulation(moments &sim, Grid2D &grid);

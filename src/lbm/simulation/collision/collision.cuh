@@ -6,4 +6,4 @@
 
 #include "../../../core/indexing.cuh"
 
-__device__ void collide(moments sim, int y);
+__device__ void collide(moments sim, int x, int y);

@@ -2,10 +2,8 @@
 
 #include <iostream>
 
-__device__ void collide(moments sim, int y)
+__device__ void collide(moments sim, int x, int y)
 {
-    const int x = threadIdx.x + blockDim.x * blockIdx.x;
-
     if (x >= Geometry::NX || x < 0)
         printf("Out of bounds"); // DEBUG
     return;

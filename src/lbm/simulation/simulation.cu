@@ -1,6 +1,6 @@
 #include "simulation.cuh"
 
-__host__ void step(moments sim, Grid2D grid)
+__host__ void step(moments &sim, Grid2D &grid)
 {
     initLayer(sim, grid);
 
@@ -12,7 +12,7 @@ __host__ void step(moments sim, Grid2D grid)
     lastLayer(sim, grid);
 }
 
-__host__ void simulation(moments sim, Grid2D grid)
+__host__ void simulation(moments &sim, Grid2D &grid)
 {
     auto t1 = std::chrono::high_resolution_clock::now();
 
@@ -22,6 +22,8 @@ __host__ void simulation(moments sim, Grid2D grid)
 
         if (t == 1 || t % timeConfig::tInterval == 0)
             writeOutput(sim, grid, t, D2Q9::momByteSize, output::vtkPath);
+
+        return;
     }
 
     auto t2 = std::chrono::high_resolution_clock::now();

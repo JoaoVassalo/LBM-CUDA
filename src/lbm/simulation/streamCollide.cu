@@ -8,5 +8,6 @@ __global__ void streamCollide(moments sim, Grid2D grid, int y)
         return;
 
     applyBoundary(sim, grid, x, y);
-    collide(sim, y);
+    collide(sim, x, y);
+    saveMom(sim, x, y);
 }

@@ -5,8 +5,8 @@
 namespace Geometry
 {
     // Geometry definition
-    constexpr int NX = 64;
-    constexpr int NY = 64;
+    constexpr int NX = 8;
+    constexpr int NY = 8;
     constexpr int NZ = 0;
 
     // Layer definition
@@ -16,8 +16,8 @@ namespace Geometry
 };
 
 // Defining block size and number for kernel initialization, in this branch we use this part mainly for the initialization part.
-#define BX 32
-#define BY 16
+#define BX 8
+#define BY 8
 #define GX (Geometry::NX / BX)
 #define GY (Geometry::NY / BY)
 
@@ -39,13 +39,13 @@ namespace D2Q9
     constexpr int D = 2;
     constexpr int Q = 9;
 
+    constexpr int momNum = 6; // Moment number for D2Q9 is set at 6. Look at momConfig.cuh for more details.
+
     constexpr int momSize = Geometry::NX * Geometry::NY;
-    constexpr int momByteSize = Geometry::NX * Geometry::NY * sizeof(float);
+    constexpr int momByteSize = Geometry::NX * Geometry::NY * momNum * sizeof(float);
 
     constexpr int layerSize = Geometry::NX * Geometry::NY;
-    constexpr int layerByteSize = Geometry::NX * Geometry::NY * sizeof(float);
-
-    constexpr int momNum = 6; // Moment number for D2Q9 is set at 6. Look at momConfig.cuh for more details.
+    constexpr int layerByteSize = Geometry::NX * Geometry::NY * momNum * sizeof(float);
 
     const float a_s = sqrtf(3);
     constexpr float a_s2 = 3.f;

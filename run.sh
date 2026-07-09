@@ -16,6 +16,8 @@ fi
 rm -f $OUT
 mkdir -p $SRC_DIR/io/out
 
+rm -f plot/vtk/*.vti
+
 nvcc $FLAGS \
     -lineinfo \
     -Xptxas=-v \
