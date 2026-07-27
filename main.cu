@@ -38,9 +38,18 @@ int main()
     std::ofstream file("animation/tke.csv");
     file << "time,tke\n";
 
+    cudaDeviceSynchronize();
+    cudaMemcpy(mom_host, sim.momA, sim.size, cudaMemcpyDeviceToHost);
+
+    std::cout << "Initialization " << std::endl;
+
+    std::string path = "./plot";
+
+    write_vti(0, path, mom_host);
+
     auto t1 = std::chrono::high_resolution_clock::now();
 
-    for (int t = 0; t < tf; t++)
+    for (int t = 1; t < tf; t++)
     {
 
         if (t & 1)
@@ -58,8 +67,6 @@ int main()
             cudaMemcpy(mom_host, sim.momA, sim.size, cudaMemcpyDeviceToHost);
 
             std::cout << "Iteration " << t << std::endl;
-
-            std::cout << std::endl;
 
             std::string path = "./plot";
 
