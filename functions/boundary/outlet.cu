@@ -92,15 +92,16 @@ __device__ void outlet_east(CInt *I_s, int x, int y,
         mxyI += fi * c_ix[i] * c_iy[i];
         myyI += fi * (c_iy[i] * c_iy[i] - inv_as2);
     }
+    mxxI /= rhoI;
+    mxyI /= rhoI;
+    myyI /= rhoI;
+
     int index = grid_id();
-    int neighbourIndex = from_id(x, y, 3);
+    int neighbourIndex = from_id(x, y, 1);
 
     float rho = mom_in[momIdx<MomentId::rho>(neighbourIndex)];
     float ux = mom_in[momIdx<MomentId::ux>(neighbourIndex)];
     float uy = mom_in[momIdx<MomentId::uy>(neighbourIndex)];
-    float mxx = mom_in[momIdx<MomentId::mxx>(index)];
-    float mxy = mom_in[momIdx<MomentId::mxy>(index)];
-    float myy = mom_in[momIdx<MomentId::myy>(index)];
 
     mom_out[momIdx<MomentId::rho>(index)] = rho;
     mom_out[momIdx<MomentId::ux>(index)] = ux;

@@ -28,8 +28,9 @@ __device__ void propagation(float *mom_in,
    if (x == 0 && y == 0)
    { // Sudoeste
       int size = 4;
-      inlet_southwest(Is_SW, x, y,
-                      mom_in, mom_out);
+      wall_southwest(size, Is_SW, Os_SW, x, y,
+                     mom_in,
+                     mom_out);
    }
    else if (x == Nx - 1 && y == 0)
    { // Sudeste
@@ -41,9 +42,9 @@ __device__ void propagation(float *mom_in,
    else if (x == 0 && y == Ny - 1)
    { // Noroeste
       int size = 4;
-      inlet_northwest(Is_NW, x, y,
-                      mom_in,
-                      mom_out);
+      wall_northwest(size, Is_NW, Os_NW, x, y,
+                     mom_in,
+                     mom_out);
    }
    else if (x == Nx - 1 && y == Ny - 1)
    { // Nordeste
@@ -75,9 +76,9 @@ __device__ void propagation(float *mom_in,
    else if (x == Nx - 1)
    { // Leste
       int size = 6;
-      wall_east(size, Is_E, Os_E, x, y,
-                mom_in,
-                mom_out);
+      outlet_east(Is_E, x, y,
+                  mom_in,
+                  mom_out);
    }
    else
    { // Centro

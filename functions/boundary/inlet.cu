@@ -128,6 +128,10 @@ __device__ void inlet_west(CInt *I_s, int x, int y,
         mxyI += fi * c_ix[i] * c_iy[i];
         myyI += fi * (c_iy[i] * c_iy[i] - inv_as2);
     }
+    mxxI /= rhoI;
+    mxyI /= rhoI;
+    myyI /= rhoI;
+
     int index = grid_id();
 
     float rho = mom_in[momIdx<MomentId::rho>(index)];
@@ -137,12 +141,12 @@ __device__ void inlet_west(CInt *I_s, int x, int y,
     float mxy = mom_in[momIdx<MomentId::mxy>(index)];
     float myy = mom_in[momIdx<MomentId::myy>(index)];
 
-    mom_out[momIdx<MomentId::rho>(index)] = ((-4.f - 3.f * mxxI) * rhoI) / 3.f * (-1.f + ux);
+    mom_out[momIdx<MomentId::rho>(index)] = ((-4.f - 3.f * mxxI) * rhoI) / (3.f * (-1.f + ux));
     mom_out[momIdx<MomentId::ux>(index)] = ux;
     mom_out[momIdx<MomentId::uy>(index)] = uy;
     mom_out[momIdx<MomentId::mxx>(index)] = (2.f + 15.f * mxxI + 6.f * ux - 9.f * mxxI * ux) / (12.f + 9.f * mxxI);
     mom_out[momIdx<MomentId::mxy>(index)] = (18.f * mxyI * (1.f - ux) + 4.f * uy + 3.f * mxxI * uy) / (12.f + 9.f * mxxI);
-    mom_out[momIdx<MomentId::myy>(index)] = -(18.f * myyI * (-1.f - ux)) / (20.f + 15.f * myyI);
+    mom_out[momIdx<MomentId::myy>(index)] = -(18.f * myyI * (-1.f + ux)) / (20.f + 15.f * mxxI);
 }
 
 __device__ void inlet_northeast(CInt *I_s, int x, int y,
