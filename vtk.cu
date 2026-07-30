@@ -12,7 +12,7 @@
 #include <iostream>
 #include <string>
 
-__host__ void write_vti(int step, const std::string &out_dir, float *mom_host)
+__host__ void write_vti(int step, const std::string &out_dir, varUnit *mom_host)
 {
     namespace fs = std::filesystem;
 
@@ -52,8 +52,8 @@ __host__ void write_vti(int step, const std::string &out_dir, float *mom_host)
         for (int x = 0; x < nx; ++x)
         {
             const size_t idx = grid_plot(x, y);
-            const float rho = mom_host[momIdx<MomentId::rho>(idx)]; // rho
-            file << "          " << static_cast<float>(rho) << "\n";
+            const varUnit rho = mom_host[momIdx<MomentId::rho>(idx)]; // rho
+            file << "          " << static_cast<varUnit>(rho) << "\n";
         }
     }
     file << "        </DataArray>\n";
@@ -65,8 +65,8 @@ __host__ void write_vti(int step, const std::string &out_dir, float *mom_host)
         for (int x = 0; x < nx; ++x)
         {
             const size_t idx = grid_plot(x, y);
-            const float ux = mom_host[momIdx<MomentId::ux>(idx)]; // ux
-            file << "          " << static_cast<float>(ux) << "\n";
+            const varUnit ux = mom_host[momIdx<MomentId::ux>(idx)]; // ux
+            file << "          " << static_cast<varUnit>(ux) << "\n";
         }
     }
     file << "        </DataArray>\n";
@@ -78,8 +78,8 @@ __host__ void write_vti(int step, const std::string &out_dir, float *mom_host)
         for (int x = 0; x < nx; ++x)
         {
             const size_t idx = grid_plot(x, y);
-            const float uy = mom_host[momIdx<MomentId::uy>(idx)]; // uy
-            file << "          " << static_cast<float>(uy) << "\n";
+            const varUnit uy = mom_host[momIdx<MomentId::uy>(idx)]; // uy
+            file << "          " << static_cast<varUnit>(uy) << "\n";
         }
     }
     file << "        </DataArray>\n";
@@ -91,12 +91,12 @@ __host__ void write_vti(int step, const std::string &out_dir, float *mom_host)
         for (int x = 0; x < nx; ++x)
         {
             const size_t idx = grid_plot(x, y);
-            const float ux = mom_host[momIdx<MomentId::ux>(idx)]; // ux
-            const float uy = mom_host[momIdx<MomentId::uy>(idx)]; // uy
+            const varUnit ux = mom_host[momIdx<MomentId::ux>(idx)]; // ux
+            const varUnit uy = mom_host[momIdx<MomentId::uy>(idx)]; // uy
 
             file << "          "
-                 << static_cast<float>(ux) << " "
-                 << static_cast<float>(uy) << " "
+                 << static_cast<varUnit>(ux) << " "
+                 << static_cast<varUnit>(uy) << " "
                  << 0.0f << "\n";
         }
     }

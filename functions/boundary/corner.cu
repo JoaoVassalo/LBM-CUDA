@@ -5,13 +5,13 @@
 
 #include <iostream>
 
-__device__ void corner(CInt *I_s, CInt *O_s, int x, int y, float *mom_in,
-                       float *mom_out)
+__device__ void corner(CInt *I_s, CInt *O_s, int x, int y, varUnit *mom_in,
+                       varUnit *mom_out)
 {
     int index = grid_id();
 
-    float rho_I = 0.f;
-    float sum_wi = 0.f;
+    varUnit rho_I = 0.f;
+    varUnit sum_wi = 0.f;
 
 #pragma unroll
     for (int k = 0; k < 4; k++)

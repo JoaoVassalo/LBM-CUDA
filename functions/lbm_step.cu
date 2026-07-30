@@ -4,7 +4,7 @@
 
 #include "../presets/geometry.h"
 
-__global__ void lbm_step(float *mom_in, float *mom_out)
+__global__ void lbm_step(varUnit *mom_in, varUnit *mom_out)
 {
 
     int x = blockIdx.x * blockDim.x + threadIdx.x;

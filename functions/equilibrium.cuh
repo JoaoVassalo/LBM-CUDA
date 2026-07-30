@@ -1,6 +1,8 @@
 #pragma once
 
-__device__ inline float equilibrium(float rho, float ux, float uy, int i)
+#include "../presets/stencil.cuh"
+
+__device__ inline varUnit equilibrium(varUnit rho, varUnit ux, varUnit uy, int i)
 {
     return rho * w[i] *
            (1 +

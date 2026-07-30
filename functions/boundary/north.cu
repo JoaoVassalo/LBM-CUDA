@@ -5,17 +5,17 @@
 #include "../grid_id.cuh"
 
 __device__ void north(int size, CInt *I_s, CInt *O_s, int x, int y,
-                      float *mom_in,
-                      float *mom_out)
+                      varUnit *mom_in,
+                      varUnit *mom_out)
 {
-    float sum_fi = 0.f;
+    varUnit sum_fi = 0.f;
 
-    float mxy_I = 0.f;
+    varUnit mxy_I = 0.f;
 
-    float Is_up = 0.f;
-    float Is_down = 0.f;
-    float Os_up = 0.f;
-    float Os_down = 0.f;
+    varUnit Is_up = 0.f;
+    varUnit Is_down = 0.f;
+    varUnit Os_up = 0.f;
+    varUnit Os_down = 0.f;
 
     int index = grid_id();
 
@@ -25,7 +25,7 @@ __device__ void north(int size, CInt *I_s, CInt *O_s, int x, int y,
         int i = I_s[k];
         int index_from = from_id(x, y, i);
 
-        float fi = f_i(index_from, i, mom_in);
+        varUnit fi = f_i(index_from, i, mom_in);
         sum_fi += fi;
 
         mxy_I += fi * c_ix[i] * c_iy[i];

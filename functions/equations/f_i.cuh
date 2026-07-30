@@ -3,7 +3,7 @@
 #include "../../presets/stencil.cuh"
 #include "../../cuda_config/var.cuh"
 
-__device__ inline float f_i(int index, int i, float *mom)
+__device__ inline varUnit f_i(int index, int i, varUnit *mom)
 {
     return mom[momIdx<MomentId::rho>(index)] * w[i] * // rho
            (1.f +

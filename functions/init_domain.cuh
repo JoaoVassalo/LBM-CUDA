@@ -1,3 +1,5 @@
 #pragma once
 
-__global__ void initDomain(float *mom);
+#include "../presets/config.h"
+
+__global__ void initDomain(varUnit *mom);

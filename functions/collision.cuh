@@ -1,3 +1,5 @@
 #pragma once
 
-__device__ void collision(int index, float *mom);
+#include "../presets/config.h"
+
+__device__ void collision(int index, varUnit *mom);

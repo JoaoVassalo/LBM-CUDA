@@ -5,8 +5,8 @@
 
 // Calc Tau.
 constexpr int Re = 100;
-constexpr float u_max = 0.0256f;
+constexpr varUnit u_max = 0.0256f;
 constexpr int delta_t = 1;
-constexpr float ni = u_max * (float)Ny / (float)Re;
-const float tau = ni * a_s2 + 0.5f;
-const float omega = 1.0f / tau;
+constexpr varUnit ni = u_max * (varUnit)Ny / (varUnit)Re;
+const varUnit tau = ni * a_s2 + 0.5f;
+const varUnit omega = 1.0f / tau;

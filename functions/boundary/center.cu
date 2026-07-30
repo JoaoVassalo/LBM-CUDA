@@ -8,28 +8,28 @@
 #include "../../cuda_config/var.cuh"
 
 __device__ void center(int x, int y,
-                       float *mom_in,
-                       float *mom_out)
+                       varUnit *mom_in,
+                       varUnit *mom_out)
 {
     int index = grid_id();
-    float rho = 0.f;
-    float ux = 0.f;
-    float uy = 0.f;
-    float mxx = 0.f;
-    float mxy = 0.f;
-    float myy = 0.f;
+    varUnit rho = 0.f;
+    varUnit ux = 0.f;
+    varUnit uy = 0.f;
+    varUnit mxx = 0.f;
+    varUnit mxy = 0.f;
+    varUnit myy = 0.f;
 
 #pragma unroll
     for (int i = 0; i < Q; i++)
     {
         int index_from = from_id(x, y, i);
 
-        float fi = f_i(index_from, i, mom_in);
+        varUnit fi = f_i(index_from, i, mom_in);
 
         rho += fi;
 
-        ux += fi * (float)c_ix[i];
-        uy += fi * (float)c_iy[i];
+        ux += fi * (varUnit)c_ix[i];
+        uy += fi * (varUnit)c_iy[i];
 
         mxx += fi * (c_ix[i] * c_ix[i] - inv_as2);
         mxy += fi * (c_ix[i] * c_iy[i]);

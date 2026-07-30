@@ -6,7 +6,7 @@
 #include "grid_id.cuh"
 #include "pop_id.cuh"
 
-__global__ void initDomain(float *mom)
+__global__ void initDomain(varUnit *mom)
 {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;

@@ -1,4 +1,6 @@
 #pragma once
 
-__device__ void propagation(float *mom_in,
-                            float *mom_out);
+#include "../presets/config.h"
+
+__device__ void propagation(varUnit *mom_in,
+                            varUnit *mom_out);

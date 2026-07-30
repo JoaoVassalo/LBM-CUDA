@@ -1,5 +1,5 @@
 #pragma once
 
 __device__ void center(int x, int y,
-                       float *mom_in,
-                       float *mom_out);
+                       varUnit *mom_in,
+                       varUnit *mom_out);

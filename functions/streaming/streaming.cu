@@ -1,5 +1,5 @@
 struct Field
 {
-    float rho;
-    float ux;
+    varUnit rho;
+    varUnit ux;
 };

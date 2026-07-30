@@ -1,13 +1,15 @@
 #pragma once
 
+#include "config.h"
+
 #include <math.h>
 
 constexpr int D = 2;
 constexpr int Q = 9;
 
-extern __device__ __constant__ float w[Q];
-extern __device__ __constant__ float c_ix[Q];
-extern __device__ __constant__ float c_iy[Q];
+extern __device__ __constant__ varUnit w[Q];
+extern __device__ __constant__ varUnit c_ix[Q];
+extern __device__ __constant__ varUnit c_iy[Q];
 
 extern __constant__ int Is_SW[4];
 extern __constant__ int Os_SW[4];
@@ -33,7 +35,7 @@ extern __constant__ int Os_W[6];
 extern __constant__ int Is_E[6];
 extern __constant__ int Os_E[6];
 
-const float a_s = sqrtf(3);
-const float a_s2 = 3.f;
-const float a_s4 = 9.f;
-const float inv_as2 = 1.f / a_s2;
+const varUnit a_s = sqrtf(3);
+const varUnit a_s2 = 3.f;
+const varUnit a_s4 = 9.f;
+const varUnit inv_as2 = 1.f / a_s2;

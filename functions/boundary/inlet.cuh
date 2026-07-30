@@ -8,34 +8,36 @@
 #include "../grid_id.cuh"
 #include "../equations/f_i.cuh"
 
+#include "../equations/velocity_profile.cuh"
+
 __device__ void inlet_north(CInt *I_s, int x, int y,
-                            float *mom_in,
-                            float *mom_out);
+                            varUnit *mom_in,
+                            varUnit *mom_out);
 
 __device__ void inlet_south(CInt *I_s, int x, int y,
-                            float *mom_in,
-                            float *mom_out);
+                            varUnit *mom_in,
+                            varUnit *mom_out);
 
 __device__ void inlet_east(CInt *I_s, int x, int y,
-                           float *mom_in,
-                           float *mom_out);
+                           varUnit *mom_in,
+                           varUnit *mom_out);
 
 __device__ void inlet_west(CInt *I_s, int x, int y,
-                           float *mom_in,
-                           float *mom_out);
+                           varUnit *mom_in,
+                           varUnit *mom_out);
 
 __device__ void inlet_northeast(CInt *I_s, int x, int y,
-                                float *mom_in,
-                                float *mom_out);
+                                varUnit *mom_in,
+                                varUnit *mom_out);
 
 __device__ void inlet_northwest(CInt *I_s, int x, int y,
-                                float *mom_in,
-                                float *mom_out);
+                                varUnit *mom_in,
+                                varUnit *mom_out);
 
 __device__ void inlet_southeast(CInt *I_s, int x, int y,
-                                float *mom_in,
-                                float *mom_out);
+                                varUnit *mom_in,
+                                varUnit *mom_out);
 
 __device__ void inlet_southwest(CInt *I_s, int x, int y,
-                                float *mom_in,
-                                float *mom_out);
+                                varUnit *mom_in,
+                                varUnit *mom_out);

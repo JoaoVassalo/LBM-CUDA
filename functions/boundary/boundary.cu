@@ -1,25 +1,25 @@
 #include "boundary.cuh"
 
-__device__ void boundary(int size, CInt *Is, CInt *Os, int x, int y, float *mom_in,
-                         float *mom_out)
+__device__ void boundary(int size, CInt *Is, CInt *Os, int x, int y, varUnit *mom_in,
+                         varUnit *mom_out)
 {
     int index = grid_id();
 
-    float rho = 0.f;
-    float ux = 0.f;
-    float uy = 0.f;
-    float mxx = 0.f;
-    float mxy = 0.f;
-    float myy = 0.f;
+    varUnit rho = 0.f;
+    varUnit ux = 0.f;
+    varUnit uy = 0.f;
+    varUnit mxx = 0.f;
+    varUnit mxy = 0.f;
+    varUnit myy = 0.f;
 
-    float sumfI = 0.f;
-    float mxy_I = 0.f;
-    float C1 = 0.f;
-    float C2 = 0.f;
-    float C3 = 0.f;
-    float C4 = 0.f;
+    varUnit sumfI = 0.f;
+    varUnit mxy_I = 0.f;
+    varUnit C1 = 0.f;
+    varUnit C2 = 0.f;
+    varUnit C3 = 0.f;
+    varUnit C4 = 0.f;
 
-    float f = 0.f;
+    varUnit f = 0.f;
 
     for (int k = 0; k < size; k++)
     {

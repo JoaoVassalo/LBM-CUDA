@@ -33,7 +33,7 @@ int main()
 
     cudaMemcpy(sim.momB, sim.momA, sim.size, cudaMemcpyDeviceToDevice);
 
-    float *mom_host = (float *)malloc(sim.size);
+    varUnit *mom_host = (varUnit *)malloc(sim.size);
 
     std::ofstream file("animation/tke.csv");
     file << "time,tke\n";
@@ -88,9 +88,9 @@ int main()
     std::ofstream file2("animation/vel.csv");
     file2 << "x,ux,uy\n";
 
-    float ux_plot;
-    float uy_plot;
-    float xplot;
+    varUnit ux_plot;
+    varUnit uy_plot;
+    varUnit xplot;
 
     int mid_up = Nx / 2;
     int mid_down = (Nx / 2) - 1;
@@ -101,7 +101,7 @@ int main()
         uy_plot = (mom_host[grid_plot(i, mid_up) + 2] + mom_host[grid_plot(i, mid_down) + 2]) / 2.f; // uy
         uy_plot /= u_max;
 
-        xplot = (float)(i) / (float)Nx;
+        xplot = (varUnit)(i) / (varUnit)Nx;
 
         file2 << xplot << "," << ux_plot << "," << uy_plot << "\n";
     }

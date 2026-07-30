@@ -11,5 +11,5 @@
 
 #include "../grid_id.cuh"
 
-__device__ void boundary(int size, CInt *Is, CInt *Os, int x, int y, float *mom_in,
-                         float *mom_out);
+__device__ void boundary(int size, CInt *Is, CInt *Os, int x, int y, varUnit *mom_in,
+                         varUnit *mom_out);

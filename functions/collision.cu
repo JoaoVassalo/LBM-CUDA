@@ -4,14 +4,14 @@
 #include "collision.cuh"
 #include "../cuda_config/var.cuh"
 
-__device__ void collision(int index, float *mom)
+__device__ void collision(int index, varUnit *mom)
 {
-    const float ux = mom[momIdx<MomentId::ux>(index)];
-    const float uy = mom[momIdx<MomentId::uy>(index)];
+    const varUnit ux = mom[momIdx<MomentId::ux>(index)];
+    const varUnit uy = mom[momIdx<MomentId::uy>(index)];
 
-    const float mxx = mom[momIdx<MomentId::mxx>(index)];
-    const float myy = mom[momIdx<MomentId::myy>(index)];
-    const float mxy = mom[momIdx<MomentId::mxy>(index)];
+    const varUnit mxx = mom[momIdx<MomentId::mxx>(index)];
+    const varUnit myy = mom[momIdx<MomentId::myy>(index)];
+    const varUnit mxy = mom[momIdx<MomentId::mxy>(index)];
 
     mom[momIdx<MomentId::mxx>(index)] = ((1.0f - omega) * mxx + omega * ux * ux); // mxx, mxx, ux, ux
     mom[momIdx<MomentId::myy>(index)] = ((1.0f - omega) * myy + omega * uy * uy); // myy, myy, uy, uy

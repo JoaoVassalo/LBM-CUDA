@@ -16,15 +16,15 @@ enum MomentId
 
 struct D2Q9
 {
-    float *momA;
-    float *momB;
+    varUnit *momA;
+    varUnit *momB;
 
     static constexpr int num_var = 6; // Number of moments in the stencil
 
     dim3 block = dim3(BX, BY);
     dim3 N_block = dim3(GX, GY);
 
-    size_t size = Nx * Ny * sizeof(float) * num_var;
+    size_t size = Nx * Ny * sizeof(varUnit) * num_var;
 };
 
 template <int I>
