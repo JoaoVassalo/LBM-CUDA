@@ -2,26 +2,23 @@
 
 set -e
 
-SRC_DIR=src
-OUT=main
+src_dir=src
+out=main
+flags=(-std=c++20 -rdc=true -O3)
 
-FLAGS="-std=c++20 -rdc=true"
+echo "Removendo executável e arquivos VTI anteriores..."
+rm -f "$out" plot/vtk/*.vti
 
-if [ "$1" = "debug" ]; then
-    FLAGS="$FLAGS -g -G -O0"
-else
-    FLAGS="$FLAGS -O3"
-fi
+echo "Compilando a simulação..."
+mapfile -t sources < <(find "$src_dir" -name "*.cu" -print)
 
-rm -f $OUT
-mkdir -p $SRC_DIR/io/out
+compile_start=$(date +%s%N)
+nvcc "${flags[@]}" \
+    -o "$out" \
+    "${sources[@]}"
+compile_end=$(date +%s%N)
+compile_time_ms=$(((compile_end - compile_start) / 1000000))
+printf 'Compilação concluída em %d.%03d s.\n' "$((compile_time_ms / 1000))" "$((compile_time_ms % 1000))"
 
-rm -f plot/vtk/*.vti
-
-nvcc $FLAGS \
-    -lineinfo \
-    -Xptxas=-v \
-    -o $OUT \
-    $(find $SRC_DIR -name "*.cu")
-
-./$OUT
+echo "Executando a simulação..."
+./"$out"

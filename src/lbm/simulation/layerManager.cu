@@ -13,13 +13,14 @@ __global__ void defLayerMem(moments sim)
 
         constexprFor<0, Geometry::LNY>([&](auto ly)
                                    {
-            constexpr int y = decltype(ly)::value;
+            constexpr int slot = decltype(ly)::value;
+            constexpr int sourceY = slot == 0 ? 0 : slot - 1;
 
-            sim.layer[y][layerIdx<moment>(x)]=sim.mom[momIdx<moment>(x, y)]; 
+            sim.layer[slot][layerIdx<moment>(x)] = sim.mom[momIdx<moment>(x, sourceY)];
         }); });
 }
 
-__global__ void swapLayerMem(moments sim, int y)
+__global__ void swapLayerMem(moments sim, int sourceY)
 {
     const int x = threadIdx.x + blockDim.x * blockIdx.x;
 
@@ -32,10 +33,10 @@ __global__ void swapLayerMem(moments sim, int y)
 
             const int layerIndex = layerIdx<moment>(x); 
         
-            const float mid = sim.layer[1][layerIndex];
-            const float top = sim.layer[2][layerIndex];
+            const varType mid = sim.layer[1][layerIndex];
+            const varType top = sim.layer[2][layerIndex];
 
             sim.layer[0][layerIndex] = mid;
             sim.layer[1][layerIndex] = top;
-            sim.layer[2][layerIndex] = sim.mom[momIdx<moment>(x, y)]; });
+            sim.layer[2][layerIndex] = sim.mom[momIdx<moment>(x, sourceY)]; });
 }

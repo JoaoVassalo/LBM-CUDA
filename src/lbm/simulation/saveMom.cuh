@@ -4,4 +4,4 @@
 
 #include "../../core/indexing.cuh"
 
-__device__ void saveMom(moments sim, int x, int y);
+__device__ void saveMom(moments sim, int x, int globalY, int layerSlot);

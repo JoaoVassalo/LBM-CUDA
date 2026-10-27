@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../config/stencilConfig.cuh"
+#include "../../config/simulationConfig.cuh"
 #include "../../config/momConfig.cuh"
 #include "../../core/indexing.cuh"
 
-__global__ void initDomain(float *mom);
+__global__ void initDomain(varType *mom);

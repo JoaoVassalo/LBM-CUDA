@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../config/momConfig.cuh"
-#include "../config/stencilConfig.cuh"
+#include "../config/simulationConfig.cuh"
 #include "../core/indexing.cuh"
 
 #include <filesystem>
@@ -11,4 +11,4 @@
 #include <iostream>
 #include <string>
 
-__host__ void writeVTI(size_t t, const std::string &outDir, float *mom_host);
+__host__ void writeVTI(size_t t, const std::string &outDir, varType *mom_host);

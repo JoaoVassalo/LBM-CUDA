@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../config/stencilConfig.cuh"
+#include "../../config/simulationConfig.cuh"
 #include "../../config/gridConfig.cuh"
 
 #include "../../core/indexing.cuh"

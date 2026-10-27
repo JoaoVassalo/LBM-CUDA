@@ -6,6 +6,8 @@
 #include "layerManager.cuh"
 #include "streamCollide.cuh"
 
+__global__ void streamCollideStep(moments sim, Grid2D grid);
+
 __host__ void initLayer(moments &sim, Grid2D &grid);
 
 __host__ void midLayer(moments &sim, Grid2D &grid, int y);

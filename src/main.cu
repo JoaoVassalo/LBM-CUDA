@@ -1,4 +1,4 @@
-#include "config/stencilConfig.cuh"
+#include "config/simulationConfig.cuh"
 #include "config/gridConfig.cuh"
 #include "lbm/initialization/initDomain.cuh"
 #include "lbm/initialization/initGrid.cuh"

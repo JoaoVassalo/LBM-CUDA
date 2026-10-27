@@ -8,10 +8,6 @@ __host__ void initialization(moments &sim, Grid2D &grid)
     cudaMalloc((void **)&sim.mom, momByteSize);
 
     initDomain<<<blockNumber, block>>>(sim.mom);
-
-    cudaError_t err = cudaGetLastError();
-    printf("Kernel launch error: %s\n", cudaGetErrorString(err));
-
     cudaDeviceSynchronize();
 
     for (size_t i = 0; i < Geometry::LNY; i++)
@@ -24,10 +20,8 @@ __host__ void initialization(moments &sim, Grid2D &grid)
 
     initGrid<<<blockNumber, block>>>(grid.mask, grid.node);
 
-    err = cudaGetLastError();
-    printf("Kernel launch error: %s\n", cudaGetErrorString(err));
-
-    sim.mom_host = (float *)malloc(momByteSize);
+    cudaMalloc((void **)&sim.vtk, D2Q9::outputByteSize);
+    cudaHostAlloc((void **)&sim.mom_host, D2Q9::outputByteSize, cudaHostAllocDefault);
 
     writeOutput(sim, grid, (size_t)0, momByteSize, output::vtkPath);
 }

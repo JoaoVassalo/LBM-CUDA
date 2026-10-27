@@ -1,27 +1,457 @@
 #include "boundary.cuh"
 
+
+__device__ void wallSouthwest(moments sim, Grid2D grid, int x, int y)
+{
+    int index = gridId(x, y);
+    uint8_t mask = grid.mask[index];
+
+    varType rhoI = static_cast<varType>(0);
+    varType mxxI = static_cast<varType>(0);
+    varType mxyI = static_cast<varType>(0);
+    varType myyI = static_cast<varType>(0);
+
+    varType f = fi(x, 0, sim.layer);
+
+    rhoI += f;
+
+    mxxI += f * (D2Q9::cx(0) * D2Q9::cx(0) - D2Q9::inv_as2);
+    mxyI += f * D2Q9::cx(0) * D2Q9::cy(0);
+    myyI += f * (D2Q9::cy(0) * D2Q9::cy(0) - D2Q9::inv_as2);
+
+
+    while (mask)
+    {
+        int i = __ffs(mask);
+
+        varType f = fi(x, i, sim.layer);
+
+        rhoI += f;
+
+        mxxI += f * (D2Q9::cx(i) * D2Q9::cx(i) - D2Q9::inv_as2);
+        mxyI += f * D2Q9::cx(i) * D2Q9::cy(i);
+        myyI += f * (D2Q9::cy(i) * D2Q9::cy(i) - D2Q9::inv_as2);
+
+        mask &= mask - 1;
+    }
+
+    mxxI /= rhoI;
+    mxyI /= rhoI;
+    myyI /= rhoI;
+
+    varType ux = static_cast<varType>(0);
+    varType uy = static_cast<varType>(0);
+
+    varType rho = (static_cast<varType>(12) * (-static_cast<varType>(3) - static_cast<varType>(3) * mxxI + static_cast<varType>(7) * mxyI - static_cast<varType>(3) * myyI + static_cast<varType>(3) * mxxI * physics::omega - static_cast<varType>(7) * mxyI * physics::omega + static_cast<varType>(3) * myyI * physics::omega) * rhoI) /
+                  (-static_cast<varType>(16) - static_cast<varType>(9) * physics::omega - static_cast<varType>(14) * ux - physics::omega * ux + static_cast<varType>(15) * physics::omega * ux * ux - static_cast<varType>(14) * uy - physics::omega * uy - static_cast<varType>(9) * physics::omega * ux * uy + static_cast<varType>(15) * physics::omega * uy * uy);
+
+    sim.mom[momIdx<momId::rho>(index)] = rho;
+    sim.mom[momIdx<momId::ux>(index)] = ux;
+    sim.mom[momIdx<momId::uy>(index)] = uy;
+    sim.mom[momIdx<momId::mxx>(index)] = (static_cast<varType>(2) * (rho + static_cast<varType>(9) * mxxI * rhoI - static_cast<varType>(6) * mxyI * rhoI + static_cast<varType>(2) * rho * ux - rho * uy)) /
+                                         (static_cast<varType>(9) * rho);
+    sim.mom[momIdx<momId::mxy>(index)] = -(static_cast<varType>(7) * rho + static_cast<varType>(18) * mxxI * rhoI - static_cast<varType>(132) * mxyI * rhoI + static_cast<varType>(18) * myyI * rhoI - static_cast<varType>(7) * rho * ux - static_cast<varType>(7) * rho * uy) /
+                                         (static_cast<varType>(27) * rho);
+    sim.mom[momIdx<momId::myy>(index)] = -(static_cast<varType>(2) * (-rho + static_cast<varType>(6) * mxyI * rhoI - static_cast<varType>(9) * myyI * rhoI + rho * ux - static_cast<varType>(2) * rho * uy)) /
+                                         (static_cast<varType>(9) * rho);
+}
+
+__device__ void wallSoutheast(moments sim, Grid2D grid, int x, int y)
+{
+    int index = gridId(x, y);
+    uint8_t mask = grid.mask[index];
+
+    varType rhoI = static_cast<varType>(0);
+    varType mxxI = static_cast<varType>(0);
+    varType mxyI = static_cast<varType>(0);
+    varType myyI = static_cast<varType>(0);
+
+    varType f = fi(x, 0, sim.layer);
+
+    rhoI += f;
+
+    mxxI += f * (D2Q9::cx(0) * D2Q9::cx(0) - D2Q9::inv_as2);
+    mxyI += f * D2Q9::cx(0) * D2Q9::cy(0);
+    myyI += f * (D2Q9::cy(0) * D2Q9::cy(0) - D2Q9::inv_as2);
+
+
+    while (mask)
+    {
+        int i = __ffs(mask);
+
+        varType f = fi(x, i, sim.layer);
+
+        rhoI += f;
+
+        mxxI += f * (D2Q9::cx(i) * D2Q9::cx(i) - D2Q9::inv_as2);
+        mxyI += f * D2Q9::cx(i) * D2Q9::cy(i);
+        myyI += f * (D2Q9::cy(i) * D2Q9::cy(i) - D2Q9::inv_as2);
+
+        mask &= mask - 1;
+    }
+
+    mxxI /= rhoI;
+    mxyI /= rhoI;
+    myyI /= rhoI;
+
+    varType ux = static_cast<varType>(0);
+    varType uy = static_cast<varType>(0);
+
+    varType rho = (static_cast<varType>(12) * (-static_cast<varType>(3) - static_cast<varType>(3) * mxxI - static_cast<varType>(7) * mxyI - static_cast<varType>(3) * myyI + static_cast<varType>(3) * mxxI * physics::omega + static_cast<varType>(7) * mxyI * physics::omega + static_cast<varType>(3) * myyI * physics::omega) * rhoI) /
+                  (-static_cast<varType>(16) - static_cast<varType>(9) * physics::omega + static_cast<varType>(14) * ux + physics::omega * ux + static_cast<varType>(15) * physics::omega * ux * ux - static_cast<varType>(14) * uy - physics::omega * uy + static_cast<varType>(9) * physics::omega * ux * uy + static_cast<varType>(15) * physics::omega * uy * uy);
+
+    sim.mom[momIdx<momId::rho>(index)] = rho;
+    sim.mom[momIdx<momId::ux>(index)] = ux;
+    sim.mom[momIdx<momId::uy>(index)] = uy;
+    sim.mom[momIdx<momId::mxx>(index)] = -(static_cast<varType>(2) * (-rho - static_cast<varType>(9) * mxxI * rhoI - static_cast<varType>(6) * mxyI * rhoI + static_cast<varType>(2) * rho * ux + rho * uy)) /
+                                         (static_cast<varType>(9) * rho);
+    sim.mom[momIdx<momId::mxy>(index)] = -(-static_cast<varType>(7) * rho - static_cast<varType>(18) * mxxI * rhoI - static_cast<varType>(132) * mxyI * rhoI - static_cast<varType>(18) * myyI * rhoI - static_cast<varType>(7) * rho * ux + static_cast<varType>(7) * rho * uy) /
+                                         (static_cast<varType>(27) * rho);
+    sim.mom[momIdx<momId::myy>(index)] = (static_cast<varType>(2) * (rho + static_cast<varType>(6) * mxyI * rhoI + static_cast<varType>(9) * myyI * rhoI + rho * ux + static_cast<varType>(2) * rho * uy)) /
+                                         (static_cast<varType>(9) * rho);
+}
+
+__device__ void wallNorthwest(moments sim, Grid2D grid, int x, int y)
+{
+    int index = gridId(x, y);
+    uint8_t mask = grid.mask[index];
+
+    varType rhoI = static_cast<varType>(0);
+    varType mxxI = static_cast<varType>(0);
+    varType mxyI = static_cast<varType>(0);
+    varType myyI = static_cast<varType>(0);
+
+    varType f = fi(x, 0, sim.layer);
+
+    rhoI += f;
+
+    mxxI += f * (D2Q9::cx(0) * D2Q9::cx(0) - D2Q9::inv_as2);
+    mxyI += f * D2Q9::cx(0) * D2Q9::cy(0);
+    myyI += f * (D2Q9::cy(0) * D2Q9::cy(0) - D2Q9::inv_as2);
+
+
+    while (mask)
+    {
+        int i = __ffs(mask);
+
+        varType f = fi(x, i, sim.layer);
+
+        rhoI += f;
+
+        mxxI += f * (D2Q9::cx(i) * D2Q9::cx(i) - D2Q9::inv_as2);
+        mxyI += f * D2Q9::cx(i) * D2Q9::cy(i);
+        myyI += f * (D2Q9::cy(i) * D2Q9::cy(i) - D2Q9::inv_as2);
+
+        mask &= mask - 1;
+    }
+
+    mxxI /= rhoI;
+    mxyI /= rhoI;
+    myyI /= rhoI;
+
+    varType ux = static_cast<varType>(0);
+    varType uy = static_cast<varType>(0);
+
+    varType rho = (static_cast<varType>(12) * (-static_cast<varType>(3) - static_cast<varType>(3) * mxxI - static_cast<varType>(7) * mxyI - static_cast<varType>(3) * myyI + static_cast<varType>(3) * mxxI * physics::omega + static_cast<varType>(7) * mxyI * physics::omega + static_cast<varType>(3) * myyI * physics::omega) * rhoI) /
+                  (-static_cast<varType>(16) - static_cast<varType>(9) * physics::omega - static_cast<varType>(14) * ux - physics::omega * ux + static_cast<varType>(15) * physics::omega * ux * ux + static_cast<varType>(14) * uy + physics::omega * uy + static_cast<varType>(9) * physics::omega * ux * uy + static_cast<varType>(15) * physics::omega * uy * uy);
+
+    sim.mom[momIdx<momId::rho>(index)] = rho;
+    sim.mom[momIdx<momId::ux>(index)] = ux;
+    sim.mom[momIdx<momId::uy>(index)] = uy;
+    sim.mom[momIdx<momId::mxx>(index)] = (static_cast<varType>(2) * (rho + static_cast<varType>(9) * mxxI * rhoI + static_cast<varType>(6) * mxyI * rhoI + static_cast<varType>(2) * rho * ux + rho * uy)) /
+                                         (static_cast<varType>(9) * rho);
+    sim.mom[momIdx<momId::mxy>(index)] = -(-static_cast<varType>(7) * rho - static_cast<varType>(18) * mxxI * rhoI - static_cast<varType>(132) * mxyI * rhoI - static_cast<varType>(18) * myyI * rhoI + static_cast<varType>(7) * rho * ux - static_cast<varType>(7) * rho * uy) /
+                                         (static_cast<varType>(27) * rho);
+    sim.mom[momIdx<momId::myy>(index)] = (static_cast<varType>(2) * (rho + static_cast<varType>(6) * mxyI * rhoI + static_cast<varType>(9) * myyI * rhoI - rho * ux - static_cast<varType>(2) * rho * uy)) /
+                                         (static_cast<varType>(9) * rho);
+}
+
+__device__ void wallNortheast(moments sim, Grid2D grid, int x, int y)
+{
+    int index = gridId(x, y);
+    uint8_t mask = grid.mask[index];
+
+    varType rhoI = static_cast<varType>(0);
+    varType mxxI = static_cast<varType>(0);
+    varType mxyI = static_cast<varType>(0);
+    varType myyI = static_cast<varType>(0);
+
+    varType f = fi(x, 0, sim.layer);
+
+    rhoI += f;
+
+    mxxI += f * (D2Q9::cx(0) * D2Q9::cx(0) - D2Q9::inv_as2);
+    mxyI += f * D2Q9::cx(0) * D2Q9::cy(0);
+    myyI += f * (D2Q9::cy(0) * D2Q9::cy(0) - D2Q9::inv_as2);
+
+
+    while (mask)
+    {
+        int i = __ffs(mask);
+
+        varType f = fi(x, i, sim.layer);
+
+        rhoI += f;
+
+        mxxI += f * (D2Q9::cx(i) * D2Q9::cx(i) - D2Q9::inv_as2);
+        mxyI += f * D2Q9::cx(i) * D2Q9::cy(i);
+        myyI += f * (D2Q9::cy(i) * D2Q9::cy(i) - D2Q9::inv_as2);
+
+        mask &= mask - 1;
+    }
+
+    mxxI /= rhoI;
+    mxyI /= rhoI;
+    myyI /= rhoI;
+
+    varType ux = static_cast<varType>(0);
+    varType uy = static_cast<varType>(0);
+
+    varType rho = (static_cast<varType>(12) * (-static_cast<varType>(3) * rhoI - static_cast<varType>(3) * mxxI * rhoI + static_cast<varType>(7) * mxyI * rhoI - static_cast<varType>(3) * myyI * rhoI + static_cast<varType>(3) * mxxI * physics::omega * rhoI - static_cast<varType>(7) * mxyI * physics::omega * rhoI + static_cast<varType>(3) * myyI * physics::omega * rhoI)) /
+                  (-static_cast<varType>(16) - static_cast<varType>(9) * physics::omega + static_cast<varType>(14) * ux + physics::omega * ux + static_cast<varType>(15) * physics::omega * ux * ux + static_cast<varType>(14) * uy + physics::omega * uy - static_cast<varType>(9) * physics::omega * ux * uy + static_cast<varType>(15) * physics::omega * uy * uy);
+
+    sim.mom[momIdx<momId::rho>(index)] = rho;
+    sim.mom[momIdx<momId::ux>(index)] = ux;
+    sim.mom[momIdx<momId::uy>(index)] = uy;
+    sim.mom[momIdx<momId::mxx>(index)] = -(static_cast<varType>(2) * (-rho - static_cast<varType>(9) * mxxI * rhoI + static_cast<varType>(6) * mxyI * rhoI + static_cast<varType>(2) * rho * ux - rho * uy)) /
+                                         (static_cast<varType>(9) * rho);
+    sim.mom[momIdx<momId::mxy>(index)] = -(static_cast<varType>(7) * rho + static_cast<varType>(18) * mxxI * rhoI - static_cast<varType>(132) * mxyI * rhoI + static_cast<varType>(18) * myyI * rhoI + static_cast<varType>(7) * rho * ux + static_cast<varType>(7) * rho * uy) /
+                                         (static_cast<varType>(27) * rho);
+    sim.mom[momIdx<momId::myy>(index)] = -(static_cast<varType>(2) * (-rho + static_cast<varType>(6) * mxyI * rhoI - static_cast<varType>(9) * myyI * rhoI - rho * ux + static_cast<varType>(2) * rho * uy)) /
+                                         (static_cast<varType>(9) * rho);
+}
+
+__device__ void wallSouth(moments sim, Grid2D grid, int x, int y)
+{
+    int index = gridId(x, y);
+    uint8_t mask = grid.mask[index];
+
+    varType rhoI = static_cast<varType>(0);
+    varType mxxI = static_cast<varType>(0);
+    varType mxyI = static_cast<varType>(0);
+    varType myyI = static_cast<varType>(0);
+
+    varType f = fi(x, 0, sim.layer);
+
+    rhoI += f;
+
+    mxxI += f * (D2Q9::cx(0) * D2Q9::cx(0) - D2Q9::inv_as2);
+    mxyI += f * D2Q9::cx(0) * D2Q9::cy(0);
+    myyI += f * (D2Q9::cy(0) * D2Q9::cy(0) - D2Q9::inv_as2);
+
+
+    while (mask)
+    {
+        int i = __ffs(mask);
+
+        varType f = fi(x, i, sim.layer);
+
+        rhoI += f;
+
+        mxxI += f * (D2Q9::cx(i) * D2Q9::cx(i) - D2Q9::inv_as2);
+        mxyI += f * D2Q9::cx(i) * D2Q9::cy(i);
+        myyI += f * (D2Q9::cy(i) * D2Q9::cy(i) - D2Q9::inv_as2);
+
+        mask &= mask - 1;
+    }
+
+    mxxI /= rhoI;
+    mxyI /= rhoI;
+    myyI /= rhoI;
+
+    varType ux = static_cast<varType>(0);
+    varType uy = static_cast<varType>(0);
+
+    varType rho = (static_cast<varType>(3) * (-static_cast<varType>(4) * rhoI - static_cast<varType>(3) * myyI * rhoI + static_cast<varType>(3) * myyI * physics::omega * rhoI)) /
+                  (-static_cast<varType>(9) - physics::omega - static_cast<varType>(3) * uy - static_cast<varType>(3) * physics::omega * uy + static_cast<varType>(6) * physics::omega * uy * uy);
+
+    sim.mom[momIdx<momId::rho>(index)] = rho;
+    sim.mom[momIdx<momId::ux>(index)] = ux;
+    sim.mom[momIdx<momId::uy>(index)] = uy;
+    sim.mom[momIdx<momId::mxx>(index)] = (static_cast<varType>(6) * mxxI * rhoI) / (static_cast<varType>(5) * rho);
+    sim.mom[momIdx<momId::mxy>(index)] = -(-static_cast<varType>(6) * mxyI * rhoI - rho * ux) / (static_cast<varType>(3) * rho);
+    sim.mom[momIdx<momId::myy>(index)] = -(-rho - static_cast<varType>(9) * myyI * rhoI - static_cast<varType>(3) * rho * uy) / (static_cast<varType>(6) * rho);
+}
+
+__device__ void wallNorth(moments sim, Grid2D grid, int x, int y)
+{
+    int index = gridId(x, y);
+    uint8_t mask = grid.mask[index];
+
+    varType rhoI = static_cast<varType>(0);
+    varType mxxI = static_cast<varType>(0);
+    varType mxyI = static_cast<varType>(0);
+    varType myyI = static_cast<varType>(0);
+
+    varType f = fi(x, 0, sim.layer);
+
+    rhoI += f;
+
+    mxxI += f * (D2Q9::cx(0) * D2Q9::cx(0) - D2Q9::inv_as2);
+    mxyI += f * D2Q9::cx(0) * D2Q9::cy(0);
+    myyI += f * (D2Q9::cy(0) * D2Q9::cy(0) - D2Q9::inv_as2);
+
+
+    while (mask)
+    {
+        int i = __ffs(mask);
+
+        varType f = fi(x, i, sim.layer);
+
+        rhoI += f;
+
+        mxxI += f * (D2Q9::cx(i) * D2Q9::cx(i) - D2Q9::inv_as2);
+        mxyI += f * D2Q9::cx(i) * D2Q9::cy(i);
+        myyI += f * (D2Q9::cy(i) * D2Q9::cy(i) - D2Q9::inv_as2);
+
+        mask &= mask - 1;
+    }
+
+    mxxI /= rhoI;
+    mxyI /= rhoI;
+    myyI /= rhoI;
+
+    varType ux = static_cast<varType>(physics::u_max);
+    varType uy = static_cast<varType>(0);
+
+    varType rho = (static_cast<varType>(3) * (-static_cast<varType>(4) * rhoI - static_cast<varType>(3) * myyI * rhoI + static_cast<varType>(3) * myyI * physics::omega * rhoI)) /
+                  (-static_cast<varType>(9) - physics::omega + static_cast<varType>(3) * uy + static_cast<varType>(3) * physics::omega * uy + static_cast<varType>(6) * physics::omega * uy * uy);
+
+    sim.mom[momIdx<momId::rho>(index)] = rho;
+    sim.mom[momIdx<momId::ux>(index)] = ux;
+    sim.mom[momIdx<momId::uy>(index)] = uy;
+    sim.mom[momIdx<momId::mxx>(index)] = (static_cast<varType>(6) * mxxI * rhoI) / (static_cast<varType>(5) * rho);
+    sim.mom[momIdx<momId::mxy>(index)] = -(-static_cast<varType>(6) * mxyI * rhoI + rho * ux) / (static_cast<varType>(3) * rho);
+    sim.mom[momIdx<momId::myy>(index)] = -(-rho - static_cast<varType>(9) * myyI * rhoI + static_cast<varType>(3) * rho * uy) / (static_cast<varType>(6) * rho);
+}
+
+__device__ void wallWest(moments sim, Grid2D grid, int x, int y)
+{
+    int index = gridId(x, y);
+    uint8_t mask = grid.mask[index];
+
+    varType rhoI = static_cast<varType>(0);
+    varType mxxI = static_cast<varType>(0);
+    varType mxyI = static_cast<varType>(0);
+    varType myyI = static_cast<varType>(0);
+
+    varType f = fi(x, 0, sim.layer);
+
+    rhoI += f;
+
+    mxxI += f * (D2Q9::cx(0) * D2Q9::cx(0) - D2Q9::inv_as2);
+    mxyI += f * D2Q9::cx(0) * D2Q9::cy(0);
+    myyI += f * (D2Q9::cy(0) * D2Q9::cy(0) - D2Q9::inv_as2);
+
+
+    while (mask)
+    {
+        int i = __ffs(mask);
+
+        varType f = fi(x, i, sim.layer);
+
+        rhoI += f;
+
+        mxxI += f * (D2Q9::cx(i) * D2Q9::cx(i) - D2Q9::inv_as2);
+        mxyI += f * D2Q9::cx(i) * D2Q9::cy(i);
+        myyI += f * (D2Q9::cy(i) * D2Q9::cy(i) - D2Q9::inv_as2);
+
+        mask &= mask - 1;
+    }
+
+    mxxI /= rhoI;
+    mxyI /= rhoI;
+    myyI /= rhoI;
+
+    varType ux = static_cast<varType>(0);
+    varType uy = static_cast<varType>(0);
+
+    varType rho = (static_cast<varType>(3) * (-static_cast<varType>(4) * rhoI - static_cast<varType>(3) * mxxI * rhoI + static_cast<varType>(3) * mxxI * physics::omega * rhoI)) /
+                  (-static_cast<varType>(9) - physics::omega - static_cast<varType>(3) * ux - static_cast<varType>(3) * physics::omega * ux + static_cast<varType>(6) * physics::omega * ux * ux);
+
+    sim.mom[momIdx<momId::rho>(index)] = rho;
+    sim.mom[momIdx<momId::ux>(index)] = ux;
+    sim.mom[momIdx<momId::uy>(index)] = uy;
+    sim.mom[momIdx<momId::mxx>(index)] = -(-rho - static_cast<varType>(9) * mxxI * rhoI - static_cast<varType>(3) * rho * ux) /
+                                         (static_cast<varType>(6) * rho);
+    sim.mom[momIdx<momId::mxy>(index)] = -(-static_cast<varType>(6) * mxyI * rhoI - rho * uy) /
+                                         (static_cast<varType>(3) * rho);
+    sim.mom[momIdx<momId::myy>(index)] = (static_cast<varType>(6) * myyI * rhoI) /
+                                         (static_cast<varType>(5) * rho);
+}
+
+__device__ void wallEast(moments sim, Grid2D grid, int x, int y)
+{
+    int index = gridId(x, y);
+    uint8_t mask = grid.mask[index];
+
+    varType rhoI = static_cast<varType>(0);
+    varType mxxI = static_cast<varType>(0);
+    varType mxyI = static_cast<varType>(0);
+    varType myyI = static_cast<varType>(0);
+
+    varType f = fi(x, 0, sim.layer);
+
+    rhoI += f;
+
+    mxxI += f * (D2Q9::cx(0) * D2Q9::cx(0) - D2Q9::inv_as2);
+    mxyI += f * D2Q9::cx(0) * D2Q9::cy(0);
+    myyI += f * (D2Q9::cy(0) * D2Q9::cy(0) - D2Q9::inv_as2);
+
+
+    while (mask)
+    {
+        int i = __ffs(mask);
+
+        varType f = fi(x, i, sim.layer);
+
+        rhoI += f;
+
+        mxxI += f * (D2Q9::cx(i) * D2Q9::cx(i) - D2Q9::inv_as2);
+        mxyI += f * D2Q9::cx(i) * D2Q9::cy(i);
+        myyI += f * (D2Q9::cy(i) * D2Q9::cy(i) - D2Q9::inv_as2);
+
+        mask &= mask - 1;
+    }
+
+    mxxI /= rhoI;
+    mxyI /= rhoI;
+    myyI /= rhoI;
+
+    varType ux = static_cast<varType>(0);
+    varType uy = static_cast<varType>(0);
+
+    varType rho = (static_cast<varType>(3) * (-static_cast<varType>(4) * rhoI - static_cast<varType>(3) * mxxI * rhoI + static_cast<varType>(3) * mxxI * physics::omega * rhoI)) /
+                  (-static_cast<varType>(9) - physics::omega + static_cast<varType>(3) * ux + static_cast<varType>(3) * physics::omega * ux + static_cast<varType>(6) * physics::omega * ux * ux);
+
+    sim.mom[momIdx<momId::rho>(index)] = rho;
+    sim.mom[momIdx<momId::ux>(index)] = ux;
+    sim.mom[momIdx<momId::uy>(index)] = uy;
+    sim.mom[momIdx<momId::mxx>(index)] = -(-rho - static_cast<varType>(9) * mxxI * rhoI + static_cast<varType>(3) * rho * ux) / (static_cast<varType>(6) * rho);
+    sim.mom[momIdx<momId::mxy>(index)] = -(-static_cast<varType>(6) * mxyI * rhoI + rho * uy) / (static_cast<varType>(3) * rho);
+    sim.mom[momIdx<momId::myy>(index)] = (static_cast<varType>(6) * myyI * rhoI) / (static_cast<varType>(5) * rho);
+}
 __device__ void center(moments sim, int x, int y)
 {
-    float rho = 0.f;
-    float ux = 0.f;
-    float uy = 0.f;
-    float mxx = 0.f;
-    float mxy = 0.f;
-    float myy = 0.f;
+    int index = gridId(x, y);
+    varType rho = 0.;
+    varType ux = 0.;
+    varType uy = 0.;
+    varType mxx = 0.;
+    varType mxy = 0.;
+    varType myy = 0.;
 
-    float f = 0.f;
-
-    for (int i = 1; i < D2Q9::Q; i++)
+    constexprFor<0, D2Q9::Q>([&](auto i)
     {
-        f += fi(x, (int)i, sim.layer);
-
+        constexpr int direction = decltype(i)::value;
+        const varType f = fi(x, direction, sim.layer);
         rho += f;
-        ux += f * D2Q9::cx(i);
-        uy += f * D2Q9::cy(i);
-        mxx += f * (D2Q9::cx(i) * D2Q9::cx(i) - D2Q9::inv_as2);
-        mxy += f * (D2Q9::cx(i) * D2Q9::cy(i));
-        myy += f * (D2Q9::cy(i) * D2Q9::cy(i) - D2Q9::inv_as2);
-    }
+        ux += f * D2Q9::cx(direction);
+        uy += f * D2Q9::cy(direction);
+        mxx += f * (D2Q9::cx(direction) * D2Q9::cx(direction) - D2Q9::inv_as2);
+        mxy += f * (D2Q9::cx(direction) * D2Q9::cy(direction));
+        myy += f * (D2Q9::cy(direction) * D2Q9::cy(direction) - D2Q9::inv_as2);
+    });
 
     ux /= rho;
     uy /= rho;
@@ -29,126 +459,32 @@ __device__ void center(moments sim, int x, int y)
     mxy /= rho;
     myy /= rho;
 
-    sim.layer[1][layerIdx<momId::rho>(x)] = rho;
-    sim.layer[1][layerIdx<momId::ux>(x)] = ux;
-    sim.layer[1][layerIdx<momId::uy>(x)] = uy;
-    sim.layer[1][layerIdx<momId::mxx>(x)] = mxx;
-    sim.layer[1][layerIdx<momId::mxy>(x)] = mxy;
-    sim.layer[1][layerIdx<momId::myy>(x)] = myy;
-}
-
-__device__ void boundary(moments sim, Grid2D grid, int x, int y)
-{
-    int index = gridId(x, y);
-
-    float rho = 0.f;
-    float ux = 0.f;
-    float uy = 0.f;
-    float mxx = 0.f;
-    float mxy = 0.f;
-    float myy = 0.f;
-
-    if (y == Geometry::NX - 1)
-    {
-        ux = physics::u_max;
-    }
-
-    float sumfI = 0.f;
-    float mxy_I = 0.f;
-    float C1 = 0.f;
-    float C2 = 0.f;
-    float C3 = 0.f;
-    float C4 = 0.f;
-
-    float f = 0.f;
-
-    f = fi(x, 0, sim.layer);
-    sumfI += f;
-    mxy_I = f * (D2Q9::cx(0) * D2Q9::cy(0));
-    // O_s
-    C1 = D2Q9::w(0) *
-             (1.f +
-              D2Q9::a_s2 * ux * D2Q9::cx(0) +
-              D2Q9::a_s2 * uy * D2Q9::cy(0) +
-              D2Q9::a_s4 * 0.5f * ux * ux +
-              D2Q9::a_s4 * 0.5f * uy * uy) +
-         physics::omega *
-             (D2Q9::w(0) * D2Q9::a_s4 * ux * uy *
-              (D2Q9::cx(0) * D2Q9::cy(0)));
-    C2 = (1.f - physics::omega) *
-         (D2Q9::w(0) * D2Q9::a_s4 *
-          (D2Q9::cx(0) * D2Q9::cy(0)));
-
-    // I_s
-    C3 = D2Q9::w(0) *
-         (1.f +
-          D2Q9::a_s2 * ux * D2Q9::cx(0) +
-          D2Q9::a_s2 * uy * D2Q9::cy(0) +
-          D2Q9::a_s4 * 0.5f * ux * ux +
-          D2Q9::a_s4 * 0.5f * uy * uy) *
-         (D2Q9::cx(0) * D2Q9::cy(0));
-    C4 = D2Q9::w(0) *
-         D2Q9::a_s4 *
-         (D2Q9::cx(0) * D2Q9::cy(0)) *
-         (D2Q9::cx(0) * D2Q9::cy(0));
-
-    for (int i = 1; i < D2Q9::Q; i++)
-        if (grid.mask[index] & (1u << (i - 1)))
-        {
-            f = fi(x, i, sim.layer);
-            sumfI += f;
-            mxy_I += f * (D2Q9::cx(i) * D2Q9::cy(i));
-
-            // I_s
-            C3 = D2Q9::w(i) *
-                 (1.f +
-                  D2Q9::a_s2 * ux * D2Q9::cx(i) +
-                  D2Q9::a_s2 * uy * D2Q9::cy(i) +
-                  D2Q9::a_s4 * 0.5f * ux * ux +
-                  D2Q9::a_s4 * 0.5f * uy * uy) *
-                 (D2Q9::cx(i) * D2Q9::cy(i));
-            C4 = D2Q9::w(i) *
-                 D2Q9::a_s4 *
-                 (D2Q9::cx(i) * D2Q9::cy(i)) *
-                 (D2Q9::cx(i) * D2Q9::cy(i));
-
-            // O_s
-            int k = D2Q9::income(i);
-
-            C1 = D2Q9::w(k) *
-                     (1.f +
-                      D2Q9::a_s2 * ux * D2Q9::cx(k) +
-                      D2Q9::a_s2 * uy * D2Q9::cy(k) +
-                      D2Q9::a_s4 * 0.5f * ux * ux +
-                      D2Q9::a_s4 * 0.5f * uy * uy) +
-                 physics::omega *
-                     (D2Q9::w(k) * D2Q9::a_s4 * ux * uy *
-                      (D2Q9::cx(k) * D2Q9::cy(k)));
-            C2 = (1.f - physics::omega) *
-                 (D2Q9::w(k) * D2Q9::a_s4 *
-                  (D2Q9::cx(k) * D2Q9::cy(k)));
-        }
-
-    mxy = (C3 - C1 * mxy_I) / (C2 * mxy_I - C4);
-
-    rho = sumfI / (C1 + C2 * mxy);
-
-    int id = (y != 0) + (y == Geometry::NY - 1);
-
-    sim.layer[id][layerIdx<momId::rho>(x)] = rho;
-    sim.layer[id][layerIdx<momId::ux>(x)] = ux;
-    sim.layer[id][layerIdx<momId::uy>(x)] = uy;
-    sim.layer[id][layerIdx<momId::mxx>(x)] = mxx;
-    sim.layer[id][layerIdx<momId::mxy>(x)] = mxy;
-    sim.layer[id][layerIdx<momId::myy>(x)] = myy;
+    sim.mom[momIdx<momId::rho>(index)] = rho;
+    sim.mom[momIdx<momId::ux>(index)] = ux;
+    sim.mom[momIdx<momId::uy>(index)] = uy;
+    sim.mom[momIdx<momId::mxx>(index)] = mxx;
+    sim.mom[momIdx<momId::mxy>(index)] = mxy;
+    sim.mom[momIdx<momId::myy>(index)] = myy;
 }
 
 __device__ void applyBoundary(moments sim, Grid2D grid, int x, int y)
 {
-    int index = gridId(x, y);
-
-    if (grid.node[index] != to_u8(Boundary::Center))
-        boundary(sim, grid, x, y);
+    if (x == 0 && y == 0)
+        wallSouthwest(sim, grid, x, y);
+    else if (x == Geometry::NX - 1 && y == 0)
+        wallSoutheast(sim, grid, x, y);
+    else if (x == 0 && y == Geometry::NY - 1)
+        wallNorthwest(sim, grid, x, y);
+    else if (x == Geometry::NX - 1 && y == Geometry::NY - 1)
+        wallNortheast(sim, grid, x, y);
+    else if (y == 0)
+        wallSouth(sim, grid, x, y);
+    else if (y == Geometry::NY - 1)
+        wallNorth(sim, grid, x, y);
+    else if (x == 0)
+        wallWest(sim, grid, x, y);
+    else if (x == Geometry::NX - 1)
+        wallEast(sim, grid, x, y);
     else
         center(sim, x, y);
 }

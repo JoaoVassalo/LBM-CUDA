@@ -1,13 +1,14 @@
 #pragma once
 
-#include "stencilConfig.cuh"
+#include "simulationConfig.cuh"
 
 struct moments
 {
-    float *mom;
-    float *mom_host;
+    varType *mom;
+    varType *mom_host;
+    varType *vtk;
 
-    float *layer[Geometry::LNY];
+    varType *layer[Geometry::LNY];
 };
 
 enum momId

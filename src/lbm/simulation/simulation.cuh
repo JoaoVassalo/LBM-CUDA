@@ -8,6 +8,7 @@
 #include "../../io/writeOutput.cuh"
 
 #include "layerPipeline.cuh"
+#include "../../core/progress.cuh"
 
 #include <chrono>
 

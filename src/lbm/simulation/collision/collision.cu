@@ -1,20 +1,14 @@
 #include "collision.cuh"
 
-#include <iostream>
-
-__device__ void collide(moments sim, int x, int y)
+__device__ void collide(varType *mom, int index)
 {
-    if (x >= Geometry::NX || x < 0)
-        printf("Out of bounds"); // DEBUG
-    return;
+    const varType ux = mom[momIdx<momId::ux>(index)];
+    const varType uy = mom[momIdx<momId::uy>(index)];
+    const varType mxx = mom[momIdx<momId::mxx>(index)];
+    const varType mxy = mom[momIdx<momId::mxy>(index)];
+    const varType myy = mom[momIdx<momId::myy>(index)];
 
-    const float ux = sim.layer[y][layerIdx<momId::ux>(x)];
-    const float uy = sim.layer[y][layerIdx<momId::uy>(x)];
-    const float mxx = sim.layer[y][layerIdx<momId::mxx>(x)];
-    const float mxy = sim.layer[y][layerIdx<momId::mxy>(x)];
-    const float myy = sim.layer[y][layerIdx<momId::myy>(x)];
-
-    sim.layer[y][layerIdx<momId::mxx>(x)] = ((1.f - physics::omega) * mxx + ux * ux);
-    sim.layer[y][layerIdx<momId::mxy>(x)] = ((1.f - physics::omega) * mxy + ux * uy);
-    sim.layer[y][layerIdx<momId::myy>(x)] = ((1.f - physics::omega) * myy + uy * uy);
+    mom[momIdx<momId::mxx>(index)] = ((1. - physics::omega) * mxx + physics::omega * ux * ux);
+    mom[momIdx<momId::mxy>(index)] = ((1. - physics::omega) * mxy + physics::omega * ux * uy);
+    mom[momIdx<momId::myy>(index)] = ((1. - physics::omega) * myy + physics::omega * uy * uy);
 }
